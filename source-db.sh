@@ -1,64 +1,45 @@
 #!/bin/bash
+  
+set +x
 
-source /home/azcopy/.env
-DATABASE="openmrs.sql"
+source .env
 
-DBS=(
-ces_reforma
-ces_soledad
-ces_capitain
-ces_plan
-ces_salvador
-)
-
-TIME=`date +%Y%m%d-%H%M%S`
-
-dropDB() {
-                for db in ${DBS[@]}
-                        do
-                                echo "Dropping of ${db} started at ${TIME}"  >> ${LOGS}/dbdrop_${DATE}.log
-                                mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} -e "drop database if exists openmrs_${db};"
-                                echo "Dropping of ${db} ended at ${TIME}"  >> ${LOGS}/dbdrop_${DATE}.log
-                        done
+# delete old data dumps
+removeDirs() {
+        rm -rf ${DESTINATION}
 }
 
-createDB() {
-		for db in ${DBS[@]}
-			do
-				echo "Import of ${db} started at ${TIME}"  >> ${LOGS}/dbcreate_${DATE}.log
-				mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} -e "create database openmrs_${db} default char set utf8;"
-				echo "Import of ${db} ended at ${TIME}"  >> ${LOGS}/dbcreate_${DATE}.log
-			done
+# create destination dirs
+createDirs() {
+        mkdir -p ${DESTINATION}
+        mkdir -p ${LOGS}
 }
 
-sourceDB() {
-	
-		#echo "Import of openmrs-ces-plan started at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
-		#mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} openmrs_ces_capitain < ${DESTINATION}/openmrs-ces-capitain/${DATABASE}
-		#echo "Import of openmrs-ces-plan ended at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log		
+# down the database from the blobs
+downloadDatabases() {
+        for item in ${SITES[@]}
+        do
+                url=${DOWNLOAD_URL1}/${item}/sequences/${item}_${DOWNLOAD_URL2}
+                echo "Downloading backup for ${item}: ${url}"
+                azcopy copy "${url}" "${DESTINATION}" --overwrite=prompt --check-md5 FailIfDifferent --from-to=BlobLocal --blob-type Detect --recursive;
+        done
+        }
 
-		echo "Import of openmrs-ces-plan started at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
-		mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} openmrs_ces_plan < ${DESTINATION}/openmrs-ces-plan/${DATABASE}
-		echo "Import of openmrs-ces-plan ended at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
-		
-		echo "Import of openmrs-ces-reforma started at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
-		mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} openmrs_ces_reforma < ${DESTINATION}/openmrs-ces-reforma/${DATABASE}
-                echo "Import of openmrs-ces-reforma ended at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
-
-		echo "Import of openmrs-ces-salvado started at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
-		mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} openmrs_ces_salvador < ${DESTINATION}/openmrs-ces-salvador/${DATABASE}
-                echo "Import of openmrs-ces-salvado ended at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
-
-		echo "Import of openmrs-ces-soledad started at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
-		mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} openmrs_ces_soledad < ${DESTINATION}/openmrs-ces-soledad/${DATABASE}
-                echo "Import of openmrs-ces-soledad ended at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
-
-
+# extract the databases
+extractDb() {
+        for item in ${SITES[@]}
+        do
+                target=${DESTINATION}/openmrs-${item}/openmrs.sql
+                echo "Extracting to ${target}"
+                7za e -p"${PASS}" ${DESTINATION}/${item}_backup_${DATE}.sql.7z -o${DESTINATION}/openmrs-${item}
+                mv ${DESTINATION}/openmrs-${item}/y ${target}
+        done
 }
 
 
-dropDB
+removeDirs
+createDirs
+downloadDatabases
+echo Waiting 10 seconds...
 sleep 10
-createDB
-sleep 10
-sourceDB
+extractDb
