@@ -1,45 +1,49 @@
 #!/bin/bash
   
-set +x
-
 source .env
+DATABASE="openmrs.sql"
 
-# delete old data dumps
-removeDirs() {
-        rm -rf ${DESTINATION}
+TIME=`date +%Y%m%d-%H%M%S`
+
+function db_name {
+        return openmrs_$(sed 's/-/_/g' <<< $1)
 }
 
-# create destination dirs
-createDirs() {
-        mkdir -p ${DESTINATION}
-        mkdir -p ${LOGS}
-}
 
-# down the database from the blobs
-downloadDatabases() {
-        for item in ${SITES[@]}
+dropDB() {
+        for site in ${SITES[@]}
         do
-                url=${DOWNLOAD_URL1}/${item}/sequences/${item}_${DOWNLOAD_URL2}
-                echo "Downloading backup for ${item}: ${url}"
-                azcopy copy "${url}" "${DESTINATION}" --overwrite=prompt --check-md5 FailIfDifferent --from-to=BlobLocal --blob-type Detect --recursive;
-        done
-        }
-
-# extract the databases
-extractDb() {
-        for item in ${SITES[@]}
-        do
-                target=${DESTINATION}/openmrs-${item}/openmrs.sql
-                echo "Extracting to ${target}"
-                7za e -p"${PASS}" ${DESTINATION}/${item}_backup_${DATE}.sql.7z -o${DESTINATION}/openmrs-${item}
-                mv ${DESTINATION}/openmrs-${item}/y ${target}
+                db=$(db_name ${site}})
+                echo "Dropping of ${db} started at ${TIME}"  >> ${LOGS}/dbdrop_${DATE}.log
+                mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} -e "drop database if exists ${db};"
+                echo "Dropping of ${db} ended at ${TIME}"  >> ${LOGS}/dbdrop_${DATE}.log
         done
 }
 
+createDB() {
+        for site in ${SITES[@]}
+        do
+                db=$(db_name ${site}})
+                echo "Creation of ${db} started at ${TIME}"  >> ${LOGS}/dbcreate_${DATE}.log
+                mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} -e "create database ${db} default char set utf8;"
+                echo "Creation of ${db} ended at ${TIME}"  >> ${LOGS}/dbcreate_${DATE}.log
+        done
+}
 
-removeDirs
-createDirs
-downloadDatabases
-echo Waiting 10 seconds...
+sourceDB() {
+
+        for site in ${SITE[@]}
+        do
+                db=$(db_name ${site}})
+                echo "Import of ${db} started at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
+                mysql -h 127.0.0.1 -u${ROOT} -p${ROOTPWD} ${db} < ${DESTINATION}/openmrs-${site}/${DATABASE}
+                echo "Import of ${db} ended at ${TIME}"  >> ${LOGS}/dbrestore_${DATE}.log
+        done
+}
+
+
+dropDB
 sleep 10
-extractDb
+createDB
+sleep 10
+sourceDB
