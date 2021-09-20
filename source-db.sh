@@ -6,7 +6,7 @@ DATABASE="openmrs.sql"
 TIME=`date +%Y%m%d-%H%M%S`
 
 function db_name {
-        return openmrs_$(sed 's/-/_/g' <<< $1)
+        return "openmrs_$(sed 's/-/_/g' <<< $1)"
 }
 
 
