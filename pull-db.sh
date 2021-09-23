@@ -2,7 +2,10 @@
   
 set +x
 
+source common.sh
 source .env
+
+DESTINATION=./tmp/
 
 # delete old data dumps
 removeDirs() {
