@@ -1,5 +1,6 @@
-LOGS=./logs/
-  
+LOGS=./logs
+TMP=./tmp
+
 DATE=$(date -d "yesterday" "+%Y%m%d")
 
 SITES=(
@@ -10,6 +11,7 @@ ces-laguna
 ces-letrero
 ces-matazano
 ces-plan
+ces-plan-alta
 ces-reforma
 ces-salvador
 ces-soledad
