@@ -22,7 +22,7 @@ downloadDatabases() {
         do  
                 url=${DOWNLOAD_URL1}/${item}/sequences/${item}_${DOWNLOAD_URL2}
                 echo "Downloading backup for ${item}: ${url}"
-                azcopy copy "${url}" "${TMP}" --overwrite=prompt --check-md5 FailIfDifferent --from-        to=BlobLocal --blob-type Detect --recursive;
+                azcopy copy "${url}" "${TMP}" --overwrite=prompt --check-md5 FailIfDifferent --from-to=BlobLocal --blob-type Detect --recursive;
         done
         }   
 
