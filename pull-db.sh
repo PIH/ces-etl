@@ -1,5 +1,8 @@
 #!/bin/bash
-  
+#
+# Requires the following variables in `.env`:
+#  - BACKUP_URL_TEMPLATE (should have a substring `${SITE}` (without the backticks))
+
 set +x
 
 source common.sh
@@ -18,22 +21,22 @@ createDirs() {
 
 # down the database from the blobs
 downloadDatabases() {
-        for item in ${SITES[@]}
+        for SITE in ${SITES[@]}
         do  
-                url=${DOWNLOAD_URL1}/${item}/sequences/${item}_${DOWNLOAD_URL2}
-                echo "Downloading backup for ${item}: ${url}"
-                azcopy copy "${url}" "${TMP}" --overwrite=prompt --check-md5 FailIfDifferent --from-to=BlobLocal --blob-type Detect --recursive;
+                URL=$(echo ${BACKUP_URL_TEMPLATE} | sed 's/${SITE}/'${SITE})
+                echo "Downloading backup for ${SITE}: ${URL}"
+                azcopy copy "${URL}" "${TMP}" --overwrite=prompt --check-md5 FailIfDifferent --from-to=BlobLocal --blob-type Detect --recursive;
         done
         }   
 
 # extract the databases
 extractDb() {
-        for item in ${SITES[@]}
+        for SITE in ${SITES[@]}
         do  
-                target=${TMP}/openmrs-${item}/openmrs.sql
-                echo "Extracting to ${target}"
-                7za e -p"${PASS}" ${TMP}/${item}_backup_${DATE}.sql.7z -o${TMP}/openmrs-${item}
-                mv ${TMP}/openmrs-${item}/y ${target}
+                TARGET=${TMP}/openmrs-${SITE}/openmrs.sql
+                echo "Extracting to ${TARGET}"
+                7za e -p"${PASS}" ${TMP}/${item}_backup_${DATE}.sql.7z -o${TMP}/openmrs-${SITE}
+                mv ${TMP}/openmrs-${SITE}/y ${TARGET}
         done
 }
 
