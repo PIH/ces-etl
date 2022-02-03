@@ -1,0 +1,36 @@
+type: "iterating-job"
+schedule:
+  cron: "${executeCron.refreshOpenmrsData}"
+errorHandling:
+  maxAttempts: 10
+  retryInterval: 15
+  retryIntervalUnit: "MINUTES"
+configuration:
+  maxConcurrentJobs: 1  # Import 1 site at a time
+  iterations:
+    - siteName: "cesProd"   #siteName is populated in each table and also used to identify the appropriate data source
+      partitionNum: "1"     #partitionNum is used to identify the sqlserver partition that this site's data is loaded into
+    - siteName: "capitan"
+      partitionNum: "2"
+    - siteName: "honduras"
+      partitionNum: "3"
+    - siteName: "laguna"
+      partitionNum: "4"
+    - siteName: "letrero"
+      partitionNum: "5"
+    - siteName: "matazano"
+      partitionNum: "6"
+    - siteName: "monterrey"
+      partitionNum: "7"
+    - siteName: "plan"
+      partitionNum: "8"
+    - siteName: "planAlta"
+      partitionNum: "9"
+    - siteName: "reforma"
+      partitionNum: "10"
+    - siteName: "salvador"
+      partitionNum: "11"
+    - siteName: "soledad"
+      partitionNum: "12"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

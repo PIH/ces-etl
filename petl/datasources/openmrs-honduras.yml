@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.honduras.host}
+port: ${datasources.openmrs.honduras.port}
+databaseName: ${datasources.openmrs.honduras.databaseName}
+user: ${datasources.openmrs.honduras.user}
+password: ${datasources.openmrs.honduras.password}
+options: ${datasources.openmrs.honduras.options}

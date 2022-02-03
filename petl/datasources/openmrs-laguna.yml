@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.laguna.host}
+port: ${datasources.openmrs.laguna.port}
+databaseName: ${datasources.openmrs.laguna.databaseName}
+user: ${datasources.openmrs.laguna.user}
+password: ${datasources.openmrs.laguna.password}
+options: ${datasources.openmrs.laguna.options}

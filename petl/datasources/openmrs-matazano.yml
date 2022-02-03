@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.matazano.host}
+port: ${datasources.openmrs.matazano.port}
+databaseName: ${datasources.openmrs.matazano.databaseName}
+user: ${datasources.openmrs.matazano.user}
+password: ${datasources.openmrs.matazano.password}
+options: ${datasources.openmrs.matazano.options}

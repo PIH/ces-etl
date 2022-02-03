@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.capitan.host}
+port: ${datasources.openmrs.capitan.port}
+databaseName: ${datasources.openmrs.capitan.databaseName}
+user: ${datasources.openmrs.capitan.user}
+password: ${datasources.openmrs.capitan.password}
+options: ${datasources.openmrs.capitan.options}

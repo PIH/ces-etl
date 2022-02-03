@@ -1,0 +1,6 @@
+# Creates a partition function and partition scheme for an integer column with values from 1-50
+type: "sql-execution"
+configuration:
+  datasource: "warehouse.yml"
+  scripts:
+    - "sql/utils/create-partitions-if-needed.sql"

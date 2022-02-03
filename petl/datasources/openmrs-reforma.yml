@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.reforma.host}
+port: ${datasources.openmrs.reforma.port}
+databaseName: ${datasources.openmrs.reforma.databaseName}
+user: ${datasources.openmrs.reforma.user}
+password: ${datasources.openmrs.reforma.password}
+options: ${datasources.openmrs.reforma.options}

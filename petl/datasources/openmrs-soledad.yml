@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.soledad.host}
+port: ${datasources.openmrs.soledad.port}
+databaseName: ${datasources.openmrs.soledad.databaseName}
+user: ${datasources.openmrs.soledad.user}
+password: ${datasources.openmrs.soledad.password}
+options: ${datasources.openmrs.soledad.options}
