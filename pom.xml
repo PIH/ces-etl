@@ -87,7 +87,7 @@
                             <encoding>UTF-8</encoding>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/petl/</directory>
+                                    <directory>${basedir}/</directory>
                                     <filtering>false</filtering>
                                     <includes>
                                         <include>datasources/**</include>
