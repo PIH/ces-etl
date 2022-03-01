@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.monterrey.host}
+port: ${datasources.openmrs.monterrey.port}
+databaseName: ${datasources.openmrs.monterrey.databaseName}
+user: ${datasources.openmrs.monterrey.user}
+password: ${datasources.openmrs.monterrey.password}
+options: ${datasources.openmrs.monterrey.options}

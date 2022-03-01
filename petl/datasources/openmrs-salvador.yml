@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.salvador.host}
+port: ${datasources.openmrs.salvador.port}
+databaseName: ${datasources.openmrs.salvador.databaseName}
+user: ${datasources.openmrs.salvador.user}
+password: ${datasources.openmrs.salvador.password}
+options: ${datasources.openmrs.salvador.options}

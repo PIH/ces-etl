@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.planAlta.host}
+port: ${datasources.openmrs.planAlta.port}
+databaseName: ${datasources.openmrs.planAlta.databaseName}
+user: ${datasources.openmrs.planAlta.user}
+password: ${datasources.openmrs.planAlta.password}
+options: ${datasources.openmrs.planAlta.options}

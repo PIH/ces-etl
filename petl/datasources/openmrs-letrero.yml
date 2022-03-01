@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.letrero.host}
+port: ${datasources.openmrs.letrero.port}
+databaseName: ${datasources.openmrs.letrero.databaseName}
+user: ${datasources.openmrs.letrero.user}
+password: ${datasources.openmrs.letrero.password}
+options: ${datasources.openmrs.letrero.options}
