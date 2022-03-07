@@ -1,0 +1,14 @@
+type: "iterating-job"
+schedule:
+  cron: "${executeCron.refreshCesCiData}"
+errorHandling:
+  maxAttempts: 10
+  retryInterval: 15
+  retryIntervalUnit: "MINUTES"
+configuration:
+  maxConcurrentJobs: 1
+  iterations:
+    - siteName: "cesci"
+      partitionNum: "1"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

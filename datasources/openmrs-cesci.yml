@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.cesci.host}
+port: ${datasources.openmrs.cesci.port}
+databaseName: ${datasources.openmrs.cesci.databaseName}
+user: ${datasources.openmrs.cesci.user}
+password: ${datasources.openmrs.cesci.password}
+options: ${datasources.openmrs.cesci.options}
