@@ -9,15 +9,18 @@
 # You can see the setup of this in the pom.xml file.
 
 type: "job-pipeline"
+description: "Create source views and functions for ${siteName}"
 configuration:
   jobs:
     - type: "sql-execution"
+      description: "Create source views for ${siteName}"
       configuration:
         datasource: "openmrs-${siteName}.yml"
         delimiter: ";"
         scripts:
           - "sql/utils/create_views.sql"
     - type: "sql-execution"
+      description: "Create functions and metadata for ${siteName}"
       configuration:
         datasource: "openmrs-${siteName}.yml"
         delimiter: "#"

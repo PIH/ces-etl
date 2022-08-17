@@ -8,6 +8,7 @@
 # This adds columns to the target toble to support partitioning and to identify the source of the data in the merged table
 
 type: "sqlserver-bulk-import"
+description: "Importing from ${siteName} to ${tableName} using partition ${partitionNum}"
 configuration:
   extract:
     datasource: "openmrs-${siteName}.yml"
