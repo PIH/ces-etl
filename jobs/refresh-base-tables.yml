@@ -17,3 +17,4 @@ configuration:
           - tableName: "covid_diagnoses"
           - tableName: "test_encounter"
           - tableName: "salud_mental_paciente"
+          - tableName: "salud_mental_encountero"
