@@ -1,9 +1,11 @@
 SELECT name  INTO @encounter_type_name FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT encounter_type_id  INTO @encounter_type_id FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT program_id INTO @program_id FROM program p WHERE uuid='0e69c3ab-1ccb-430b-b0db-b9760319230f';
+set @dbname = '${partitionNum}';
 
 DROP TABLE IF EXISTS salud_mental_encountero;
 CREATE TEMPORARY TABLE salud_mental_encountero (
+dbname varchar(30),
 patient_id int,
 emr_id varchar(30),
 location varchar(30),
@@ -173,6 +175,7 @@ SELECT DISTINCT patient_id FROM patient_program pp WHERE program_id =@program_id
 CREATE OR REPLACE VIEW patient_identifier_v2 AS
 SELECT DISTINCT patient_id,identifier
 FROM  patient_identifier
+where voided = 0 
 GROUP BY patient_id;
 
 
@@ -192,6 +195,7 @@ WHERE p.patient_id IN (
 GROUP BY p.patient_id;
 
 ################# Insert Patinets List ##############################################################
+
 INSERT INTO salud_mental_encountero (patient_id, emr_id,location,age,encounter_id,encounter_date , data_entry_date,data_entry_person,visit_id,mh_visit_date ,
 provider_name,visit_Reason)
 SELECT DISTINCT me.patient_id ,pi2.identifier, l.name , age_at_enc(me.patient_id, me.encounter_id) AS age, 
@@ -202,12 +206,15 @@ SELECT DISTINCT me.patient_id ,pi2.identifier, l.name , age_at_enc(me.patient_id
 			  CAST(v2.date_started AS date) AS mh_visit_date,
 			  u.username  AS provider_name,
 			  vt.name 
-FROM mental_encounter_details me INNER JOIN patient_identifier pi2 ON me.patient_id = pi2.patient_id 
+FROM mental_encounter_details me INNER JOIN patient_identifier_v2 pi2 ON me.patient_id = pi2.patient_id 
 INNER JOIN location l ON me.location_id =l.location_id 
 INNER JOIN users u ON u.user_id =me.creator 
 INNER JOIN visit v2 ON v2.visit_id =me.visit_id 
 INNER JOIN visit_type vt ON v2.visit_type_id =vt.visit_type_id;
 
+
+update salud_mental_encountero t
+set t.dbname=@dbname;
 
 ############# PHQ-9 & GAD-7  Questions #####################################
 
@@ -488,7 +495,9 @@ FROM rnk_drug_name rdn
 WHERE erank=1
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
+
 
 UPDATE salud_mental_encountero t 
 SET t.medication_2_name = (
@@ -497,6 +506,7 @@ FROM rnk_drug_name rdn
 WHERE erank=2
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -506,6 +516,7 @@ FROM rnk_drug_name rdn
 WHERE erank=3
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -515,6 +526,7 @@ FROM rnk_drug_name rdn
 WHERE erank=4
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -524,6 +536,7 @@ FROM rnk_drug_name rdn
 WHERE erank=5
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -533,6 +546,7 @@ FROM rnk_drug_name rdn
 WHERE erank=6
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -542,6 +556,7 @@ FROM rnk_drug_name rdn
 WHERE erank=7
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -551,6 +566,7 @@ FROM rnk_drug_name rdn
 WHERE erank=8
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -560,6 +576,7 @@ FROM rnk_drug_name rdn
 WHERE erank=9
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -569,6 +586,7 @@ FROM rnk_drug_name rdn
 WHERE erank=10
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 
@@ -606,6 +624,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=1
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -615,6 +634,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=2
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -624,6 +644,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=3
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -633,6 +654,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=4
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -642,6 +664,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=5
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -651,6 +674,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=6
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -660,6 +684,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=7
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -669,6 +694,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=8
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -678,6 +704,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=9
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -687,6 +714,7 @@ FROM rnk_drug_inst rdn
 WHERE erank=10
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 -- ----------------------------------- Medications >> Drug Dose ----------------------------------------------------------------------------------------------------------------------------------------
@@ -723,6 +751,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=1
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -732,6 +761,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=2
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -741,6 +771,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=3
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -750,6 +781,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=4
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -759,6 +791,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=5
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -768,6 +801,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=6
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -777,6 +811,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=7
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -786,6 +821,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=8
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -795,6 +831,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=9
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 UPDATE salud_mental_encountero t 
@@ -804,6 +841,7 @@ FROM rnk_drug_dose rdn
 WHERE erank=10
 AND rdn.person_id=t.patient_id 
 AND rdn.encounter_id=t.encounter_id 
+limit 1
 );
 
 -- --------------------------------------- Lab order and Treatement Plan ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -831,7 +869,7 @@ SET t.lab_tests_ordered = (
 );
 
 -- ------------------------------------ Case Notes -------------------------------------------------------------------------------------------------
-SELECT * FROM concept_name WHERE name LIKE '%note%';
+-- SELECT * FROM concept_name WHERE name LIKE '%note%';
 
 -- ------------------------------- Pregnancy and delivery date --------------------------------------------------------------------------------
 SELECT concept_id INTO @parental_care FROM concept_name cn3 WHERE uuid='142496BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
@@ -1145,6 +1183,7 @@ AND o.encounter_id=t.encounter_id
 -- --------------------------------------- Final Select -----------------------------------------------------------------------------------------------------------------------------------------
 SELECT 
 DISTINCT
+dbname,
 patient_id ,
 emr_id ,
 location ,

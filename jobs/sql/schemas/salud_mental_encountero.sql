@@ -1,4 +1,5 @@
 CREATE TABLE salud_mental_encountero (
+dbname varchar(30),
 patient_id int,
 emr_id varchar(30),
 location varchar(30),
