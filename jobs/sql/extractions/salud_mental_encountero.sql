@@ -1171,8 +1171,10 @@ SET t.next_appointment  = (
 SELECT cast(value_datetime AS date)
 FROM obs o
 WHERE concept_id=@next_appt
+and o.voided =0
 AND o.person_id=t.patient_id 
 AND o.encounter_id=t.encounter_id 
+limit 1
 );
 
 -- ------------------------------------ Diagnosis -------------------------------------------------------------------------------------------------------------------------------------------
