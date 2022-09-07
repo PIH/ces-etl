@@ -1,5 +1,5 @@
 CREATE TABLE salud_mental_paciente (
-source varchar(30),
+dbname varchar(30),
 Patient_id	int,
 emr_id	varchar(50),
 age	int,
