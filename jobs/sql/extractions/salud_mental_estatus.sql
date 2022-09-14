@@ -62,26 +62,33 @@ set t.emr_instancia = (
 where t.emr_instancia is null;
 
 
+drop table if exists mental_estatus_tbl;
+CREATE table mental_estatus_tbl as 
+select patient_id, resultado_salud_mental_fecha
+from salud_mental_estatus;
+
+
 CREATE OR REPLACE VIEW v_estatus_rnk_asc AS 
 SELECT t.patient_id,t.resultado_salud_mental_fecha ,(
     SELECT COUNT(*)
-    FROM salud_mental_estatus AS x
+    FROM mental_estatus_tbl AS x
     WHERE x.patient_id = t.patient_id
     AND x.resultado_salud_mental_fecha < t.resultado_salud_mental_fecha
 ) + 1 AS erank_asc
-FROM salud_mental_estatus t
+FROM mental_estatus_tbl t
 ORDER BY t.patient_id, erank_asc;
 
 
 CREATE OR REPLACE VIEW v_estatus_rnk_desc AS 
 SELECT t.patient_id,t.resultado_salud_mental_fecha,(
     SELECT COUNT(*)
-    FROM salud_mental_estatus AS x
+    FROM mental_estatus_tbl AS x
     WHERE x.patient_id = t.patient_id
     AND x.resultado_salud_mental_fecha > t.resultado_salud_mental_fecha
 ) + 1 AS erank_desc
-FROM salud_mental_estatus t
+FROM mental_estatus_tbl t
 ORDER BY t.patient_id, erank_desc;
+
 
 update salud_mental_estatus t 
 set t.index_asc = (
