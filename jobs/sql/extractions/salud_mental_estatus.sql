@@ -10,8 +10,11 @@ dbname varchar(30),
 patient_id int,
 emr_id varchar(30),
 emr_instancia varchar(30),
-resultado_salud_mental text,
-resultado_salud_mental_fecha date);
+resultado_salud_mental varchar(30),
+resultado_salud_mental_fecha date,
+index_asc int,
+index_desc int);
+
 
 drop table if exists tmp_patient_identifier_v2;
 CREATE table tmp_patient_identifier_v2 AS
@@ -27,14 +30,14 @@ insert into salud_mental_estatus (patient_id, emr_id, emr_instancia, resultado_s
 SELECT distinct pp.patient_id,pi2.identifier 'emr_id', l.name 'emr_instancia',
 	  'inscrito' as 'resultado_salud_mental' , cast(date_enrolled as date)  'resultado_salud_mental_fecha'
 FROM patient_program pp 
-inner join patient_identifier_v2 pi2 on pi2.patient_id = pp.patient_id  
+inner join tmp_patient_identifier_v2 pi2 on pi2.patient_id = pp.patient_id  
 left outer join location l on pp.location_id =l.location_id 
 WHERE program_id =@program_id
 union all
 SELECT DISTINCT pp.patient_id,pi2.identifier 'emr_id', l.name 'emr_instancia',
 	  cn.name as 'resultado_salud_mental' , cast(date_completed as date)  'resultado_salud_mental_fecha'
 FROM patient_program pp 
-inner join patient_identifier_v2 pi2 on pi2.patient_id = pp.patient_id  
+inner join tmp_patient_identifier_v2 pi2 on pi2.patient_id = pp.patient_id  
 left outer join location l on pp.location_id =l.location_id 
 left outer join concept_name cn on pp.outcome_concept_id =cn.concept_id 
 WHERE program_id =@program_id and outcome_concept_id is not null 
@@ -59,6 +62,46 @@ set t.emr_instancia = (
 where t.emr_instancia is null;
 
 
+CREATE OR REPLACE VIEW v_estatus_rnk_asc AS 
+SELECT t.patient_id,t.resultado_salud_mental_fecha ,(
+    SELECT COUNT(*)
+    FROM salud_mental_estatus AS x
+    WHERE x.patient_id = t.patient_id
+    AND x.resultado_salud_mental_fecha < t.resultado_salud_mental_fecha
+) + 1 AS erank_asc
+FROM salud_mental_estatus t
+ORDER BY t.patient_id, erank_asc;
+
+
+CREATE OR REPLACE VIEW v_estatus_rnk_desc AS 
+SELECT t.patient_id,t.resultado_salud_mental_fecha,(
+    SELECT COUNT(*)
+    FROM salud_mental_estatus AS x
+    WHERE x.patient_id = t.patient_id
+    AND x.resultado_salud_mental_fecha > t.resultado_salud_mental_fecha
+) + 1 AS erank_desc
+FROM salud_mental_estatus t
+ORDER BY t.patient_id, erank_desc;
+
+update salud_mental_estatus t 
+set t.index_asc = (
+ select erank_asc
+ from v_estatus_rnk_asc r
+ where r.patient_id=t.patient_id 
+ and r.resultado_salud_mental_fecha=t.resultado_salud_mental_fecha
+ limit 1
+);
+
+update salud_mental_estatus t 
+set t.index_desc = (
+ select erank_desc
+ from v_estatus_rnk_desc r
+ where r.patient_id=t.patient_id 
+ and r.resultado_salud_mental_fecha=t.resultado_salud_mental_fecha
+ limit 1
+);
+
+
 select 
 distinct 
 dbname,
@@ -66,6 +109,8 @@ patient_id,
 emr_id,
 emr_instancia,
 resultado_salud_mental,
-resultado_salud_mental_fecha
+resultado_salud_mental_fecha,
+index_asc,
+index_desc
 from salud_mental_estatus
 order by patient_id,resultado_salud_mental_fecha desc, resultado_salud_mental desc;
