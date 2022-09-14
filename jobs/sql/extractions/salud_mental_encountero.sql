@@ -1,6 +1,7 @@
 SELECT name  INTO @encounter_type_name FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT encounter_type_id  INTO @encounter_type_id FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT program_id INTO @program_id FROM program p WHERE uuid='0e69c3ab-1ccb-430b-b0db-b9760319230f';
+select concept_id into @lastperioddate from concept_name where concept_id =2908 and locale='en' and voided=0 and concept_name_type='FULLY_SPECIFIED';
 set @dbname = '${partitionNum}';
 
 DROP TABLE IF EXISTS salud_mental_encountero;
@@ -90,27 +91,7 @@ next_appointment date
 );
 
 
-############## Functions Definition ##############################################
--- CREATE FUNCTION age_at_enc(
---     _person_id int,
---     _encounter_id int
--- )
--- 	RETURNS DOUBLE
---     DETERMINISTIC
--- 
--- BEGIN
---     DECLARE ageAtEnc DOUBLE;
--- 
--- 	select  TIMESTAMPDIFF(YEAR, birthdate, encounter_datetime) into ageAtENC
--- 	from    encounter e
--- 	join    person p on p.person_id = e.patient_id
--- 	where   e.encounter_id = _encounter_id
--- 	and     p.person_id = _person_id;
--- 
---     RETURN ageAtEnc;
--- END
-
-################# Views Defintions ##############################################################
+-- ################# Views Defintions ##############################################################
 
 
 SELECT concept_id INTO @phq1 FROM concept_name WHERE uuid='1c72efc9-ead3-4163-ad81-89f5b2e76f30';
@@ -172,51 +153,65 @@ CREATE TABLE mental_patients_list AS
 SELECT DISTINCT patient_id FROM patient_program pp WHERE program_id =@program_id
 ;
 
-CREATE OR REPLACE VIEW patient_identifier_v2 AS
+drop table if exists tmp_patient_identifier_v2;
+CREATE TABLE tmp_patient_identifier_v2 AS
 SELECT DISTINCT patient_id,identifier
 FROM  patient_identifier
 where voided = 0 
+and identifier_type=@identifier_type 
 GROUP BY patient_id;
 
 
 CREATE OR REPLACE VIEW patient_list AS
 SELECT DISTINCT  p.patient_id, pi2.identifier emr_id
-FROM patient p LEFT OUTER JOIN patient_identifier_v2 pi2 ON p.patient_id =pi2.patient_id
+FROM patient p LEFT OUTER JOIN tmp_patient_identifier_v2 pi2 ON p.patient_id =pi2.patient_id
 WHERE p.patient_id IN (
 	SELECT DISTINCT patient_id FROM mental_patients_list
 )
 GROUP BY p.patient_id 
 UNION
 SELECT DISTINCT  p.patient_id, pi2.identifier emr_id
-FROM patient p INNER JOIN patient_identifier pi2 ON p.patient_id =pi2.patient_id
+FROM patient p INNER JOIN tmp_patient_identifier_v2 pi2 ON p.patient_id =pi2.patient_id
 WHERE p.patient_id IN (
 	SELECT DISTINCT patient_id FROM mental_encounter_details
 )
 GROUP BY p.patient_id;
 
-################# Insert Patinets List ##############################################################
+-- ################# Insert Patinets List ##############################################################
 
 INSERT INTO salud_mental_encountero (patient_id, emr_id,location,age,encounter_id,encounter_date , data_entry_date,data_entry_person,visit_id,mh_visit_date ,
-provider_name,visit_Reason)
+provider_name)
 SELECT DISTINCT me.patient_id ,pi2.identifier, l.name , age_at_enc(me.patient_id, me.encounter_id) AS age, 
 			  me.encounter_id, cast(me.encounter_datetime AS date) AS encounter_date,
 			  CAST(me.date_created AS date) AS data_entry_date, 
 			  u.username AS data_entry_person,
 			  me.visit_id,
 			  CAST(v2.date_started AS date) AS mh_visit_date,
-			  u.username  AS provider_name,
-			  vt.name 
-FROM mental_encounter_details me INNER JOIN patient_identifier_v2 pi2 ON me.patient_id = pi2.patient_id 
+			  u.username  AS provider_name
+FROM mental_encounter_details me INNER JOIN tmp_patient_identifier_v2 pi2 ON me.patient_id = pi2.patient_id 
 INNER JOIN location l ON me.location_id =l.location_id 
-INNER JOIN users u ON u.user_id =me.creator 
+INNER JOIN users u ON u.user_id =me.creator
 INNER JOIN visit v2 ON v2.visit_id =me.visit_id 
 INNER JOIN visit_type vt ON v2.visit_type_id =vt.visit_type_id;
-
 
 update salud_mental_encountero t
 set t.dbname=@dbname;
 
-############# PHQ-9 & GAD-7  Questions #####################################
+select concept_id into @visit_reason_cn from concept_name cn where uuid ='75c775bb-798c-4eeb-b146-5d7a89fad4c2';
+UPDATE salud_mental_encountero t 
+SET t.visit_Reason = (
+	 SELECT  concept_name(value_coded,'en')
+	 FROM obs WHERE concept_id=@visit_reason_cn  
+	 AND person_id=t.Patient_id
+	 AND encounter_id =t.encounter_id 
+	 ORDER BY person_id , obs_datetime DESC
+	LIMIT 1
+);
+
+
+
+
+-- ############# PHQ-9 & GAD-7  Questions #####################################
 
 SELECT concept_id INTO @never  FROM concept_name cn WHERE uuid='3e154cc4-26fe-102b-80cb-0017a47871b2';
 SELECT concept_id INTO @somedays  FROM concept_name cn WHERE uuid='0b7c1594-15f5-102d-96e4-000c29c2a5d7';
@@ -232,6 +227,7 @@ SET t.PHQ9_q1 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@little_interest  AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -245,6 +241,7 @@ SET t.PHQ9_q2 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@down_depressed   AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -258,6 +255,7 @@ SET t.PHQ9_q3 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@hard_Failing_sleep  AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -271,6 +269,7 @@ SET t.PHQ9_q4 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@feeling_tired AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -283,6 +282,7 @@ SET t.PHQ9_q5 = (
 	 						 WHEN value_coded=@morethanhalf  THEN 2
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@eating_less AND person_id=t.Patient_id
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -296,6 +296,7 @@ SET t.PHQ9_q6 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@failed_someone AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -309,6 +310,7 @@ SET t.PHQ9_q7 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@distract_easily AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -322,6 +324,7 @@ SET t.PHQ9_q8 = (
 	 						 WHEN value_coded=@daily THEN 3 END
 	 FROM obs WHERE concept_id=@feels_slower AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -335,6 +338,7 @@ SET t.PHQ9_q9 = (
 	 						 WHEN value_coded=@daily THEN 3 END
 	 FROM obs WHERE concept_id= @suicidal_thoughts  AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -348,6 +352,7 @@ SET t.GAD7_q1 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@feel_nervous AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -361,6 +366,7 @@ SET t.GAD7_q2 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@no_stop_worry AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -374,6 +380,7 @@ SET t.GAD7_q3 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@worry_much  AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -387,6 +394,7 @@ SET t.GAD7_q4 = (
 	 						 WHEN value_coded=@daily THEN 3 END  
 	 FROM obs WHERE concept_id=@diff_relaxing  AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -400,6 +408,7 @@ SET t.GAD7_q5 = (
 	 						 WHEN value_coded=@daily THEN 3 END
 	 FROM obs WHERE concept_id=@so_restless AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -413,6 +422,7 @@ SET t.GAD7_q6 = (
 	 						 WHEN value_coded=@daily THEN 3 END
 	 FROM obs WHERE concept_id=@upset_easily AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -427,6 +437,7 @@ SET t.GAD7_q7 = (
 	 FROM obs WHERE concept_id=@feeling_scared 
 	 AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -436,6 +447,7 @@ SET t.PHQ9_score  = (
 	 SELECT  value_numeric
 	 FROM obs WHERE concept_id=@phqscore  AND person_id=t.Patient_id
 	AND encounter_id =t.encounter_id 
+	and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -446,6 +458,7 @@ SET t.GAD7_score  = (
 	 SELECT  value_numeric
 	 FROM obs WHERE concept_id=@gadscore  AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
+	 and voided=0
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -461,6 +474,17 @@ SET t.analysis_notes = (
 	LIMIT 1
 );
 
+-- --------------------------------------- Case Notes ----------------------------------------------------------------------------------------------------------------------------------------------
+SELECT concept_id  INTO @case_notes FROM concept_name WHERE uuid ='2e1420e1-b502-400c-bd56-6ab2666d0991';
+UPDATE salud_mental_encountero t 
+SET t.case_notes = (
+	 SELECT  value_text
+	 FROM obs WHERE concept_id=@case_notes  
+	 AND person_id=t.Patient_id
+	 AND encounter_id =t.encounter_id 
+	 ORDER BY person_id , obs_datetime DESC
+	LIMIT 1
+);
 
 -- ----------------------------------- Medications >> Drug Name ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -886,13 +910,14 @@ SET t.prenatal_care = (
 SELECT concept_id  INTO @delivery_date FROM concept_name cn WHERE uuid ='93f4254a-07d4-102c-b5fa-0017a47871b2';
 UPDATE salud_mental_encountero t 
 SET t.estimated_delivery_date = (
-	 SELECT  value_text
+	 SELECT  cast(value_datetime as date)
 	 FROM obs WHERE concept_id=@delivery_date
 	 AND person_id=t.Patient_id
 	 AND encounter_id =t.encounter_id 
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
+
 
 -- -------------------------------------------- Indicators - psychosis --------------------------------------------------------------------------
 
@@ -906,11 +931,11 @@ DROP TABLE IF EXISTS psychosis_data;
 CREATE TEMPORARY TABLE psychosis_data AS 
 	 SELECT person_id,encounter_id, COUNT(1) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=@Schizophrenia -- Schizophrenia
+	   	value_coded =@Schizophrenia -- Schizophrenia
 	   -- 	OR concept_id=@Acute_psychosis -- Acute psychosis
-	   	OR concept_id=@psychosis -- psychosis
-	   	OR concept_id=@Mania_wo_psychotic -- Mania without psychotic symptoms
-	   	OR concept_id=@Mania_w_psychotic -- Mania with psychotic symptoms
+	   	OR value_coded=@psychosis -- psychosis
+	   	OR value_coded=@Mania_wo_psychotic -- Mania without psychotic symptoms
+	   	OR value_coded=@Mania_w_psychotic -- Mania with psychotic symptoms
 	 				)
 	 GROUP BY person_id, encounter_id;
 
@@ -936,9 +961,9 @@ DROP TABLE IF EXISTS mood_disorder_data;
 CREATE TEMPORARY TABLE mood_disorder_data AS 
 	 SELECT person_id,encounter_id, COUNT(1) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=@bipolar_disorder -- bipolar disorder
-	   	OR concept_id=@depression -- depression
-	   	OR concept_id=@mood_changes -- mood changes
+	   	value_coded=@bipolar_disorder -- bipolar disorder
+	   	OR value_coded=@depression -- depression
+	   	OR value_coded=@mood_changes -- mood changes
 	 				)
 	 GROUP BY person_id,encounter_id;
 	
@@ -967,12 +992,12 @@ DROP TABLE IF EXISTS anxiety_data;
 CREATE TEMPORARY TABLE anxiety_data AS 
 	 SELECT person_id, encounter_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=@panick_attack-- panick attack
-	   	OR concept_id=@generalised_anxiety  -- generalised anxiety disorder
-	   	OR concept_id=@anxiety -- anxiety
-	   	OR concept_id=@obsessive_compulsive_disorder -- obsessive-compulsive disorder
-	   	OR concept_id=@acute_stress_reaction -- acute stress reaction
-	   	OR concept_id=@post_traumatic_stress -- post-traumatic stress disorder
+	   	value_coded=@panick_attack-- panick attack
+	   	OR value_coded=@generalised_anxiety  -- generalised anxiety disorder
+	   	OR value_coded=@anxiety -- anxiety
+	   	OR value_coded=@obsessive_compulsive_disorder -- obsessive-compulsive disorder
+	   	OR value_coded=@acute_stress_reaction -- acute stress reaction
+	   	OR value_coded=@post_traumatic_stress -- post-traumatic stress disorder
 	 				)
 	 GROUP BY person_id, encounter_id ;
 	
@@ -995,7 +1020,7 @@ DROP TABLE IF EXISTS dissociative_disorders_data;
 CREATE TEMPORARY TABLE dissociative_disorders_data AS 
 	 SELECT person_id, encounter_id ,COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=@dissociative_disorders
+	   	value_coded=@dissociative_disorders
 	 				)
 	 GROUP BY person_id,encounter_id;
 	
@@ -1018,7 +1043,7 @@ DROP TABLE IF EXISTS psychosomatic_disorders_data;
 CREATE TEMPORARY TABLE psychosomatic_disorders_data AS 
 	 SELECT person_id, encounter_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=2381
+	   	value_coded =@dissociative_disorders
 	 				)
 	 GROUP BY person_id, encounter_id ;
 
@@ -1041,7 +1066,7 @@ DROP TABLE IF EXISTS eating_disorders_data;
 CREATE TEMPORARY TABLE eating_disorders_data AS 
 	 SELECT person_id,encounter_id,  COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=@eating_disorders 
+	   	value_coded=@eating_disorders 
 	 				)
 	 GROUP BY person_id, encounter_id ;
 	
@@ -1064,7 +1089,7 @@ DROP TABLE IF EXISTS personality_disorders_data;
 CREATE TEMPORARY TABLE personality_disorders_data AS 
 	 SELECT person_id,encounter_id,  COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=@personality_disorders
+	   	value_coded=@personality_disorders
 	 				)
 	GROUP BY person_id,encounter_id;
 	
@@ -1092,9 +1117,9 @@ DROP TABLE IF EXISTS conduct_disorders_data;
 CREATE TEMPORARY TABLE conduct_disorders_data AS 
 	 SELECT person_id,encounter_id , COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=@conduct_disorder  -- conduct disorder
-	   	OR concept_id=@attention_deficit  -- attention deficit
-	   	OR concept_id= @oppositional_deficit -- oppositional deficit
+	   	value_coded=@conduct_disorder  -- conduct disorder
+	   	OR value_coded=@attention_deficit  -- attention deficit
+	   	OR value_coded= @oppositional_deficit -- oppositional deficit
 	 				)
 	 GROUP BY person_id,encounter_id ;
 
@@ -1120,8 +1145,8 @@ DROP TABLE IF EXISTS suicidal_data;
 CREATE TEMPORARY TABLE suicidal_data AS 
 	 SELECT person_id, encounter_id , COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=@suicidal_thoughts -- suicidal thoughts
-	   	OR concept_id=@attempted_suicide -- attempted suicide
+	   	value_coded=@suicidal_thoughts -- suicidal thoughts
+	   	OR value_coded=@attempted_suicide -- attempted suicide
 	 				)
 	 GROUP BY person_id, encounter_id ;
 
@@ -1146,7 +1171,7 @@ DROP TABLE IF EXISTS grief_data;
 CREATE TEMPORARY TABLE grief_data AS 
 	 SELECT person_id,  encounter_id , COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=@grief -- grief
+	   	value_coded=@grief -- grief
 	 				)
 	 GROUP BY person_id, encounter_id ;
 
@@ -1163,7 +1188,7 @@ UPDATE salud_mental_encountero t
 SET t.grief  = FALSE 
 WHERE t.grief  IS NULL;
 
--- ------------------------------------------------------ Next Scheduled Appointment --------------------------------------------------------------------------
+-- --------------------------- Next Scheduled Appointment --------------------------------------------------------------------------
 SELECT concept_id INTO @next_appt FROM concept_name cn WHERE uuid='66f5aa60-10fb-40a9-bcd3-7940980eddca';
 
 UPDATE salud_mental_encountero t 
@@ -1177,11 +1202,59 @@ AND o.encounter_id=t.encounter_id
 limit 1
 );
 
+-- --------------------------- estimated delivery date ----------------------------------------------------
+
+UPDATE salud_mental_encountero t 
+SET t.estimated_delivery_date  = (
+SELECT cast(DATE_ADD(value_datetime, interval 280 day) as date)
+FROM obs o
+WHERE concept_id=@lastperioddate
+and o.voided =0
+AND o.person_id=t.patient_id 
+AND o.encounter_id=t.encounter_id 
+limit 1
+);
+
 -- ------------------------------------ Diagnosis -------------------------------------------------------------------------------------------------------------------------------------------
--- SELECT concept_id INTO @diagnosis FROM concept_name cn WHERE uuid='93c47642-07d4-102c-b5fa-0017a47871b2';
--- SELECT * FROM obs
--- WHERE concept_id = @diagnosis
--- SELECT * FROM diagno
+create or replace view diagnosis_pre_data as 
+        select  
+		distinct person_id, encounter_id,
+		case when concept_name(value_coded,'en') is not null then concept_name(value_coded,'en') else value_text end as diagnosis
+		from obs o 
+		left outer join concept_name cn 
+		on o.concept_id = cn.concept_id 
+		where locale='en'
+        and o.encounter_id in (select encounter_id from mental_encounter_details)
+        and obs_group_id in (select obs_group_id from obs where concept_id in (1309, 1305, 1314))
+        and (value_coded_name_id is not null or value_text is not null)
+        order by obs_group_id asc;
+
+CREATE OR REPLACE VIEW diagnosis_data as 
+select person_id, encounter_id, 
+		group_concat(diagnosis) as diagnosis
+		from diagnosis_pre_data
+group by person_id, encounter_id;
+
+UPDATE salud_mental_encountero t 
+SET t.diagnosis = (
+SELECT diagnosis
+FROM diagnosis_data dd
+WHERE dd.person_id=t.patient_id 
+AND dd.encounter_id=t.encounter_id 
+limit 1
+);
+
+UPDATE salud_mental_encountero t 
+SET t.primary_diagnosis  = (
+SELECT diagnosis
+FROM diagnosis_pre_data dp
+WHERE dp.person_id=t.patient_id 
+AND dp.encounter_id=t.encounter_id 
+limit 1
+);
+
+
+
 -- --------------------------------------- Final Select -----------------------------------------------------------------------------------------------------------------------------------------
 SELECT 
 DISTINCT
