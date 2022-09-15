@@ -2,10 +2,11 @@ SELECT name  INTO @encounter_type_name FROM encounter_type et WHERE et.uuid ='a8
 SELECT encounter_type_id  INTO @encounter_type_id FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT program_id INTO @program_id FROM program p WHERE uuid='0e69c3ab-1ccb-430b-b0db-b9760319230f';
 select concept_id into @lastperioddate from concept_name where concept_id =2908 and locale='en' and voided=0 and concept_name_type='FULLY_SPECIFIED';
+select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
 set @dbname = '${partitionNum}';
 
 DROP TABLE IF EXISTS salud_mental_encountero;
-CREATE TEMPORARY TABLE salud_mental_encountero (
+CREATE TABLE salud_mental_encountero (
 dbname varchar(30),
 patient_id int,
 emr_id varchar(30),
@@ -43,7 +44,7 @@ GAD7_score int,
 analysis_notes varchar(5000),
 visit_end_status varchar(30),
 diagnosis varchar(255), 
-primary_diagnosis varchar(50),
+primary_diagnosis varchar(100),
 psychosis bit,
 mood_disorder bit,
 anxiety bit,
@@ -92,7 +93,6 @@ next_appointment date
 
 
 -- ################# Views Defintions ##############################################################
-
 
 SELECT concept_id INTO @phq1 FROM concept_name WHERE uuid='1c72efc9-ead3-4163-ad81-89f5b2e76f30';
 SELECT concept_id INTO @phq2 FROM concept_name WHERE uuid='22c7f8f1-4a6d-4134-9eb9-159b880ee520';
@@ -207,8 +207,6 @@ SET t.visit_Reason = (
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
-
-
 
 
 -- ############# PHQ-9 & GAD-7  Questions #####################################
@@ -891,9 +889,6 @@ SET t.lab_tests_ordered = (
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
-
--- ------------------------------------ Case Notes -------------------------------------------------------------------------------------------------
--- SELECT * FROM concept_name WHERE name LIKE '%note%';
 
 -- ------------------------------- Pregnancy and delivery date --------------------------------------------------------------------------------
 SELECT concept_id INTO @parental_care FROM concept_name cn3 WHERE uuid='142496BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
