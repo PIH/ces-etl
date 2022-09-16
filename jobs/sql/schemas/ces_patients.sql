@@ -20,9 +20,9 @@ date_of_death date,
 cause_of_Death varchar(50),
 PHD_GAD_Score bit,
 PHD_GAD_DATE date,
-recent_height double,
-recent_weight double,
-recent_bmi double,
+recent_height float,
+recent_weight float,
+recent_bmi float,
 last_enc_date date,
 last_enc_type varchar(50)
 );
