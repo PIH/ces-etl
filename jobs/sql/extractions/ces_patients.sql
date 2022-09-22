@@ -31,9 +31,8 @@ last_enc_type varchar(50)
 );
 
 -- ################################# Views Updates ##################################################################
-
 CREATE OR REPLACE VIEW first_enc AS
-		SELECT patient_id , min(encounter_datetime) encounter_datetime
+		SELECT patient_id, encounter_datetime -- , min(encounter_datetime) encounter_datetime
 		FROM encounter e 
 		WHERE encounter_type=2
 		GROUP BY patient_id ;
@@ -41,7 +40,7 @@ CREATE OR REPLACE VIEW first_enc AS
 CREATE OR REPLACE VIEW reg_enc_details AS 
 	SELECT DISTINCT e.patient_id, e.encounter_datetime  , e.encounter_id,e.encounter_type ,l.name 
         FROM encounter e INNER JOIN first_enc X ON X.patient_id =e.patient_id AND X.encounter_datetime=e.encounter_datetime
-		INNER JOIN location l ON l.location_id =e.location_id 
+		left outer JOIN location l ON l.location_id =e.location_id 
 		WHERE encounter_type=2;
 	
 CREATE OR REPLACE VIEW last_enc AS
@@ -55,7 +54,12 @@ CREATE OR REPLACE VIEW last_enc_details AS
 		left outer JOIN encounter_type et  ON e.encounter_type  =et.encounter_type_id 
 		GROUP BY e.patient_id;
 
-
+CREATE OR REPLACE VIEW first_enc_wo_reg AS
+		SELECT patient_id , min(encounter_datetime) encounter_datetime
+		FROM encounter e 
+		WHERE encounter_type <> 2
+		GROUP BY patient_id ;
+	
 	
 select concept_id into @civil_status from concept_name cn where uuid ='0b8ec5fe-15f5-102d-96e4-000c29c2a5d7';
 select concept_id into @occupation from concept_name cn where uuid ='0b9562d8-15f5-102d-96e4-000c29c2a5d7';
@@ -72,19 +76,30 @@ select concept_from_mapping('PIH','1065') into @disabilty_value;
 select concept_from_mapping('PIH','1065') into @indig_value;
 select concept_from_mapping('PIH','1065') into @imm_value;
 
-
 drop table if exists patient_flag;
 CREATE table patient_flag AS 
 		SELECT person_id , 
 		max(CASE WHEN concept_id =@civil_status THEN concept_name(value_coded,'es')  ELSE NULL END ) civil_status,
 		max(CASE WHEN concept_id =@occupation THEN concept_name(value_coded,'es')   ELSE NULL END ) occupation,
-		max(CASE WHEN concept_id = @case_finding THEN (CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE ELSE FALSE END)  ELSE NULL END) case_finding,
-		max(CASE WHEN concept_id =@education THEN (CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE ELSE FALSE END)  ELSE NULL END)  education,
-		max(CASE WHEN (concept_id =@disability  OR concept_id =@walk_disability)  THEN  (CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE ELSE FALSE END)  ELSE NULL END) disability,
-		max(CASE WHEN concept_id =@Indigenous THEN  (CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE ELSE FALSE END)  ELSE NULL END)  Indigenous,
-		max(CASE WHEN concept_id =@Immigrant THEN  (CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE ELSE FALSE END)  ELSE NULL END)  Immigrant
+		max(CASE WHEN concept_id = @case_finding THEN (CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE WHEN value_coded=concept_from_mapping('PIH','1066') THEN FALSE END)  ELSE NULL END) case_finding,
+		max(CASE WHEN concept_id =@education THEN 
+		              (CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE
+		              		WHEN value_coded=concept_from_mapping('PIH','1066') THEN FALSE END) 
+		         else null end) as education,
+		max(CASE WHEN (concept_id =@disability  OR concept_id =@walk_disability) THEN  
+					(CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE  
+						  WHEN value_coded=concept_from_mapping('PIH','1066') THEN FALSE END)
+		     else null end) as disability,
+		max(CASE WHEN concept_id =@Indigenous THEN 
+		       (CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE 
+		             WHEN value_coded=concept_from_mapping('PIH','1066') THEN FALSE END) 
+		     ELSE NULL END) as  Indigenous,
+		max(CASE WHEN concept_id =@Immigrant THEN  
+		          (CASE WHEN value_coded=concept_from_mapping('PIH','1065') THEN TRUE 
+		          		WHEN value_coded=concept_from_mapping('PIH','1066') THEN FALSE END)  ELSE NULL END) as Immigrant
+
 		FROM obs o 
-		WHERE 
+		WHERE -- person_id =33476 AND encounter_id =261665
 		encounter_id IN (SELECT encounter_id FROM reg_enc_details)
 		GROUP BY person_id;
 
@@ -95,7 +110,7 @@ SELECT person_id , obs_id , value_numeric AS height  FROM obs o2
 		WHERE obs_id IN (
 			SELECT max(obs_id) obs_id
 			FROM obs o 
-			WHERE 
+			WHERE-- person_id =33517 AND  
 			concept_id =@height AND NOT value_numeric IS NULL 
 			GROUP BY person_id 
 		);
@@ -119,7 +134,8 @@ SELECT person_id , obs_id ,encounter_id,  value_numeric AS score   FROM obs o2
 		WHERE obs_id IN (
 			SELECT max(obs_id) obs_id
 			FROM obs o 
-			WHERE  concept_id IN (@phq2,@gad2) AND NOT value_numeric IS NULL 
+			WHERE  concept_id IN (@phq2,@gad2) -- AND NOT value_numeric IS NULL 
+			-- and person_id = 2295
 			GROUP BY person_id 
 		);
 	
@@ -134,6 +150,7 @@ SELECT person_id , obs_id , encounter_id  FROM obs o2
 CREATE OR REPLACE VIEW first_enc AS
 		SELECT patient_id , min(encounter_datetime) encounter_datetime
 		FROM encounter e 
+		-- WHERE patient_id =15861
 		GROUP BY patient_id;
 
 Drop table if exists first_enc_details;
@@ -153,15 +170,11 @@ GROUP BY patient_id;
 -- ################################# first encounter date and location ##############################################################
 	
 UPDATE ces_patients cp 
-SET cp.reg_location = loc_registered(cp.patient_id),
-	   cp.reg_date = registration_date(cp.patient_id); 
-	  
-UPDATE ces_patients cp 
-INNER JOIN (SELECT patient_id, encounter_datetime, name FROM first_enc_details)  x
+  INNER JOIN (SELECT patient_id, encounter_datetime, name FROM reg_enc_details) x
 ON cp.patient_id =x.patient_id 
-SET cp.reg_location = x.name,
-	   cp.reg_date = cast(x.encounter_datetime AS date);
-	  
+SET cp.reg_location = x.name,-- loc_registered(cp.patient_id),
+   cp.reg_date = cast(x.encounter_datetime AS date); --  registration_date(cp.patient_id) ;
+
 -- ################################# last encounter date and location ##############################################################
 	
 UPDATE ces_patients cp 
@@ -190,7 +203,7 @@ SET cp.dob = x.birthdate,
 	cp.state =x.state,
 	cp.dead =x.death,
 	cp.date_of_death =x.death_date,
-	cp.cause_of_Death =x.cause_of_death;
+	cp.cause_of_Death =concept_name(x.cause_of_death,'en');
 
 -- ---------------------------- civil_status and other regsteration flags -------------------------------------------
 
@@ -217,21 +230,6 @@ SET cp.migrant = (SELECT Immigrant FROM patient_flag WHERE person_id=cp.patient_
 
 UPDATE ces_patients cp 
 SET cp.education = (SELECT education FROM patient_flag WHERE person_id=cp.patient_id);
-
-update ces_patients cp
-set cp.migrant = FALSE where cp.migrant is null ;
-
-update ces_patients cp
-set cp.Indigenous  = FALSE where cp.Indigenous  is null;
-
-update ces_patients cp
-set cp.Disability  = FALSE where cp.Disability  is null ;
-
-update ces_patients cp
-set cp.education  = FALSE where cp.education  is null;
-
-update ces_patients cp
-set cp.active_case_finding  = FALSE where cp.active_case_finding  is null;
 
 -- ################## update height and wegiht ###############################################################################
 UPDATE ces_patients cp
