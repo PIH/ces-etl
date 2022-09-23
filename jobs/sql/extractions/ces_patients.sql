@@ -2,6 +2,7 @@ select patient_identifier_type_id into @identifier_type from patient_identifier_
 
 DROP TABLE IF EXISTS ces_patients;
 CREATE TEMPORARY TABLE ces_patients (
+patient_id int, 
 emr_id varchar(30),
 reg_location varchar(30),
 reg_date date,
