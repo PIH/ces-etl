@@ -1183,6 +1183,18 @@ UPDATE salud_mental_encountero t
 SET t.grief  = FALSE 
 WHERE t.grief  IS NULL;
 
+UPDATE salud_mental_encountero t 
+SET t.adaptive_disorders  = (
+ SELECT CASE WHEN num_obs > 0 THEN TRUE ELSE FALSE END 
+ FROM  grief_data md
+ WHERE md.person_id=t.Patient_id 
+ AND md.encounter_id=t.encounter_id 
+);
+
+UPDATE salud_mental_encountero t 
+SET t.adaptive_disorders  = FALSE 
+WHERE t.adaptive_disorders  IS NULL;
+
 -- --------------------------- Next Scheduled Appointment --------------------------------------------------------------------------
 SELECT concept_id INTO @next_appt FROM concept_name cn WHERE uuid='66f5aa60-10fb-40a9-bcd3-7940980eddca';
 
