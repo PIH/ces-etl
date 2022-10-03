@@ -431,9 +431,8 @@ WHERE t.anxiety  IS NULL;
 -- ############# Indicators - adaptive disorders #####################################
 
 SELECT concept_id INTO @grief FROM concept_name cn WHERE uuid='56ca4d71-2fec-4189-8e12-f2a79a39c3ca';
-select * from concept_name where concept_id =@grief;
-select * from obs where person_id =2297;
 
+drop table if exists adaptive_disorders_data;
 CREATE TEMPORARY TABLE adaptive_disorders_data AS 
 	 SELECT person_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
@@ -442,7 +441,7 @@ CREATE TEMPORARY TABLE adaptive_disorders_data AS
 	 GROUP BY person_id;
 	
 UPDATE salud_mental_paciente t 
-SET t.adaptive_disorders  nx  = (
+SET t.adaptive_disorders  = (
  SELECT CASE WHEN num_obs > 0 THEN TRUE ELSE FALSE END 
  FROM  adaptive_disorders_data md
  WHERE md.person_id=t.Patient_id 
