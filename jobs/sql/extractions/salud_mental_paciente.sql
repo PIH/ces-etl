@@ -55,7 +55,7 @@ Most_recent_PHQ9	int,
 First_GAD7_score	int,
 Date_first_GAD7	date,
 Date_most_recent_GAD7	date,
-change_in_GAD7	decimal,
+-- change_in_GAD7	decimal,
 GAD7_q1	int,
 GAD7_q2	int,
 GAD7_q3	int,
@@ -241,7 +241,7 @@ SET t.active =(
 DROP TABLE IF EXISTS asma_data;
 CREATE TEMPORARY TABLE asma_data AS 
 	 SELECT person_id, COUNT(1) AS num_obs
-	 FROM obs WHERE concept_id=concept_from_mapping('PIH',5)
+	 FROM obs WHERE value_coded=concept_from_mapping('PIH',5)
 	 GROUP BY person_id;
 	
 UPDATE salud_mental_paciente t 
@@ -261,7 +261,7 @@ WHERE t.asthma IS NULL;
 DROP TABLE IF EXISTS malnutrition_data;
 CREATE TEMPORARY TABLE malnutrition_data AS 
 	 SELECT person_id, COUNT(1) AS num_obs
-	 FROM obs WHERE concept_id=concept_from_mapping('PIH',68)
+	 FROM obs WHERE value_coded=concept_from_mapping('PIH',68)
 	 GROUP BY person_id;
 
 UPDATE salud_mental_paciente t 
@@ -280,7 +280,7 @@ WHERE t.malnutrition  IS NULL;
 DROP TABLE IF EXISTS diabetes_data;
 CREATE TEMPORARY TABLE diabetes_data AS 
 	 SELECT person_id, COUNT(1) AS num_obs
-	 FROM obs WHERE concept_id=concept_from_mapping('PIH',3720) -- asma IN es locale
+	 FROM obs WHERE value_coded=concept_from_mapping('PIH',3720) -- asma IN es locale
 	 GROUP BY person_id;
 	
 UPDATE salud_mental_paciente t 
@@ -299,7 +299,7 @@ WHERE t.diabetes  IS NULL;
 DROP TABLE IF EXISTS epilepsy_data;
 CREATE TEMPORARY TABLE epilepsy_data AS 
 	 SELECT person_id, COUNT(1) AS num_obs
-	 FROM obs WHERE concept_id=concept_from_mapping('PIH',155)
+	 FROM obs WHERE value_coded=concept_from_mapping('PIH',155)
 	 GROUP BY person_id;
 	
 UPDATE salud_mental_paciente t 
@@ -318,7 +318,7 @@ WHERE t.epilepsy  IS NULL;
 DROP TABLE IF EXISTS hypertension_data;
 CREATE TEMPORARY TABLE hypertension_data AS 
 	 SELECT person_id, COUNT(1) AS num_obs
-	 FROM obs WHERE concept_id=concept_from_mapping('PIH',903)
+	 FROM obs WHERE value_coded=concept_from_mapping('PIH',903)
 	 GROUP BY person_id;
 	
 UPDATE salud_mental_paciente t 
@@ -359,11 +359,11 @@ DROP TABLE IF EXISTS psychosis_data;
 CREATE TEMPORARY TABLE psychosis_data AS 
 	 SELECT person_id, COUNT(1) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',467) OR -- Schizophrenia
-	   	concept_id=concept_from_mapping('PIH',9519) OR -- Acute psychosis
-	   	concept_id=concept_from_mapping('PIH',219) OR -- psychosis
-	   	concept_id=concept_from_mapping('PIH',9520) OR -- Mania without psychotic symptoms
-	   	concept_id=concept_from_mapping('PIH',9520) -- Mania with psychotic symptoms
+	   	value_coded=concept_from_mapping('PIH',467) OR -- Schizophrenia
+	   	value_coded=concept_from_mapping('PIH',9519) OR -- Acute psychosis
+	   	value_coded=concept_from_mapping('PIH',219) OR -- psychosis
+	   	value_coded=concept_from_mapping('PIH',9520) OR -- Mania without psychotic symptoms
+	   	value_coded=concept_from_mapping('PIH',9520) -- Mania with psychotic symptoms
 	 				)
 	 GROUP BY person_id;
 	
@@ -384,8 +384,8 @@ DROP TABLE IF EXISTS mood_disorder_data;
 CREATE TEMPORARY TABLE mood_disorder_data AS 
 	 SELECT person_id, COUNT(1) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',7947) OR -- bipolar disorder
-	   	concept_id=concept_from_mapping('PIH',207) -- OR -- depression
+	   	value_coded=concept_from_mapping('PIH',7947) OR -- bipolar disorder
+	   	value_coded=concept_from_mapping('PIH',207) -- OR -- depression
 	   	-- concept_id=2388 -- mood changes
 	 				)
 	 GROUP BY person_id;
@@ -407,12 +407,12 @@ DROP TABLE IF EXISTS anxiety_data;
 CREATE TEMPORARY TABLE anxiety_data AS 
 	 SELECT person_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',9330) OR -- panick attack
-	   	concept_id=concept_from_mapping('PIH',9517) OR -- generalised anxiety disorder
-	   	concept_id=concept_from_mapping('PIH',2719) OR -- anxiety
-	   	concept_id=concept_from_mapping('PIH',7513) OR -- obsessive-compulsive disorder
-	   	concept_id=concept_from_mapping('PIH',7950) OR  -- acute stress reaction
-	   	concept_id=concept_from_mapping('PIH',7197) -- post-traumatic stress disorder
+	   	value_coded=concept_from_mapping('PIH',9330) OR -- panick attack
+	   	value_coded=concept_from_mapping('PIH',9517) OR -- generalised anxiety disorder
+	   	value_coded=concept_from_mapping('PIH',2719) OR -- anxiety
+	   	value_coded=concept_from_mapping('PIH',7513) OR -- obsessive-compulsive disorder
+	   	value_coded=concept_from_mapping('PIH',7950) OR  -- acute stress reaction
+	   	value_coded=concept_from_mapping('PIH',7197) -- post-traumatic stress disorder
 	 				)
 	 GROUP BY person_id;
 	
@@ -430,20 +430,24 @@ WHERE t.anxiety  IS NULL;
 
 -- ############# Indicators - adaptive disorders #####################################
 
--- CREATE TEMPORARY TABLE adaptive_disorders_data AS 
--- 	 SELECT person_id, COUNT(*) AS num_obs
--- 	 FROM obs WHERE (
--- 	   	concept_id=
--- 	 				)
--- 	 GROUP BY person_id;
--- 	
--- UPDATE salud_mental_paciente t 
--- SET t.adaptive_disorders  nx  = (
---  SELECT CASE WHEN num_obs > 0 THEN TRUE ELSE FALSE END 
---  FROM  adaptive_disorders_data md
---  WHERE md.person_id=t.Patient_id 
--- );
--- 
+SELECT concept_id INTO @grief FROM concept_name cn WHERE uuid='56ca4d71-2fec-4189-8e12-f2a79a39c3ca';
+select * from concept_name where concept_id =@grief;
+select * from obs where person_id =2297;
+
+CREATE TEMPORARY TABLE adaptive_disorders_data AS 
+	 SELECT person_id, COUNT(*) AS num_obs
+	 FROM obs WHERE (
+	   	concept_id= @grief
+	 				)
+	 GROUP BY person_id;
+	
+UPDATE salud_mental_paciente t 
+SET t.adaptive_disorders  nx  = (
+ SELECT CASE WHEN num_obs > 0 THEN TRUE ELSE FALSE END 
+ FROM  adaptive_disorders_data md
+ WHERE md.person_id=t.Patient_id 
+);
+
 -- UPDATE salud_mental_paciente t 
 -- SET t.adaptive_disorders  = FALSE 
 -- WHERE t.adaptive_disorders  IS NULL;
@@ -455,7 +459,7 @@ DROP TABLE IF EXISTS dissociative_disorders_data;
 CREATE TEMPORARY TABLE dissociative_disorders_data AS 
 	 SELECT person_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',7945)
+	   	value_coded=concept_from_mapping('PIH',7945)
 	 				)
 	 GROUP BY person_id;
 	
@@ -476,7 +480,7 @@ DROP TABLE IF EXISTS psychosomatic_disorders_data;
 CREATE TEMPORARY TABLE psychosomatic_disorders_data AS 
 	 SELECT person_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',7198)
+	   	value_coded=concept_from_mapping('PIH',7198)
 	 				)
 	 GROUP BY person_id;
 
@@ -498,7 +502,7 @@ DROP TABLE IF EXISTS eating_disorders_data;
 CREATE TEMPORARY TABLE eating_disorders_data AS 
 	 SELECT person_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',7944)
+	   	value_coded=concept_from_mapping('PIH',7944)
 	 				)
 	 GROUP BY person_id;
 
@@ -520,7 +524,7 @@ DROP TABLE IF EXISTS personality_disorders_data;
 CREATE TEMPORARY TABLE personality_disorders_data AS 
 	 SELECT person_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',7943)
+	   	value_coded=concept_from_mapping('PIH',7943)
 	 				)
 	 GROUP BY person_id;
 
@@ -541,8 +545,8 @@ DROP TABLE IF EXISTS conduct_disorders_data;
 CREATE TEMPORARY TABLE conduct_disorders_data AS 
 	 SELECT person_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',7949) OR -- conduct disorder
-	   	concept_id=concept_from_mapping('PIH',11862) -- attention deficit
+	   	value_coded=concept_from_mapping('PIH',7949) OR -- conduct disorder
+	   	value_coded=concept_from_mapping('PIH',11862) -- attention deficit
 	   	-- concept_id=2356 -- oppositional deficit
 	 				)
 	 GROUP BY person_id;
@@ -564,8 +568,8 @@ DROP TABLE IF EXISTS suicidal_data;
 CREATE TEMPORARY TABLE suicidal_data AS 
 	 SELECT person_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',10633) -- suicidal thoughts
-	   	OR concept_id=concept_from_mapping('PIH',7514) -- attempted suicide
+	   	value_coded=concept_from_mapping('PIH',10633) -- suicidal thoughts
+	   	OR value_coded=concept_from_mapping('PIH',7514) -- attempted suicide
 	 				)
 	 GROUP BY person_id;
 
@@ -586,7 +590,7 @@ DROP TABLE IF EXISTS grief_data;
 CREATE TEMPORARY TABLE grief_data AS 
 	 SELECT person_id, COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	concept_id=concept_from_mapping('PIH',6896) -- grief
+	   	value_coded=concept_from_mapping('PIH',6896) -- grief
 	 				)
 	 GROUP BY person_id;
 
@@ -676,11 +680,10 @@ SET t.Most_recent_GAD7  = (
 	LIMIT 1
 );
 
-UPDATE salud_mental_paciente t 
-SET t.change_in_GAD7  = (Most_recent_GAD7  - First_GAD7_score) / First_GAD7_score  
-WHERE Date_first_GAD7  IS NOT NULL
-AND Date_first_GAD7  <> Date_most_recent_GAD7 
-;
+-- UPDATE salud_mental_paciente t 
+-- SET t.change_in_GAD7  = (Most_recent_GAD7  - First_GAD7_score) / First_GAD7_score  
+-- WHERE Date_first_GAD7  IS NOT NULL
+-- AND Date_first_GAD7  <> Date_most_recent_GAD7;
 
 -- ############# PHQ-9 & GAD-7  Questions #####################################
 
@@ -933,7 +936,6 @@ Most_recent_PHQ9	,
 First_GAD7_score	,
 Date_first_GAD7	,
 Date_most_recent_GAD7	,
-change_in_GAD7	,
 GAD7_q1	,
 GAD7_q2	,
 GAD7_q3	,
