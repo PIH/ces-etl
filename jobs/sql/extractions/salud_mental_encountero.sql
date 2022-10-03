@@ -890,6 +890,7 @@ SET t.lab_tests_ordered = (
 	LIMIT 1
 );
 
+
 -- ------------------------------- Pregnancy and delivery date --------------------------------------------------------------------------------
 SELECT concept_id INTO @parental_care FROM concept_name cn3 WHERE uuid='142496BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
 UPDATE salud_mental_encountero t 
@@ -901,18 +902,6 @@ SET t.prenatal_care = (
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
-
-SELECT concept_id  INTO @delivery_date FROM concept_name cn WHERE uuid ='93f4254a-07d4-102c-b5fa-0017a47871b2';
-UPDATE salud_mental_encountero t 
-SET t.estimated_delivery_date = (
-	 SELECT  cast(value_datetime as date)
-	 FROM obs WHERE concept_id=@delivery_date
-	 AND person_id=t.Patient_id
-	 AND encounter_id =t.encounter_id 
-	 ORDER BY person_id , obs_datetime DESC
-	LIMIT 1
-);
-
 
 -- -------------------------------------------- Indicators - psychosis --------------------------------------------------------------------------
 
@@ -1159,14 +1148,14 @@ SET t.suicidal_ideation  = FALSE
 WHERE t.suicidal_ideation  IS NULL;
 
 
--- ----------------------------------------------  Indicators - grief ----------------------------------------------------
+-- ----------------------------------------------  Indicators - grief & Adaptive_disorder ----------------------------------------------------
 SELECT concept_id INTO @grief FROM concept_name cn WHERE uuid='56ca4d71-2fec-4189-8e12-f2a79a39c3ca';
 
 DROP TABLE IF EXISTS grief_data;
 CREATE TEMPORARY TABLE grief_data AS 
 	 SELECT person_id,  encounter_id , COUNT(*) AS num_obs
 	 FROM obs WHERE (
-	   	value_coded=@grief -- grief
+	   	value_coded=@grief
 	 				)
 	 GROUP BY person_id, encounter_id ;
 
@@ -1218,7 +1207,7 @@ FROM obs o
 WHERE concept_id=@lastperioddate
 and o.voided =0
 AND o.person_id=t.patient_id 
-AND o.encounter_id=t.encounter_id 
+order by encounter_id desc
 limit 1
 );
 
