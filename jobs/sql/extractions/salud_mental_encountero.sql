@@ -892,15 +892,19 @@ SET t.lab_tests_ordered = (
 
 
 -- ------------------------------- Pregnancy and delivery date --------------------------------------------------------------------------------
+
 SELECT concept_id INTO @parental_care FROM concept_name cn3 WHERE uuid='142496BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
+SELECT concept_id INTO @planned_pregnancy FROM concept_name cn3 WHERE uuid='109202BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
+select concept_from_mapping('PIH','13731') into @wanted_pregnancy;
+
 UPDATE salud_mental_encountero t 
 SET t.prenatal_care = (
-	 SELECT  value_text
-	 FROM obs WHERE concept_id=@parental_care
+	 SELECT  TRUE
+	 FROM obs WHERE (concept_id=@planned_pregnancy  OR concept_id=@wanted_pregnancy)
 	 AND person_id=t.Patient_id
-	 AND encounter_id =t.encounter_id 
-	 ORDER BY person_id , obs_datetime DESC
-	LIMIT 1
+	 and voided=0
+	 ORDER BY encounter_id DESC
+	 LIMIT 1
 );
 
 -- -------------------------------------------- Indicators - psychosis --------------------------------------------------------------------------
