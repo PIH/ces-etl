@@ -10,10 +10,7 @@ select concept_id into @transfered from concept_name cn where voided =0 and conc
 select concept_id into @patient_refused from concept_name cn where voided =0 and concept_name_type='FULLY_SPECIFIED' and uuid ='27774BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
 select concept_id into @completed from concept_name cn where voided =0 and concept_name_type='FULLY_SPECIFIED' and uuid ='3e1db918-26fe-102b-80cb-0017a47871b2';
 
-
-
 set @dbname = '${partitionNum}';
-
 
 DROP TABLE IF EXISTS salud_mental_estatus;
 CREATE TEMPORARY TABLE salud_mental_estatus (
@@ -21,7 +18,7 @@ dbname varchar(30),
 patient_id int,
 emr_id varchar(30),
 emr_instancia varchar(30),
-resultado_salud_mental varchar(30),
+resultado_salud_mental text,
 int_rank int,
 resultado_salud_mental_fecha datetime,
 index_asc int,
