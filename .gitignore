@@ -1,3 +1,9 @@
+### IntelliJ IDEA ###
+target
+.idea
+*.iws
+*.iml
+*.ipr
 .env
 tmp/
 logs/
