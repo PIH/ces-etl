@@ -13,6 +13,8 @@ emr_id varchar(30),
 location varchar(30),
 age int,
 encounter_id int, 
+index_asc int,
+index_desc int,
 encounter_date date, 
 data_entry_date date,
 data_entry_person varchar(30),
@@ -45,17 +47,17 @@ analysis_notes varchar(5000),
 visit_end_status varchar(30),
 diagnosis varchar(255), 
 primary_diagnosis varchar(100),
-psychosis bit,
-mood_disorder bit,
-anxiety bit,
-adaptive_disorders bit,
-dissociative_disorders bit,
-psychosomatic_disorders bit,
-eating_disorders bit,
-personality_disorders bit,
-conduct_disorders bit,
-suicidal_ideation bit,
-grief bit,
+psychosis boolean,
+mood_disorder boolean,
+anxiety boolean,
+adaptive_disorders boolean,
+dissociative_disorders boolean,
+psychosomatic_disorders boolean,
+eating_disorders boolean,
+personality_disorders boolean,
+conduct_disorders boolean,
+suicidal_ideation boolean,
+grief boolean,
 Treatment_plan varchar(5000),
 lab_tests_ordered varchar(5000),
 medication_1_name varchar(255),
@@ -92,7 +94,53 @@ next_appointment date
 );
 
 
--- ################# Views Defintions ##############################################################
+-- ------------- Functions Definition --------------
+-- CREATE FUNCTION age_at_enc(
+--     _person_id int,
+--     _encounter_id int
+-- )
+-- 	RETURNS DOUBLE
+--     DETERMINISTIC
+-- 
+-- BEGIN
+--     DECLARE ageAtEnc DOUBLE;
+-- 
+-- 	select  TIMESTAMPDIFF(YEAR, birthdate, encounter_datetime) into ageAtENC
+-- 	from    encounter e
+-- 	join    person p on p.person_id = e.patient_id
+-- 	where   e.encounter_id = _encounter_id
+-- 	and     p.person_id = _person_id;
+-- 
+--     RETURN ageAtEnc;
+-- END
+
+
+-- DROP FUNCTION IF EXISTS concept_name;
+-- #
+-- CREATE FUNCTION concept_name(
+--     _conceptID INT,
+--     _locale varchar(50)
+-- )
+-- 	RETURNS VARCHAR(255)
+--     DETERMINISTIC
+-- 
+-- BEGIN
+--     DECLARE conceptName varchar(255);
+-- 
+-- 	SELECT name INTO conceptName
+-- 	FROM concept_name
+-- 	WHERE voided = 0
+-- 	  AND concept_id = _conceptID
+-- 	order by if(_locale = locale, 0, 1), if(locale = 'en', 0, 1),
+-- 	  locale_preferred desc, ISNULL(concept_name_type) asc, 
+-- 	  field(concept_name_type,'FULLY_SPECIFIED','SHORT')
+-- 	limit 1;
+-- 
+--     RETURN conceptName;
+-- END
+
+################# Views Defintions ##############################################################
+
 
 SELECT concept_id INTO @phq1 FROM concept_name WHERE uuid='1c72efc9-ead3-4163-ad81-89f5b2e76f30';
 SELECT concept_id INTO @phq2 FROM concept_name WHERE uuid='22c7f8f1-4a6d-4134-9eb9-159b880ee520';
@@ -177,7 +225,7 @@ WHERE p.patient_id IN (
 )
 GROUP BY p.patient_id;
 
--- ################# Insert Patinets List ##############################################################
+################# Insert Patinets List ##############################################################
 
 INSERT INTO salud_mental_encountero (patient_id, emr_id,location,age,encounter_id,encounter_date , data_entry_date,data_entry_person,visit_id,mh_visit_date ,
 provider_name)
@@ -281,9 +329,11 @@ SET t.PHQ9_q5 = (
 	 						 WHEN value_coded=@daily THEN 3 END 
 	 FROM obs WHERE concept_id=@eating_less AND person_id=t.Patient_id
 	 and voided=0
+	 and encounter_id =t.encounter_id 
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
+
 
 SELECT concept_id INTO @failed_someone  FROM concept_name cn WHERE uuid='c2fda6f0-662b-4b18-9ae6-7964ece54076';
 UPDATE salud_mental_encountero t 
@@ -335,8 +385,8 @@ SET t.PHQ9_q9 = (
 	 						 WHEN value_coded=@morethanhalf  THEN 2
 	 						 WHEN value_coded=@daily THEN 3 END
 	 FROM obs WHERE concept_id= @suicidal_thoughts  AND person_id=t.Patient_id
-	 AND encounter_id =t.encounter_id 
 	 and voided=0
+	 and encounter_id =t.encounter_id 
 	 ORDER BY person_id , obs_datetime DESC
 	LIMIT 1
 );
@@ -890,21 +940,20 @@ SET t.lab_tests_ordered = (
 	LIMIT 1
 );
 
-
 -- ------------------------------- Pregnancy and delivery date --------------------------------------------------------------------------------
-
 SELECT concept_id INTO @parental_care FROM concept_name cn3 WHERE uuid='142496BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
 SELECT concept_id INTO @planned_pregnancy FROM concept_name cn3 WHERE uuid='109202BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
 select concept_from_mapping('PIH','13731') into @wanted_pregnancy;
 
+select program_id into @ANC from program p2 where uuid='d830a5c1-30a2-4943-93a0-f918772496ec';
+
 UPDATE salud_mental_encountero t 
 SET t.prenatal_care = (
-	 SELECT  TRUE
-	 FROM obs WHERE (concept_id=@planned_pregnancy  OR concept_id=@wanted_pregnancy)
-	 AND person_id=t.Patient_id
-	 and voided=0
-	 ORDER BY encounter_id DESC
-	 LIMIT 1
+	select TRUE 
+	from patient_program 
+	where patient_id=t.patient_id 
+	and program_id=@ANC
+	limit 1
 );
 
 -- -------------------------------------------- Indicators - psychosis --------------------------------------------------------------------------
@@ -1106,12 +1155,13 @@ CREATE TEMPORARY TABLE conduct_disorders_data AS
 	 SELECT person_id,encounter_id , COUNT(*) AS num_obs
 	 FROM obs WHERE (
 	   	value_coded=@conduct_disorder  -- conduct disorder
+	   	OR value_coded = concept_from_mapping('PIH','10607') -- autism
 	   	OR value_coded=@attention_deficit  -- attention deficit
 	   	OR value_coded= @oppositional_deficit -- oppositional deficit
 	 				)
 	 GROUP BY person_id,encounter_id ;
 
-	
+
 UPDATE salud_mental_encountero  t 
 SET t.conduct_disorders  = (
  SELECT CASE WHEN num_obs > 0 THEN TRUE ELSE FALSE END 
@@ -1176,6 +1226,7 @@ UPDATE salud_mental_encountero t
 SET t.grief  = FALSE 
 WHERE t.grief  IS NULL;
 
+	
 UPDATE salud_mental_encountero t 
 SET t.adaptive_disorders  = (
  SELECT CASE WHEN num_obs > 0 THEN TRUE ELSE FALSE END 
@@ -1187,6 +1238,7 @@ SET t.adaptive_disorders  = (
 UPDATE salud_mental_encountero t 
 SET t.adaptive_disorders  = FALSE 
 WHERE t.adaptive_disorders  IS NULL;
+
 
 -- --------------------------- Next Scheduled Appointment --------------------------------------------------------------------------
 SELECT concept_id INTO @next_appt FROM concept_name cn WHERE uuid='66f5aa60-10fb-40a9-bcd3-7940980eddca';
@@ -1211,9 +1263,11 @@ FROM obs o
 WHERE concept_id=@lastperioddate
 and o.voided =0
 AND o.person_id=t.patient_id 
+-- AND o.encounter_id=t.encounter_id 
 order by encounter_id desc
 limit 1
-);
+)
+WHERE t.prenatal_care is true;
 
 -- ------------------------------------ Diagnosis -------------------------------------------------------------------------------------------------------------------------------------------
 create or replace view diagnosis_pre_data as 
@@ -1253,6 +1307,67 @@ AND dp.encounter_id=t.encounter_id
 limit 1
 );
 
+-- ---- Ascending Order ------------------------------------------
+drop table if exists int_asc;
+create table int_asc
+select * from salud_mental_encountero sme 
+ORDER BY emr_id asc, encounter_date  asc, encounter_id asc;
+
+
+set @row_number := 0;
+
+DROP TABLE IF EXISTS asc_order;
+CREATE TABLE asc_order
+SELECT 
+    @row_number:=CASE
+        WHEN @emr_id = emr_id  
+			THEN @row_number + 1
+        ELSE 1
+    END AS index_asc,
+    @emr_id:=emr_id  emr_id,
+    encounter_date,encounter_id
+FROM
+    int_asc;
+   
+update salud_mental_encountero es
+set es.index_asc = (
+ select index_asc 
+ from asc_order
+ where emr_id=es.emr_id 
+ and encounter_date=es.encounter_date
+ and encounter_id=es.encounter_id
+);
+    
+
+-- ----------- Descending Order ---------------------------------------
+
+drop table if exists int_desc;
+create table int_desc
+select * from salud_mental_encountero sme 
+ORDER BY emr_id asc, encounter_date desc, encounter_id desc;
+
+DROP TABLE IF EXISTS desc_order;
+CREATE TABLE desc_order
+SELECT 
+    @row_number:=CASE
+        WHEN @emr_id = emr_id 
+			THEN @row_number + 1
+        ELSE 1
+    END AS index_desc,
+    @emr_id:=emr_id patient_id,
+    encounter_date,encounter_id
+FROM
+    int_desc; 
+    
+update salud_mental_encountero es
+set es.index_desc = (
+ select index_desc
+ from desc_order
+ where emr_id=es.emr_id 
+ and encounter_date=es.encounter_date
+ and encounter_id=es.encounter_id
+);
+
 
 
 -- --------------------------------------- Final Select -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1264,6 +1379,8 @@ emr_id ,
 location ,
 age ,
 encounter_id , 
+index_asc,
+index_desc,
 encounter_date , 
 data_entry_date ,
 data_entry_person ,
@@ -1340,4 +1457,5 @@ medication_10_name ,
 medication_10_units ,
 medication_10_instructions ,
 next_appointment
-FROM salud_mental_encountero;
+FROM salud_mental_encountero
+order by emr_id, encounter_date asc;
