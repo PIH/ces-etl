@@ -478,9 +478,9 @@ SET t.adaptive_disorders  = (
  WHERE md.person_id=t.Patient_id 
 );
 
--- UPDATE salud_mental_paciente t 
--- SET t.adaptive_disorders  = FALSE 
--- WHERE t.adaptive_disorders  IS NULL;
+UPDATE salud_mental_paciente t 
+SET t.adaptive_disorders  = FALSE 
+WHERE t.adaptive_disorders  IS NULL;
 
 
 -- ------------- Indicators - dissociative disorders -------------------------------------
