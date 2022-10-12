@@ -194,7 +194,8 @@ WHERE concept_id  IN (SELECT obs_id FROM mental_obs_ref )
 CREATE OR REPLACE VIEW mental_encounter_details AS 
 SELECT DISTINCT  encounter_id, patient_id, encounter_datetime, location_id , date_created , creator, visit_id  
 FROM encounter e2 
-WHERE encounter_id  IN (SELECT encounter_id FROM mental_encounters);
+WHERE encounter_id  IN (SELECT encounter_id FROM mental_encounters)
+and e2.voided=0;
 
 DROP TABLE IF EXISTS mental_patients_list;
 CREATE TABLE mental_patients_list AS
