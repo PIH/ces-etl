@@ -61,14 +61,14 @@ CREATE OR REPLACE VIEW first_enc_wo_reg AS
 		GROUP BY patient_id ;
 	
 	
-select concept_id into @civil_status from concept_name cn where uuid ='0b8ec5fe-15f5-102d-96e4-000c29c2a5d7';
-select concept_id into @occupation from concept_name cn where uuid ='0b9562d8-15f5-102d-96e4-000c29c2a5d7';
-select concept_id into @case_finding from concept_name cn where uuid ='787da3a9-9c44-4761-92ce-50fa40d70671';
-select concept_id into @education from concept_name cn where uuid ='6423202f-4f0a-4e77-8ce1-d5482c8cdd64' and voided =0;
-select concept_id into @disability from concept_name cn where uuid ='126165BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
-select concept_id into @walk_disability from concept_name cn where uuid ='23009BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
-select concept_id into @Indigenous from concept_name cn where uuid ='96fdcecd-3b55-49ca-a927-e166e44a9de3';
-select concept_id into @Immigrant from concept_name cn where uuid ='05896be1-8987-4381-a0ea-de588f550cd4';
+SELECT concept_id INTO @civil_status FROM concept WHERE uuid='3cd6df26-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @occupation FROM concept WHERE uuid='3cd97286-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @case_finding FROM concept WHERE uuid='2011a523-43c8-4b3f-a99b-1bee1ca7b4d5';
+SELECT concept_id INTO @education FROM concept WHERE uuid='159400AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @disability FROM concept WHERE uuid='162558AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @walk_disability FROM concept WHERE uuid='122936AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @Indigenous FROM concept WHERE uuid='106bdbef-3d87-4349-86d0-70dacc9c1d7b';
+SELECT concept_id INTO @Immigrant FROM concept WHERE uuid='6f526898-070c-442b-8873-94806e19821a';
 
 select concept_from_mapping('PIH','1065') into @case_finding_value;
 select concept_from_mapping('PIH','1065') into @education_value;
@@ -103,7 +103,7 @@ CREATE table patient_flag AS
 		encounter_id IN (SELECT encounter_id FROM reg_enc_details)
 		GROUP BY person_id;
 
-select concept_id into @height from concept_name cn where uuid ='3e3b0a68-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @height FROM concept WHERE uuid='3ce93cf2-26fe-102b-80cb-0017a47871b2';
 drop table if exists last_patient_height;
 CREATE temporary table last_patient_height AS 
 SELECT person_id , obs_id , value_numeric AS height  FROM obs o2 
@@ -115,7 +115,7 @@ SELECT person_id , obs_id , value_numeric AS height  FROM obs o2
 			GROUP BY person_id 
 		);
 	
-select concept_id into @weight from concept_name cn where uuid ='93bf7980-07d4-102c-b5fa-0017a47871b2';
+SELECT concept_id INTO @weight FROM concept WHERE uuid='3ce93b62-26fe-102b-80cb-0017a47871b2';
 drop table if exists last_patient_weight;
 CREATE temporary table last_patient_weight AS 
 SELECT person_id , obs_id , value_numeric AS weight   FROM obs o2 
@@ -126,8 +126,8 @@ SELECT person_id , obs_id , value_numeric AS weight   FROM obs o2
 			GROUP BY person_id 
 		);
 	
-select concept_id into @phq2 from concept_name cn where uuid ='f56a7d0a-0d09-41e6-9ae0-6480b3006624';
-select concept_id into @gad2 from concept_name cn where uuid ='d3d4aa40-40cc-42fe-a840-cbb6f8f54fb7';
+SELECT concept_id INTO @phq2 FROM concept WHERE uuid='29e259af-6db2-4a16-abd9-86c55e2b9036';
+SELECT concept_id INTO @gad2 FROM concept WHERE uuid='bb6c715b-0efb-4f18-97c4-6a12cba13374';
 drop table if exists last_patient_score;
 create temporary table last_patient_score AS 
 SELECT person_id , obs_id ,encounter_id,  value_numeric AS score   FROM obs o2 
