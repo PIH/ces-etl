@@ -3,12 +3,11 @@ select patient_identifier_type_id into @identifier_type from patient_identifier_
 select encounter_type_id into @reg_encounter from encounter_type et where uuid='873f968a-73a8-4f9c-ac78-9f4778b751b6';
 select encounter_type_id into @consult_encounter from encounter_type et where uuid='aa61d509-6e76-4036-a65d-7813c0c3b752';
 
-
-select concept_id into @lost_followup from concept_name cn where voided =0 and concept_name_type='FULLY_SPECIFIED' and uuid ='3e3cdbc2-26fe-102b-80cb-0017a47871b2';
-select concept_id into @muerte from concept_name cn where voided =0 and concept_name_type='FULLY_SPECIFIED' and uuid ='1b6b03a2-4927-4d62-a1f3-965d206ad9f8';
-select concept_id into @transfered from concept_name cn where voided =0 and concept_name_type='FULLY_SPECIFIED' and uuid ='3e1e256a-26fe-102b-80cb-0017a47871b2';
-select concept_id into @patient_refused from concept_name cn where voided =0 and concept_name_type='FULLY_SPECIFIED' and uuid ='27774BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
-select concept_id into @completed from concept_name cn where voided =0 and concept_name_type='FULLY_SPECIFIED' and uuid ='3e1db918-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @lost_followup FROM concept WHERE uuid='3ceb0ed8-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @muerte FROM concept WHERE uuid='3cdd446a-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @transfered FROM concept WHERE uuid='3cdd5c02-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @patient_refused FROM concept WHERE uuid='efab937b-853e-47da-b97e-220f1bdff97d';
+SELECT concept_id INTO @completed FROM concept WHERE uuid='3cdcecea-26fe-102b-80cb-0017a47871b2';
 
 set @dbname = '${partitionNum}';
 
