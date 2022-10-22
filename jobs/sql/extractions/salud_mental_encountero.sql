@@ -142,24 +142,24 @@ next_appointment date
 ################# Views Defintions ##############################################################
 
 
-SELECT concept_id INTO @phq1 FROM concept_name WHERE uuid='1c72efc9-ead3-4163-ad81-89f5b2e76f30';
-SELECT concept_id INTO @phq2 FROM concept_name WHERE uuid='22c7f8f1-4a6d-4134-9eb9-159b880ee520';
-SELECT concept_id INTO @phq3 FROM concept_name WHERE uuid='2ee95a31-9252-4e3c-8f4e-4b04c6800b2e';
-SELECT concept_id INTO @phq4 FROM concept_name WHERE uuid='b1d55936-4e3a-4937-a43a-f49a4fc79d01';
-SELECT concept_id INTO @phq5 FROM concept_name WHERE uuid='3ad37078-04ab-4ce0-b57e-0114ac67d909';
-SELECT concept_id INTO @phq6 FROM concept_name WHERE uuid='c2fda6f0-662b-4b18-9ae6-7964ece54076';
-SELECT concept_id INTO @phq7 FROM concept_name WHERE uuid='b0a8838b-ad87-46d1-9ed4-ed932fd85464';
-SELECT concept_id INTO @phq8 FROM concept_name WHERE uuid='4039e3f8-bde7-48bf-b6a8-e988065ddfab';
-SELECT concept_id INTO @phq9 FROM concept_name WHERE uuid='8e2ad0bb-f5cc-4426-ab1a-903bc3a7d308';
-SELECT concept_id INTO @gdq1 FROM concept_name WHERE uuid='6429df5e-ecf2-4cd3-b094-c1d2d1f2ba78';
-SELECT concept_id INTO @gdq2 FROM concept_name WHERE uuid='40ed4b2e-2e4c-4a03-8e8c-64ea6641aacd';
-SELECT concept_id INTO @gdq3 FROM concept_name WHERE uuid='2bc5d8c6-4dde-4c7c-a005-3440fdce5287';
-SELECT concept_id INTO @gdq4 FROM concept_name WHERE uuid='fd7b9dc1-9ef8-4471-9524-e42186bee719';
-SELECT concept_id INTO @gdq5 FROM concept_name WHERE uuid='a262cb01-9dc5-428b-a42f-6dee85c0ae3a';
-SELECT concept_id INTO @gdq6 FROM concept_name WHERE uuid='9c2c2976-cb2d-465c-8ce0-6e7591480473';
-SELECT concept_id INTO @gdq7 FROM concept_name WHERE uuid='1cf903a8-d4cf-4cb4-8558-bf1f678d7513';
-SELECT concept_id INTO @phqscore FROM concept_name WHERE uuid='19313bdf-fa55-4201-a644-2543756d2b0c';
-SELECT concept_id INTO @gadscore FROM concept_name WHERE uuid='2b829a3b-fd04-4989-b7d1-40c9d25dbdfc';
+SELECT concept_id INTO @phq1 FROM concept WHERE uuid='85bdc2d2-afaa-4d5e-bc6b-ee8277d160f1';
+SELECT concept_id INTO @phq2 FROM concept WHERE uuid='01bf95d6-bcd0-44fb-8752-3da72f71ab6d';
+SELECT concept_id INTO @phq3 FROM concept WHERE uuid='c85fc943-b747-4d72-a0a8-6ca2dc8fb568';
+SELECT concept_id INTO @phq4 FROM concept WHERE uuid='8a034046-5fea-4253-a105-3af86b0679fe';
+SELECT concept_id INTO @phq5 FROM concept WHERE uuid='a34eb8de-4272-4da5-b785-6462dfb97cc2';
+SELECT concept_id INTO @phq6 FROM concept WHERE uuid='4306e155-d299-46d0-9472-51c88fb196a7';
+SELECT concept_id INTO @phq7 FROM concept WHERE uuid='476ec75b-a7d0-4e07-889a-d3700f03acd3';
+SELECT concept_id INTO @phq8 FROM concept WHERE uuid='5bc6e1a8-91a6-49ef-b879-715c524abd98';
+SELECT concept_id INTO @phq9 FROM concept WHERE uuid='996e915c-ed3a-4c67-834b-a7cb98f8248b';
+SELECT concept_id INTO @gdq1 FROM concept WHERE uuid='8f7bc995-9b4a-4c99-9301-3029130c3aae';
+SELECT concept_id INTO @gdq2 FROM concept WHERE uuid='bce099ca-d69f-48d0-bb87-d2c7ff4ca5c7';
+SELECT concept_id INTO @gdq3 FROM concept WHERE uuid='f808bce8-4c0b-43ce-a187-1c209cb1c830';
+SELECT concept_id INTO @gdq4 FROM concept WHERE uuid='2c1bdb4f-c432-4987-aba6-045ed9c53ea5';
+SELECT concept_id INTO @gdq5 FROM concept WHERE uuid='fdee3750-0aa7-47c3-8c0b-c86ffe7e9b60';
+SELECT concept_id INTO @gdq6 FROM concept WHERE uuid='e4ecb39a-d295-48bb-920c-ef3298b5cd49';
+SELECT concept_id INTO @gdq7 FROM concept WHERE uuid='bf6c5967-339a-43c3-ab74-43e14638fe4c';
+SELECT concept_id INTO @phqscore FROM concept WHERE uuid='165137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @gadscore FROM concept WHERE uuid='8b8769a9-a8cc-4166-ba2a-2e61fb081be7';
 
 DROP TABLE IF EXISTS mental_obs_ref;
 CREATE TABLE mental_obs_ref (
@@ -246,8 +246,7 @@ INNER JOIN visit_type vt ON v2.visit_type_id =vt.visit_type_id;
 update salud_mental_encountero t
 set t.dbname=@dbname;
 
-select concept_id into @visit_reason_cn from concept_name cn where uuid ='75c775bb-798c-4eeb-b146-5d7a89fad4c2';
-UPDATE salud_mental_encountero t 
+SELECT concept_id INTO @visit_reason_cn FROM concept WHERE uuid='86a2cf11-1ea5-4b8a-9e4b-08f4cdbe1346';UPDATE salud_mental_encountero t 
 SET t.visit_Reason = (
 	 SELECT  concept_name(value_coded,'en')
 	 FROM obs WHERE concept_id=@visit_reason_cn  
@@ -260,11 +259,26 @@ SET t.visit_Reason = (
 
 -- ############# PHQ-9 & GAD-7  Questions #####################################
 
-SELECT concept_id INTO @never  FROM concept_name cn WHERE uuid='3e154cc4-26fe-102b-80cb-0017a47871b2';
-SELECT concept_id INTO @somedays  FROM concept_name cn WHERE uuid='0b7c1594-15f5-102d-96e4-000c29c2a5d7';
-SELECT concept_id INTO @morethanhalf  FROM concept_name cn WHERE uuid='a3194e05-8c29-4796-a990-e6ffe11fbee6';
-SELECT concept_id INTO @daily  FROM concept_name cn WHERE uuid='3e1565e2-26fe-102b-80cb-0017a47871b2';
-SELECT concept_id INTO @little_interest  FROM concept_name cn WHERE uuid='1c72efc9-ead3-4163-ad81-89f5b2e76f30';
+SELECT concept_id INTO @never FROM concept WHERE uuid='3cd72968-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @somedays FROM concept WHERE uuid='3cdc3fe8-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @morethanhalf FROM concept WHERE uuid='1cf6ebb8-dd57-4d26-87cd-e49c09373aaf';
+SELECT concept_id INTO @daily FROM concept WHERE uuid='3cd73912-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @little_interest FROM concept WHERE uuid='85bdc2d2-afaa-4d5e-bc6b-ee8277d160f1';
+SELECT concept_id INTO @down_depressed FROM concept WHERE uuid='01bf95d6-bcd0-44fb-8752-3da72f71ab6d';
+SELECT concept_id INTO @hard_Failing_sleep FROM concept WHERE uuid='c85fc943-b747-4d72-a0a8-6ca2dc8fb568';
+SELECT concept_id INTO @feeling_tired FROM concept WHERE uuid='8a034046-5fea-4253-a105-3af86b0679fe';
+SELECT concept_id INTO @eating_less FROM concept WHERE uuid='a34eb8de-4272-4da5-b785-6462dfb97cc2';
+SELECT concept_id INTO @failed_someone FROM concept WHERE uuid='4306e155-d299-46d0-9472-51c88fb196a7';
+SELECT concept_id INTO @distract_easily FROM concept WHERE uuid='476ec75b-a7d0-4e07-889a-d3700f03acd3';
+SELECT concept_id INTO @feels_slower FROM concept WHERE uuid='5bc6e1a8-91a6-49ef-b879-715c524abd98';
+SELECT concept_id INTO @suicidal_thoughts FROM concept WHERE uuid='996e915c-ed3a-4c67-834b-a7cb98f8248b';
+SELECT concept_id INTO @feel_nervous FROM concept WHERE uuid='8f7bc995-9b4a-4c99-9301-3029130c3aae';
+SELECT concept_id INTO @no_stop_worry FROM concept WHERE uuid='bce099ca-d69f-48d0-bb87-d2c7ff4ca5c7';
+SELECT concept_id INTO @worry_much FROM concept WHERE uuid='f808bce8-4c0b-43ce-a187-1c209cb1c830';
+SELECT concept_id INTO @diff_relaxing FROM concept WHERE uuid='2c1bdb4f-c432-4987-aba6-045ed9c53ea5';
+SELECT concept_id INTO @so_restless FROM concept WHERE uuid='fdee3750-0aa7-47c3-8c0b-c86ffe7e9b60';
+SELECT concept_id INTO @upset_easily FROM concept WHERE uuid='e4ecb39a-d295-48bb-920c-ef3298b5cd49';
+SELECT concept_id INTO @feeling_scared FROM concept WHERE uuid='bf6c5967-339a-43c3-ab74-43e14638fe4c';
 
 UPDATE salud_mental_encountero t 
 SET t.PHQ9_q1 = (
@@ -279,7 +293,6 @@ SET t.PHQ9_q1 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @down_depressed  FROM concept_name cn WHERE uuid='22c7f8f1-4a6d-4134-9eb9-159b880ee520';
 UPDATE salud_mental_encountero t 
 SET t.PHQ9_q2 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -293,7 +306,6 @@ SET t.PHQ9_q2 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @hard_Failing_sleep  FROM concept_name cn WHERE uuid='2ee95a31-9252-4e3c-8f4e-4b04c6800b2e';
 UPDATE salud_mental_encountero t 
 SET t.PHQ9_q3 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -307,7 +319,6 @@ SET t.PHQ9_q3 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @feeling_tired  FROM concept_name cn WHERE uuid='b1d55936-4e3a-4937-a43a-f49a4fc79d01';
 UPDATE salud_mental_encountero t 
 SET t.PHQ9_q4 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -321,7 +332,6 @@ SET t.PHQ9_q4 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @eating_less  FROM concept_name cn WHERE uuid='3ad37078-04ab-4ce0-b57e-0114ac67d909';
 UPDATE salud_mental_encountero t 
 SET t.PHQ9_q5 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -336,7 +346,6 @@ SET t.PHQ9_q5 = (
 );
 
 
-SELECT concept_id INTO @failed_someone  FROM concept_name cn WHERE uuid='c2fda6f0-662b-4b18-9ae6-7964ece54076';
 UPDATE salud_mental_encountero t 
 SET t.PHQ9_q6 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -350,7 +359,6 @@ SET t.PHQ9_q6 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @distract_easily  FROM concept_name cn WHERE uuid='b0a8838b-ad87-46d1-9ed4-ed932fd85464';
 UPDATE salud_mental_encountero t 
 SET t.PHQ9_q7 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -364,7 +372,6 @@ SET t.PHQ9_q7 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @feels_slower  FROM concept_name cn WHERE uuid='4039e3f8-bde7-48bf-b6a8-e988065ddfab';
 UPDATE salud_mental_encountero t 
 SET t.PHQ9_q8 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -378,7 +385,6 @@ SET t.PHQ9_q8 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @suicidal_thoughts  FROM concept_name cn WHERE uuid='8e2ad0bb-f5cc-4426-ab1a-903bc3a7d308';
 UPDATE salud_mental_encountero t 
 SET t.PHQ9_q9 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -392,7 +398,6 @@ SET t.PHQ9_q9 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @feel_nervous  FROM concept_name cn WHERE uuid='6429df5e-ecf2-4cd3-b094-c1d2d1f2ba78';
 UPDATE salud_mental_encountero t 
 SET t.GAD7_q1 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -406,7 +411,6 @@ SET t.GAD7_q1 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @no_stop_worry  FROM concept_name cn WHERE uuid='40ed4b2e-2e4c-4a03-8e8c-64ea6641aacd';
 UPDATE salud_mental_encountero t 
 SET t.GAD7_q2 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -420,7 +424,6 @@ SET t.GAD7_q2 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @worry_much  FROM concept_name cn WHERE uuid='2bc5d8c6-4dde-4c7c-a005-3440fdce5287';
 UPDATE salud_mental_encountero t 
 SET t.GAD7_q3 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -434,7 +437,6 @@ SET t.GAD7_q3 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @diff_relaxing  FROM concept_name cn WHERE uuid='fd7b9dc1-9ef8-4471-9524-e42186bee719';
 UPDATE salud_mental_encountero t 
 SET t.GAD7_q4 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -448,7 +450,6 @@ SET t.GAD7_q4 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @so_restless  FROM concept_name cn WHERE uuid='a262cb01-9dc5-428b-a42f-6dee85c0ae3a';
 UPDATE salud_mental_encountero t 
 SET t.GAD7_q5 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -462,7 +463,6 @@ SET t.GAD7_q5 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @upset_easily  FROM concept_name cn WHERE uuid='9c2c2976-cb2d-465c-8ce0-6e7591480473';
 UPDATE salud_mental_encountero t 
 SET t.GAD7_q6 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -476,7 +476,6 @@ SET t.GAD7_q6 = (
 	LIMIT 1
 );
 
-SELECT concept_id INTO @feeling_scared  FROM concept_name cn WHERE uuid='1cf903a8-d4cf-4cb4-8558-bf1f678d7513';
 UPDATE salud_mental_encountero t 
 SET t.GAD7_q7 = (
 	 SELECT  CASE WHEN value_coded=@never  THEN 0
@@ -512,8 +511,7 @@ SET t.GAD7_score  = (
 	LIMIT 1
 );
 -- --------------------------------------- Analysis Notes ----------------------------------------------------------------------------------------------------------------------------------------------
-SELECT concept_id  INTO @analysis_notes FROM concept_name WHERE uuid ='3e18bed6-26fe-102b-80cb-0017a47871b2';
-UPDATE salud_mental_encountero t 
+SELECT concept_id INTO @analysis_notes FROM concept WHERE uuid='3cd9d956-26fe-102b-80cb-0017a47871b2';UPDATE salud_mental_encountero t 
 SET t.analysis_notes = (
 	 SELECT  value_text
 	 FROM obs WHERE concept_id=@analysis_notes  
@@ -524,8 +522,7 @@ SET t.analysis_notes = (
 );
 
 -- --------------------------------------- Case Notes ----------------------------------------------------------------------------------------------------------------------------------------------
-SELECT concept_id  INTO @case_notes FROM concept_name WHERE uuid ='2e1420e1-b502-400c-bd56-6ab2666d0991';
-UPDATE salud_mental_encountero t 
+SELECT concept_id INTO @case_notes FROM concept WHERE uuid='3cd9ae0e-26fe-102b-80cb-0017a47871b2';UPDATE salud_mental_encountero t 
 SET t.case_notes = (
 	 SELECT  value_text
 	 FROM obs WHERE concept_id=@case_notes  
@@ -918,8 +915,8 @@ limit 1
 );
 
 -- --------------------------------------- Lab order and Treatement Plan ----------------------------------------------------------------------------------------------------------------------------------------------
-SELECT concept_id  INTO @treatment_plan FROM concept_name WHERE uuid ='126604BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
-SELECT concept_id  INTO @lab_ordered FROM concept_name WHERE uuid ='9dd4673d-e07e-4c74-b190-fb3ff5e8344e';
+SELECT concept_id INTO @treatment_plan FROM concept WHERE uuid='162749AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @lab_ordered FROM concept WHERE uuid='24102c5d-b199-406f-b49d-83ddd7ce83d5';
 
 UPDATE salud_mental_encountero t 
 SET t.Treatment_plan  = (
@@ -942,8 +939,8 @@ SET t.lab_tests_ordered = (
 );
 
 -- ------------------------------- Pregnancy and delivery date --------------------------------------------------------------------------------
-SELECT concept_id INTO @parental_care FROM concept_name cn3 WHERE uuid='142496BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
-SELECT concept_id INTO @planned_pregnancy FROM concept_name cn3 WHERE uuid='109202BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
+SELECT concept_id INTO @parental_care FROM concept WHERE uuid='165475AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @planned_pregnancy FROM concept WHERE uuid='1426AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 select concept_from_mapping('PIH','13731') into @wanted_pregnancy;
 
 select program_id into @ANC from program p2 where uuid='d830a5c1-30a2-4943-93a0-f918772496ec';
@@ -958,12 +955,11 @@ SET t.prenatal_care = (
 );
 
 -- -------------------------------------------- Indicators - psychosis --------------------------------------------------------------------------
-
-SELECT concept_id INTO @Schizophrenia FROM concept_name cn WHERE uuid='3e0ecaca-26fe-102b-80cb-0017a47871b2'; 
--- SELECT concept_id INTO @Acute_psychosis FROM concept_name cn WHERE uuid='3e0ecaca-26fe-102b-80cb-0017a47871b2'; 
-SELECT concept_id INTO @psychosis FROM concept_name cn WHERE uuid='20f708a3-be12-49ac-b30b-f9d87b533c33'; 
-SELECT concept_id INTO @Mania_wo_psychotic FROM concept_name cn WHERE uuid='125457BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'; 
-SELECT concept_id INTO @Mania_w_psychotic FROM concept_name cn WHERE uuid='125455BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'; 
+SELECT concept_id INTO @Schizophrenia FROM concept WHERE uuid='3cd134f4-26fe-102b-80cb-0017a47871b2';
+-- SELECT concept_id INTO @Acute_psychosis FROM concept WHERE uuid='3cd134f4-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @psychosis FROM concept WHERE uuid='3ccea7fc-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @Mania_wo_psychotic FROM concept WHERE uuid='162314AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @Mania_w_psychotic FROM concept WHERE uuid='162313AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 DROP TABLE IF EXISTS psychosis_data;
 CREATE TEMPORARY TABLE psychosis_data AS 
@@ -991,9 +987,9 @@ WHERE t.psychosis  IS NULL;
 
 -- -------------------------------------------- Indicators - mood disorder --------------------------------------------------------------------------
 
-SELECT concept_id INTO @bipolar_disorder FROM concept_name cn WHERE uuid='21277BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'; 
-SELECT concept_id INTO @depression FROM concept_name cn WHERE uuid='3e0bf55c-26fe-102b-80cb-0017a47871b2'; 
-SELECT concept_id INTO @mood_changes FROM concept_name cn WHERE uuid='19158BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'; 
+SELECT concept_id INTO @bipolar_disorder FROM concept WHERE uuid='121131AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @depression FROM concept WHERE uuid='3cce9514-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @mood_changes FROM concept WHERE uuid='118879AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 DROP TABLE IF EXISTS mood_disorder_data;
 CREATE TEMPORARY TABLE mood_disorder_data AS 
@@ -1019,12 +1015,12 @@ WHERE t.mood_disorder  IS NULL;
 
 -- -------------------------------------------------------- Indicators - anxiety ---------------------------------------------------------------------------------------
 
-SELECT concept_id INTO @panick_attack FROM concept_name cn WHERE uuid='30948BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'; 
-SELECT concept_id INTO @generalised_anxiety FROM concept_name cn WHERE uuid='39327BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'; 
-SELECT concept_id INTO @anxiety FROM concept_name cn WHERE uuid='94db47f0-234a-41b4-9ff5-9a8eca179ce0'; 
-SELECT concept_id INTO @obsessive_compulsive_disorder FROM concept_name cn WHERE uuid='32537BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'; 
-SELECT concept_id INTO @acute_stress_reaction FROM concept_name cn WHERE uuid='cac16142-4adb-4900-8880-9e1af727b464'; 
-SELECT concept_id INTO @post_traumatic_stress FROM concept_name cn WHERE uuid='6b144b55-b9b2-4907-85a8-4e1e8315ee12'; 
+SELECT concept_id INTO @panick_attack FROM concept WHERE uuid='130967AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @generalised_anxiety FROM concept WHERE uuid='139545AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @anxiety FROM concept WHERE uuid='3ce6b1ee-26fe-102b-80cb-0017a47871b2';
+SELECT concept_id INTO @obsessive_compulsive_disorder FROM concept WHERE uuid='132611AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @acute_stress_reaction FROM concept WHERE uuid='149514AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @post_traumatic_stress FROM concept WHERE uuid='a31bbcf1-0374-4160-8cfe-8271e096762d';
 
 DROP TABLE IF EXISTS anxiety_data;
 CREATE TEMPORARY TABLE anxiety_data AS 
@@ -1052,7 +1048,7 @@ SET t.anxiety  = FALSE
 WHERE t.anxiety  IS NULL;
 
 -- ---------------------------------------------------- Indicators - dissociative disorders ------------------------------------------------------------------------------------
-SELECT concept_id INTO @dissociative_disorders FROM concept_name cn WHERE uuid='1533d1b9-db89-4e78-9686-ae5c0c6aa392'; 
+SELECT concept_id INTO @dissociative_disorders FROM concept WHERE uuid='118883AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 DROP TABLE IF EXISTS dissociative_disorders_data;
 CREATE TEMPORARY TABLE dissociative_disorders_data AS 
@@ -1075,7 +1071,7 @@ SET t.dissociative_disorders  = FALSE
 WHERE t.dissociative_disorders  IS NULL;
 
 -- ----------------------------------------------------- Indicators - psychosomatic disorders -------------------------------------------------------------------------
-SELECT concept_id INTO @dissociative_disorders FROM concept_name cn WHERE uuid='9397c29e-fe5f-4f89-b7b2-e2294a46ebe2'; 
+SELECT concept_id INTO @dissociative_disorders FROM concept WHERE uuid='489db96c-ef65-40d2-a96b-a2f0c59645fb';
 
 DROP TABLE IF EXISTS psychosomatic_disorders_data;
 CREATE TEMPORARY TABLE psychosomatic_disorders_data AS 
@@ -1099,7 +1095,7 @@ SET t.psychosomatic_disorders  = FALSE
 WHERE t.psychosomatic_disorders  IS NULL;
 
 -- ---------------------------------------------------- Indicators - eating disorders --------------------------------------------------------------------------
-SELECT concept_id INTO @eating_disorders FROM concept_name cn WHERE uuid='19051BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
+SELECT concept_id INTO @eating_disorders FROM concept WHERE uuid='118764AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 DROP TABLE IF EXISTS eating_disorders_data;
 CREATE TEMPORARY TABLE eating_disorders_data AS 
 	 SELECT person_id,encounter_id,  COUNT(*) AS num_obs
@@ -1121,7 +1117,7 @@ SET t.eating_disorders  = FALSE
 WHERE t.eating_disorders  IS NULL;
 
 -- ------------------------------------------------------- Indicators - personality disorders -----------------------------------------------------------------------------------
-SELECT concept_id INTO @personality_disorders FROM concept_name cn WHERE uuid='14788BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
+SELECT concept_id INTO @personality_disorders FROM concept WHERE uuid='114193AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 DROP TABLE IF EXISTS personality_disorders_data;
 CREATE TEMPORARY TABLE personality_disorders_data AS 
@@ -1147,9 +1143,9 @@ WHERE t.personality_disorders  IS NULL;
 
 
 -- ----------------------------------------- Indicators - conduct disorders ---------------------------------------------------------------------
-SELECT concept_id INTO @conduct_disorder FROM concept_name cn WHERE uuid='efb2cf92-f4eb-46a3-bb63-f1703d12859f';
-SELECT concept_id INTO @attention_deficit FROM concept_name cn WHERE uuid='a3e4ff43-1038-4333-864f-fdb863983607';
-SELECT concept_id INTO @oppositional_deficit FROM concept_name cn WHERE uuid='5fff7edb-a761-411e-a1ef-ec9b8594d0ad';
+SELECT concept_id INTO @conduct_disorder FROM concept WHERE uuid='142513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @attention_deficit FROM concept WHERE uuid='13cc6ea1-8379-4ec3-ab01-fce1deed31e3';
+SELECT concept_id INTO @oppositional_deficit FROM concept WHERE uuid='142513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 DROP TABLE IF EXISTS conduct_disorders_data;
 CREATE TEMPORARY TABLE conduct_disorders_data AS 
@@ -1176,9 +1172,8 @@ SET t.conduct_disorders  = FALSE
 WHERE t.conduct_disorders  IS NULL;
 
 -- ------------------------------------------------- Indicators - suicidal -------------------------------------------------------------------------------------
-SELECT concept_id INTO @suicidal_thoughts FROM concept_name cn WHERE uuid='25618BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
-SELECT concept_id INTO @attempted_suicide FROM concept_name cn WHERE uuid='47767BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
-
+SELECT concept_id INTO @suicidal_thoughts FROM concept WHERE uuid='125562AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @attempted_suicide FROM concept WHERE uuid='148143AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 DROP TABLE IF EXISTS suicidal_data;
 CREATE TEMPORARY TABLE suicidal_data AS 
@@ -1204,7 +1199,7 @@ WHERE t.suicidal_ideation  IS NULL;
 
 
 -- ----------------------------------------------  Indicators - grief & Adaptive_disorder ----------------------------------------------------
-SELECT concept_id INTO @grief FROM concept_name cn WHERE uuid='56ca4d71-2fec-4189-8e12-f2a79a39c3ca';
+SELECT concept_id INTO @grief FROM concept WHERE uuid='139251AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 DROP TABLE IF EXISTS grief_data;
 CREATE TEMPORARY TABLE grief_data AS 
@@ -1242,7 +1237,7 @@ WHERE t.adaptive_disorders  IS NULL;
 
 
 -- --------------------------- Next Scheduled Appointment --------------------------------------------------------------------------
-SELECT concept_id INTO @next_appt FROM concept_name cn WHERE uuid='66f5aa60-10fb-40a9-bcd3-7940980eddca';
+SELECT concept_id INTO @next_appt FROM concept WHERE uuid='3ce94df0-26fe-102b-80cb-0017a47871b2';
 
 UPDATE salud_mental_encountero t 
 SET t.next_appointment  = (
