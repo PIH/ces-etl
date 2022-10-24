@@ -246,7 +246,8 @@ INNER JOIN visit_type vt ON v2.visit_type_id =vt.visit_type_id;
 update salud_mental_encountero t
 set t.dbname=@dbname;
 
-SELECT concept_id INTO @visit_reason_cn FROM concept WHERE uuid='86a2cf11-1ea5-4b8a-9e4b-08f4cdbe1346';UPDATE salud_mental_encountero t 
+SELECT concept_id INTO @visit_reason_cn FROM concept WHERE uuid='86a2cf11-1ea5-4b8a-9e4b-08f4cdbe1346';
+UPDATE salud_mental_encountero t 
 SET t.visit_Reason = (
 	 SELECT  concept_name(value_coded,'en')
 	 FROM obs WHERE concept_id=@visit_reason_cn  
