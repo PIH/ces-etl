@@ -512,7 +512,8 @@ SET t.GAD7_score  = (
 	LIMIT 1
 );
 -- --------------------------------------- Analysis Notes ----------------------------------------------------------------------------------------------------------------------------------------------
-SELECT concept_id INTO @analysis_notes FROM concept WHERE uuid='3cd9d956-26fe-102b-80cb-0017a47871b2';UPDATE salud_mental_encountero t 
+SELECT concept_id INTO @analysis_notes FROM concept WHERE uuid='3cd9d956-26fe-102b-80cb-0017a47871b2';
+UPDATE salud_mental_encountero t 
 SET t.analysis_notes = (
 	 SELECT  value_text
 	 FROM obs WHERE concept_id=@analysis_notes  
@@ -523,7 +524,8 @@ SET t.analysis_notes = (
 );
 
 -- --------------------------------------- Case Notes ----------------------------------------------------------------------------------------------------------------------------------------------
-SELECT concept_id INTO @case_notes FROM concept WHERE uuid='3cd9ae0e-26fe-102b-80cb-0017a47871b2';UPDATE salud_mental_encountero t 
+SELECT concept_id INTO @case_notes FROM concept WHERE uuid='3cd9ae0e-26fe-102b-80cb-0017a47871b2';
+UPDATE salud_mental_encountero t 
 SET t.case_notes = (
 	 SELECT  value_text
 	 FROM obs WHERE concept_id=@case_notes  
