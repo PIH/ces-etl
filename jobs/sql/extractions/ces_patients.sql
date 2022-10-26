@@ -190,20 +190,36 @@ INNER JOIN (
 	birthdate, 
 	DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(), birthdate)), "%Y")+0 age_in_years,
 	gender,
-	pa.county_district municipilty,
-	pa.state_province state,
 	dead death,
 	cause_of_death,death_date 
-	FROM person p2 INNER JOIN person_address pa ON p2.person_id = pa.person_id 
+	FROM person p2
 ) x ON cp.patient_id =x.person_id
 SET cp.dob = x.birthdate,
 	cp.age_in_years = x.age_in_years,
 	cp.gender =x.gender,
-	cp.municipilty = x.municipilty,
-	cp.state =x.state,
 	cp.dead =x.death,
 	cp.date_of_death =x.death_date,
 	cp.cause_of_Death =concept_name(x.cause_of_death,'en');
+
+
+UPDATE ces_patients cp
+SET cp.municipilty = (
+	SELECT county_district
+	FROM person_address
+	WHERE voided=0
+	AND person_id = cp.patient_id
+	order by preferred desc, date_created desc limit 1
+);
+
+
+UPDATE ces_patients cp
+SET cp.state = (
+	SELECT state_province
+	FROM person_address
+	WHERE voided=0
+	AND person_id = cp.patient_id
+	order by preferred desc, date_created desc limit 1
+);
 
 -- ---------------------------- civil_status and other regsteration flags -------------------------------------------
 
