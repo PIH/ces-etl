@@ -1199,7 +1199,7 @@ WHERE t.suicidal_ideation  IS NULL;
 
 
 -- ----------------------------------------------  Indicators - grief & Adaptive_disorder ----------------------------------------------------
-SELECT concept_id INTO @grief FROM concept WHERE uuid='139251AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @grief FROM concept WHERE uuid='121792AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 DROP TABLE IF EXISTS grief_data;
 CREATE TEMPORARY TABLE grief_data AS 

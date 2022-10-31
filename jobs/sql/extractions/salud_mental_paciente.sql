@@ -461,7 +461,7 @@ WHERE t.anxiety  IS NULL;
 
 
 -- ------------- Indicators - adaptive disorders -------------------------------------
-SELECT concept_id INTO @grief FROM concept WHERE uuid='139251AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+SELECT concept_id INTO @grief FROM concept WHERE uuid='121792AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
 drop table if exists adaptive_disorders_data;
 CREATE TEMPORARY TABLE adaptive_disorders_data AS 
