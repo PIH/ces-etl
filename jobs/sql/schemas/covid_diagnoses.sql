@@ -1,12 +1,12 @@
 CREATE TABLE covid_diagnoses
 (
-  patient_id              INT,
-  encounter_id            INT,
-  encounter_type          VARCHAR(255),
-  location                TEXT,
-  encounter_date          DATE,
-  diagnosis_order         TEXT,
-  diagnosis               TEXT,
-  diagnosis_confirmation  TEXT,
-  covid19_diagnosis       VARCHAR(255)
+  paciente_id             INT,
+  encuentro_id            INT,
+  tipo_encuentro          VARCHAR(255),
+  ubicacion               TEXT,
+  encuentro_fecha         DATE,
+  orden_diagnóstico       TEXT,
+  diagnostico             TEXT,
+  diagnosis_confirmacion  TEXT,
+  covid19_diagnostico     VARCHAR(255)
 );
