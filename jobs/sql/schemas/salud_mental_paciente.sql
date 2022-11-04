@@ -1,7 +1,7 @@
 CREATE TABLE salud_mental_paciente (
 dbname varchar(30),
 emr_id	varchar(50),
-age	int,
+edad_encuentro      int,
 gender	varchar(30),
 dead	bit,
 death_Date	date,
