@@ -1373,7 +1373,6 @@ set es.index_desc = (
 SELECT 
 DISTINCT
 dbname,
-patient_id ,
 emr_id ,
 location ,
 age ,
