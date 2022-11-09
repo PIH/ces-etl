@@ -18,4 +18,4 @@ configuration:
           - tableName: "salud_mental_paciente"
           - tableName: "salud_mental_encountero"
           - tableName: "salud_mental_estatus"
-          - tableName: "ces_patients"
+          - tableName: "ces_pacientes"
