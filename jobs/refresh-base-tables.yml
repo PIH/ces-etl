@@ -19,3 +19,4 @@ configuration:
           - tableName: "salud_mental_encuentro"
           - tableName: "salud_mental_estatus"
           - tableName: "ces_pacientes"
+          - tableName: "visitas"
