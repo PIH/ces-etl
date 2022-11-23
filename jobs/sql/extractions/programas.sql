@@ -2,8 +2,8 @@ select program_id into @hypertension from program p where uuid='6959057e-9a5c-40
 select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
 
 
-drop table if exists programas;
-create table programas(
+drop temporary table if exists programas;
+create temporary table programas(
 patient_id int, 
 emrid varchar(50),
 emr_instance varchar(50),
@@ -133,7 +133,6 @@ set es.index_desc = (
  and date_created=es.date_created
 );
     
-
 select 
 emrid,
 emr_instance,
