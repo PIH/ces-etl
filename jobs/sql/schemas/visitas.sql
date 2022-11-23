@@ -1,5 +1,5 @@
 create table visitas (
-emrid			varchar(50),
+emr_id			varchar(50),
 visit_id			int,
 visit_date_started	datetime,
 visit_date_stopped	datetime,
