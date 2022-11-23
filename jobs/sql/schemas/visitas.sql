@@ -8,4 +8,4 @@ visit_user_entered	varchar(255),
 visit_type			varchar(255),
 visit_location		varchar(255),
 index_asc			int,
-index_desc			int));
+index_desc			int);
