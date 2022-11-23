@@ -6,7 +6,7 @@ hearts bit,
 hearts_date date,
 date_enrolled datetime,
 date_unenroll datetime,
-status varchar(50),
+program_status varchar(50),
 index_asc int,
 index_desc int
 );
