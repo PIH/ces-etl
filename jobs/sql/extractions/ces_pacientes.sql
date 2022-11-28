@@ -31,35 +31,39 @@ last_enc_type varchar(50)
 );
 
 -- ################################# Views Updates ##################################################################
-CREATE OR REPLACE VIEW first_enc AS
+drop table if exists first_enc;
+CREATE temporary table first_enc AS
 		SELECT patient_id, encounter_datetime -- , min(encounter_datetime) encounter_datetime
 		FROM encounter e 
 		WHERE encounter_type=2
 		GROUP BY patient_id ;
 	
-CREATE OR REPLACE VIEW reg_enc_details AS 
+drop table if exists reg_enc_details;
+CREATE  temporary table reg_enc_details AS 
 	SELECT DISTINCT e.patient_id, e.encounter_datetime  , e.encounter_id,e.encounter_type ,l.name 
         FROM encounter e INNER JOIN first_enc X ON X.patient_id =e.patient_id AND X.encounter_datetime=e.encounter_datetime
 		left outer JOIN location l ON l.location_id =e.location_id 
 		WHERE encounter_type=2;
-	
-CREATE OR REPLACE VIEW last_enc AS
+
+drop table if exists last_enc;
+CREATE temporary table last_enc AS
 		SELECT patient_id , max(encounter_id) encounter_id
 		FROM encounter e 
 		GROUP BY patient_id;
-	
-CREATE OR REPLACE VIEW last_enc_details AS 
+
+drop table if exists last_enc_details;
+CREATE temporary table last_enc_details AS 
 	SELECT DISTINCT e.patient_id, e.encounter_datetime  , e.encounter_type ,et.name  
         FROM encounter e inner join last_enc X ON X.patient_id =e.patient_id AND X.encounter_id=e.encounter_id
 		left outer JOIN encounter_type et  ON e.encounter_type  =et.encounter_type_id 
 		GROUP BY e.patient_id;
 
-CREATE OR REPLACE VIEW first_enc_wo_reg AS
+drop table if exists first_enc_wo_reg;
+CREATE temporary table first_enc_wo_reg AS
 		SELECT patient_id , min(encounter_datetime) encounter_datetime
 		FROM encounter e 
 		WHERE encounter_type <> 2
 		GROUP BY patient_id ;
-	
 	
 SELECT concept_id INTO @civil_status FROM concept WHERE uuid='3cd6df26-26fe-102b-80cb-0017a47871b2';
 SELECT concept_id INTO @occupation FROM concept WHERE uuid='3cd97286-26fe-102b-80cb-0017a47871b2';
