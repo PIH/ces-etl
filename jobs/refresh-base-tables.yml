@@ -21,3 +21,4 @@ configuration:
           - tableName: "ces_pacientes"
           - tableName: "visitas"
           - tableName: "programas"
+          - tableName: "encuentro_consulta"
