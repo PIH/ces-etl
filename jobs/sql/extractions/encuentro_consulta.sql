@@ -591,7 +591,7 @@ set t.index_desc = tvid.index_desc;
 select 
 patient_id,
 emr_id,
-encounter_id,
+CONCAT(@partition,'-',encounter_id) "encounter_id",
 encounter_type,
 encounter_date,
 encounter_location,
