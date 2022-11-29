@@ -91,7 +91,7 @@ diu_mirena                             bit,
 condones                               bit,
 mifepristona                           bit,
 misoprostol                            bit,
-hierro_dextran                         datetime,
+hierro_dextran                         bit,
 proxima_cita                           datetime,
 index_asc                              int,
 index_desc                             int
