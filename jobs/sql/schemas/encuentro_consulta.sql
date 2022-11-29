@@ -1,9 +1,9 @@
 CREATE TABLE encuentro_consulta
 (
 patient_id                             int,
-emrid                                  int,
+emrid                                  varchar(50),
 emr_instancia                          varchar(50),
-encuentro_id                           int,
+encuentro_id                           varchar(25),
 encuentro_fecha                        varchar(255),
 entrada_fecha                          datetime,
 entrada_persona                        varchar(255),
