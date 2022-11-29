@@ -31,30 +31,35 @@ last_enc_type varchar(50)
 );
 
 -- ################################# Views Updates ##################################################################
-CREATE OR REPLACE VIEW first_enc AS
+drop table if exists first_enc;
+CREATE temporary table first_enc AS
 		SELECT patient_id, encounter_datetime -- , min(encounter_datetime) encounter_datetime
 		FROM encounter e 
 		WHERE encounter_type=2
 		GROUP BY patient_id ;
 	
-CREATE OR REPLACE VIEW reg_enc_details AS 
+drop table if exists reg_enc_details;
+CREATE  temporary table reg_enc_details AS 
 	SELECT DISTINCT e.patient_id, e.encounter_datetime  , e.encounter_id,e.encounter_type ,l.name 
         FROM encounter e INNER JOIN first_enc X ON X.patient_id =e.patient_id AND X.encounter_datetime=e.encounter_datetime
 		left outer JOIN location l ON l.location_id =e.location_id 
 		WHERE encounter_type=2;
-	
-CREATE OR REPLACE VIEW last_enc AS
+
+drop table if exists last_enc;
+CREATE temporary table last_enc AS
 		SELECT patient_id , max(encounter_id) encounter_id
 		FROM encounter e 
 		GROUP BY patient_id;
-	
-CREATE OR REPLACE VIEW last_enc_details AS 
+
+drop table if exists last_enc_details;
+CREATE temporary table last_enc_details AS 
 	SELECT DISTINCT e.patient_id, e.encounter_datetime  , e.encounter_type ,et.name  
         FROM encounter e inner join last_enc X ON X.patient_id =e.patient_id AND X.encounter_id=e.encounter_id
 		left outer JOIN encounter_type et  ON e.encounter_type  =et.encounter_type_id 
 		GROUP BY e.patient_id;
 
-CREATE OR REPLACE VIEW first_enc_wo_reg AS
+drop table if exists first_enc_wo_reg;
+CREATE temporary table first_enc_wo_reg AS
 		SELECT patient_id , min(encounter_datetime) encounter_datetime
 		FROM encounter e 
 		WHERE encounter_type <> 2
@@ -102,6 +107,7 @@ CREATE table patient_flag AS
 		WHERE -- person_id =33476 AND encounter_id =261665
 		encounter_id IN (SELECT encounter_id FROM reg_enc_details)
 		GROUP BY person_id;
+
 
 SELECT concept_id INTO @height FROM concept WHERE uuid='3ce93cf2-26fe-102b-80cb-0017a47871b2';
 drop table if exists last_patient_height;
@@ -167,6 +173,9 @@ FROM patient p INNER JOIN patient_identifier pid ON p.patient_id =pid.patient_id
 and pid.identifier_type = @identifier_type
 GROUP BY patient_id;
 
+create index ces_patients_vi on ces_patients(patient_id);
+
+
 -- ################################# first encounter date and location ##############################################################
 	
 UPDATE ces_patients cp 
@@ -223,58 +232,80 @@ SET cp.state = (
 
 -- ---------------------------- civil_status and other regsteration flags -------------------------------------------
 
-UPDATE ces_patients cp 
-SET cp.Indigenous = (
- SELECT Indigenous
- FROM patient_flag 
- WHERE person_id=cp.patient_id);
+-- UPDATE ces_patients cp 
+-- SET cp.Indigenous = (
+--  SELECT Indigenous
+--  FROM patient_flag_ind 
+--  WHERE person_id=cp.patient_id);
 
 UPDATE ces_patients cp 
-SET cp.Disability = (SELECT disability FROM patient_flag WHERE person_id=cp.patient_id);
+inner join patient_flag tmp on tmp.person_id=cp.patient_id
+SET cp.Indigenous = tmp.Indigenous,
+cp.Disability=tmp.disability,
+cp.civil_status=tmp.civil_status,
+cp.occupation=tmp.occupation,
+cp.active_case_finding=tmp.case_finding,
+cp.migrant=tmp.Immigrant,
+cp.education=tmp.education;
 
-UPDATE ces_patients cp 
-SET cp.civil_status = (SELECT civil_status FROM patient_flag WHERE person_id=cp.patient_id);
+-- UPDATE ces_patients cp 
+-- SET cp.Disability = (SELECT disability FROM patient_flag WHERE person_id=cp.patient_id);
+-- 
+-- UPDATE ces_patients cp 
+-- SET cp.civil_status = (SELECT civil_status FROM patient_flag WHERE person_id=cp.patient_id);
 
-UPDATE ces_patients cp 
-SET cp.occupation = (SELECT occupation FROM patient_flag WHERE person_id=cp.patient_id);
 
-UPDATE ces_patients cp 
-SET cp.active_case_finding = (SELECT case_finding FROM patient_flag WHERE person_id=cp.patient_id);
+-- UPDATE ces_patients cp 
+-- SET cp.occupation = (SELECT occupation FROM patient_flag WHERE person_id=cp.patient_id);
 
-UPDATE ces_patients cp 
-SET cp.migrant = (SELECT Immigrant FROM patient_flag WHERE person_id=cp.patient_id);
+-- UPDATE ces_patients cp 
+-- SET cp.active_case_finding = (SELECT case_finding FROM patient_flag WHERE person_id=cp.patient_id);
 
-UPDATE ces_patients cp 
-SET cp.education = (SELECT education FROM patient_flag WHERE person_id=cp.patient_id);
+-- UPDATE ces_patients cp 
+-- SET cp.migrant = (SELECT Immigrant FROM patient_flag WHERE person_id=cp.patient_id);
+
+-- UPDATE ces_patients cp 
+-- SET cp.education = (SELECT education FROM patient_flag WHERE person_id=cp.patient_id);
 
 -- ################## update height and wegiht ###############################################################################
-UPDATE ces_patients cp
-SET cp.recent_height = (
-SELECT height
-FROM last_patient_height
-WHERE person_id =cp.patient_id 
-);
+-- UPDATE ces_patients cp
+-- SET cp.recent_height = (
+-- SELECT height
+-- FROM last_patient_height
+-- WHERE person_id =cp.patient_id 
+-- );
+
+UPDATE ces_patients cp 
+inner join last_patient_height tmp on tmp.person_id=cp.patient_id
+SET cp.recent_height = tmp.height;
 
 
-UPDATE ces_patients cp
-SET cp.recent_weight = (
-SELECT weight 
-FROM last_patient_weight 
-WHERE person_id =cp.patient_id 
-);
+-- UPDATE ces_patients cp
+-- SET cp.recent_weight = (
+-- SELECT weight 
+-- FROM last_patient_weight 
+-- WHERE person_id =cp.patient_id 
+-- );
 
+UPDATE ces_patients cp 
+inner join last_patient_weight tmp on tmp.person_id=cp.patient_id
+SET cp.recent_weight = tmp.weight;
 
 drop table if exists patient_bmi;
 CREATE TEMPORARY TABLE patient_bmi AS 
 	SELECT patient_id ,CASE WHEN cp2.recent_height IS NULL THEN NULL ELSE (cp2.recent_weight/((cp2.recent_height/100) * (cp2.recent_height/100)))END AS bmi
 	FROM ces_patients cp2;
 
+-- UPDATE ces_patients cp 
+-- SET cp.recent_bmi = (
+-- 	SELECT round(bmi,2)
+-- 	FROM patient_bmi
+-- 	WHERE patient_id = cp.patient_id 
+-- );
+
 UPDATE ces_patients cp 
-SET cp.recent_bmi = (
-	SELECT round(bmi,2)
-	FROM patient_bmi
-	WHERE patient_id = cp.patient_id 
-);
+inner join patient_bmi tmp on tmp.patient_id=cp.patient_id
+SET cp.recent_bmi = round(tmp.bmi,2);
 
 -- ################## score value and date ###############################################################################
 
