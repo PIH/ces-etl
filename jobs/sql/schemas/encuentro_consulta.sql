@@ -15,7 +15,7 @@ diabetes                               varchar(255),
 asma                                   bit,
 desnutrición                           bit,
 epilepsia                              bit,
-hipertensión                           bit,a
+hipertensión                           bit,
 cuidado_prenatal                       bit,
 salud_mental                           bit,
 asma_tos                               bit,
