@@ -3,7 +3,8 @@ SET sql_safe_updates = 0;
 set @locale = 'es';
 set @partition = '${partitionNum}';
 SET @consultEncTypeId = (select encounter_type_id from encounter_type et where uuid = 'aa61d509-6e76-4036-a65d-7813c0c3b752');
-
+set @yes = concept_from_mapping('PIH','1065');
+set @no = concept_from_mapping('PIH','1066');
 
 DROP TEMPORARY TABLE IF EXISTS temp_consult;
 CREATE TEMPORARY TABLE temp_consult
@@ -121,6 +122,13 @@ from obs o
 inner join temp_consult t on t.encounter_id = o.encounter_id
 where o.voided = 0;
 
+-- create index to_encounter_id on temp_obs(encounter_id);
+-- create index to_concept_id on temp_obs(concept_id);
+create index to_ci1 on temp_obs(encounter_id, concept_id);
+create index to_ci2 on temp_obs(encounter_id, concept_id,value_coded);
+create index to_ci3 on temp_obs(obs_group_id, concept_id,value_coded);
+
+
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','6189') 
 set t.consult_reason = concept_name(o.value_coded, @locale);
@@ -196,17 +204,22 @@ inner join temp_obs o on o.encounter_id = t.encounter_id
 set t.asthma_activity = if(o.obs_id is null, 0,1);
 
 -- diabetes symptoms
-update temp_consult t
-set glucose = obs_value_numeric_from_temp(t.encounter_id, 'PIH','887');
 
 update temp_consult t
-set hba1c = obs_value_numeric_from_temp(t.encounter_id, 'PIH','7460');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','887')
+set glucose = o.value_numeric;
 
 update temp_consult t
-set abdominal_circumference = obs_value_numeric_from_temp(t.encounter_id, 'PIH','10542');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','7460')
+set hba1c = o.value_numeric;
 
 update temp_consult t
-set proteinuria_diabetes = obs_value_numeric_from_temp(t.encounter_id, 'PIH','849');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','10542')
+set abdominal_circumference = o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','849')
+set proteinuria_diabetes = o.value_numeric;
 
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id
@@ -214,8 +227,9 @@ inner join temp_obs o on o.encounter_id = t.encounter_id
 	and value_coded = concept_from_mapping('PIH','1065')
 set t.fasting = if(o.obs_id is null, 0,1);
 
-update temp_consult t 
-set foot_exam = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','11732',@locale);
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11732')
+set foot_exam = concept_name(o.value_coded,@locale);
 
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id
@@ -223,54 +237,69 @@ inner join temp_obs o on o.encounter_id = t.encounter_id
 	and value_coded = concept_from_mapping('PIH','1065')
 set t.hypoglycemia_symptoms = if(o.obs_id is null, 0,1);
 
-update temp_consult t 
-set alcohol = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','1552',@locale);
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1552')
+set alcohol = concept_name(o.value_coded,@locale);
 
-update temp_consult t 
-set tobacco = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','2545',@locale);
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','2545')
+set tobacco = concept_name(o.value_coded,@locale);
 
 -- hypertension fields
 update temp_consult t
-set total_cholesterol = obs_value_numeric_from_temp(t.encounter_id, 'PIH','1006');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1006')
+set total_cholesterol =o.value_numeric;
 
 update temp_consult t
-set hdl = obs_value_numeric_from_temp(t.encounter_id, 'PIH','1007');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1007')
+set hdl =o.value_numeric;
 
 update temp_consult t
-set ldl = obs_value_numeric_from_temp(t.encounter_id, 'PIH','1008');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1008')
+set ldl =o.value_numeric;
 
 -- hearts fields
 update temp_consult t 
-set hearts_change_treatment = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','13705',0));
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13705') 
+set hearts_change_treatment = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null)); 
 
 update temp_consult t
-set hearts_cardiovascular_risk = obs_value_numeric_from_temp(t.encounter_id, 'PIH','13703');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13703')
+set hearts_cardiovascular_risk =o.value_numeric;
 
 -- epilepsy fields
 update temp_consult t
-set epilepsy_attacks_before = obs_value_numeric_from_temp(t.encounter_id, 'PIH','6798');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','6798')
+set epilepsy_attacks_before =o.value_numeric;
 
 update temp_consult t
-set epilepsy_attacks_last_4weeks = obs_value_numeric_from_temp(t.encounter_id, 'PIH','6797');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','6797')
+set epilepsy_attacks_last_4weeks =o.value_numeric;
 
 -- prenatal care
 update temp_consult t 
-set planned_pregnancy = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','13732',0));
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13732') 
+set planned_pregnancy = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t 
-set unplanned_cause_contraceptive_failure = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','13730',0));
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13730') 
+set unplanned_cause_contraceptive_failure = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t 
-set unplanned_cause_violence = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','11049',0));
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11049') 
+set unplanned_cause_violence = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t 
-set planned_pregnancy = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','13732',0));
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13732') 
+set planned_pregnancy = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t 
-set pregnancy_wanted = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','13731',0));
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13731') 
+set pregnancy_wanted = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
-update temp_consult t 
-set lmp = obs_value_datetime_from_temp(t.encounter_id, 'PIH','968');
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','968')
+set lmp =o.value_datetime;
 
 update temp_consult t 
 set delivery_date_estimated = DATE_ADD(t.lmp, INTERVAL 280 DAY);
@@ -279,95 +308,111 @@ update temp_consult t
 set gestational_age = DATEDIFF(encounter_date,lmp)/7; 
 
 update temp_consult t
-set pregnancies = obs_value_numeric_from_temp(t.encounter_id, 'PIH','5624');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','5624')
+set pregnancies =o.value_numeric;
 
 update temp_consult t
-set births = obs_value_numeric_from_temp(t.encounter_id, 'PIH','1053');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1053')
+set births =o.value_numeric;
 
 update temp_consult t
-set cesarians = obs_value_numeric_from_temp(t.encounter_id, 'PIH','7011');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','7011')
+set cesarians =o.value_numeric;
 
 update temp_consult t
-set miscarriages = obs_value_numeric_from_temp(t.encounter_id, 'PIH','13733');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13733')
+set miscarriages =o.value_numeric;
 
 update temp_consult t
-set stillbirths = obs_value_numeric_from_temp(t.encounter_id, 'PIH','13734');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13734')
+set stillbirths =o.value_numeric;
 
 update temp_consult t
-set stillbirths = obs_value_numeric_from_temp(t.encounter_id, 'PIH','13734');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','7018')
+set ultrasound_report =o.value_text;
 
 update temp_consult t
-set ultrasound_report = obs_value_text_from_temp(t.encounter_id, 'PIH','7018');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1040')
+set hiv_test_prenatal = concept_name(o.value_coded,@locale);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','299')
+set vdrl_test = concept_name(o.value_coded,@locale);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','21')
+set hemoglobin =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','849')
+set proteinuria_prenatal =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','300')
+set blood_type = concept_name(o.value_coded,@locale);
 
 update temp_consult t 
-set hiv_test_prenatal = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','1040',@locale);
-
-update temp_consult t 
-set vdrl_test = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','299',@locale);
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1056') 
+set vaccine_dtp = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t
-set hemoglobin = obs_value_numeric_from_temp(t.encounter_id, 'PIH','21');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','12051')
+set glucose_tolerance_curve = concept_name(o.value_coded,@locale);
 
 update temp_consult t
-set proteinuria_prenatal = obs_value_numeric_from_temp(t.encounter_id, 'PIH','849');
-
-update temp_consult t 
-set blood_type = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','300',@locale);
-
-update temp_consult t 
-set vaccine_dtp = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','1056',0));
-
-update temp_consult t 
-set glucose_tolerance_curve = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','12051',@locale);
-
-update temp_consult t
-set delivery_plan = obs_value_text_from_temp(t.encounter_id, 'PIH','11968');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11968')
+set delivery_plan =o.value_text;
 
 -- mental health
 update temp_consult t
-set phq9 = obs_value_numeric_from_temp(t.encounter_id, 'PIH','11586');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11586')
+set phq9 =o.value_numeric;
 
 update temp_consult t
-set gad7 = obs_value_numeric_from_temp(t.encounter_id, 'PIH','11733');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11733')
+set gad7 =o.value_numeric;
 
 -- physical exam
 update temp_consult t
-set physical_exam = obs_value_text_from_temp(t.encounter_id, 'PIH','1336');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1336')
+set physical_exam =o.value_text;
 
 -- infectious disease
 update temp_consult t 
-set tb_suspected = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','13519',0));
-
-update temp_consult t 
-set tb_test = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','3046',@locale);
-
-update temp_consult t 
-set hiv_suspected = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','13518',0));
-
-update temp_consult t 
-set hiv_test = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','2169',@locale);
-
-update temp_consult t 
-set covid_suspected = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','13520',0));
-
-update temp_consult t 
-set covid_test = COALESCE(
-	obs_value_coded_list_from_temp(t.encounter_id, 'PIH','12824',@locale),  -- pcr test
-	obs_value_coded_list_from_temp(t.encounter_id, 'PIH','12829',@locale),	-- antigen test
-	obs_value_coded_list_from_temp(t.encounter_id, 'PIH','12821',@locale)); -- antibody test
-
--- analysis section
-update temp_consult t
-set analysis = obs_value_text_from_temp(t.encounter_id, 'PIH','1364');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13519') 
+set tb_suspected = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t
-set primary_diagnosis = value_coded_name(obs_id(t.encounter_id,'PIH',3064,0),@locale);
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','3046')
+set tb_test = concept_name(o.value_coded,@locale);
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13518') 
+set hiv_suspected = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t
-set secondary_diagnosis = value_coded_name(obs_id(t.encounter_id,'PIH',3064,1),@locale);
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','2169')
+set hiv_test = concept_name(o.value_coded,@locale);
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13520') 
+set covid_suspected = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t
-set clinical_indication  = obs_value_text_from_temp(t.encounter_id, 'PIH','10534');
+inner join temp_obs o on o.encounter_id = t.encounter_id 
+	and o.concept_id in (concept_from_mapping('PIH','12824'),
+		concept_from_mapping('PIH','12829'),
+		concept_from_mapping('PIH','12821'))
+set covid_test = concept_name(o.value_coded,@locale);
+	
+	-- analysis section
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1364')
+set analysis =o.value_text;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','10534')
+set clinical_indication =o.value_text;
 
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id AND 
@@ -376,7 +421,8 @@ inner join temp_obs o on o.encounter_id = t.encounter_id AND
 set primary_dx_obs_group_id = o.obs_group_id;
 
 update temp_consult t
-set primary_diagnosis = obs_from_group_id_value_coded_list_from_temp(primary_dx_obs_group_id,'PIH','3064',@locale); 
+inner join temp_obs o on o.obs_group_id = primary_dx_obs_group_id and o.concept_id = concept_from_mapping('PIH','3064')
+set primary_diagnosis = concept_name(o.value_coded,@locale);
 
 update temp_consult t
 set secondary_diagnosis = 
@@ -388,26 +434,33 @@ from temp_obs o2
 );
 
 update temp_consult t
-set next_visit_date = obs_value_datetime_from_temp(t.encounter_id, 'PIH','5096');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','5096')
+set next_visit_date =o.value_datetime;
 
 -- obstetric
-update temp_consult t 
-set ultrasound_type = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','14068',@locale);
-
-update temp_consult t 
-set ultrasound_measurement_used = obs_value_coded_list_from_temp(t.encounter_id, 'PIH','14085',@locale);
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14068')
+set ultrasound_type = concept_name(o.value_coded,@locale);
 
 update temp_consult t
-set ultrasound_gestational_age = obs_value_numeric_from_temp(t.encounter_id, 'PIH','14086');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14085')
+set ultrasound_measurement_used = concept_name(o.value_coded,@locale);
 
 update temp_consult t
-set fetal_weight = obs_value_numeric_from_temp(t.encounter_id, 'PIH','14084');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14086')
+set ultrasound_gestational_age =o.value_numeric;
 
 update temp_consult t
-set delivery_date_ultrasound = obs_value_datetime_from_temp(t.encounter_id, 'PIH','5596');
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14084')
+set fetal_weight =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','5596')
+set delivery_date_ultrasound =o.value_datetime;
 
 update temp_consult t 
-set diagnosis_change_ultrasound = value_coded_as_boolean(obs_id_from_temp(t.encounter_id, 'PIH','14091',0));
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14091') 
+set diagnosis_change_ultrasound = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 -- medication columns
 
