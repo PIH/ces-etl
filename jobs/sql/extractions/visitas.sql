@@ -1,4 +1,3 @@
-
 select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
 
 drop temporary table if exists temp_visits;
@@ -91,8 +90,8 @@ ORDER BY emr_id asc, visit_date_started  asc, visit_id asc;
 
 set @row_number := 0;
 
-DROP TABLE IF EXISTS asc_order;
-CREATE TABLE asc_order
+DROP TEMPORARY TABLE IF EXISTS asc_order;
+CREATE TEMPORARY TABLE asc_order
 SELECT 
     @row_number:=CASE
         WHEN @emr_id = emr_id  
@@ -104,6 +103,8 @@ SELECT
 FROM
     int_asc;
    
+create index ao_i1 on asc_order(emr_id, visit_date_started, visit_id);  
+
 update temp_visits es
 set es.index_asc = (
  select index_asc 
@@ -116,13 +117,13 @@ set es.index_asc = (
 
 -- ---- Descending Order ------------------------------------------
 
-drop table if exists int_desc;
-create table int_desc
+drop temporary table if exists int_desc;
+create temporary table int_desc
 select * from temp_visits vs 
 ORDER BY emr_id asc, visit_date_started  desc, visit_id desc;
 
-
 set @row_number := 0;
+
 
 DROP TABLE IF EXISTS desc_order;
 CREATE TABLE desc_order
@@ -136,6 +137,8 @@ SELECT
     visit_date_started,visit_id
 FROM
     int_desc;
+   
+create index ao_i1 on desc_order(emr_id, visit_date_started, visit_id);
    
 update temp_visits es
 set es.index_desc = (
