@@ -4,8 +4,8 @@ create table programas (
   programa          varchar(50),
   hearts            bit,
   hearts_fecha      date,
-  fecha_inscrito    datetime,
-  fecha_salida      datetime,
+  fecha_inscrito    date,
+  fecha_salida      date,
   estatus           varchar(50),
   index_asc         int,
   index_desc        int
