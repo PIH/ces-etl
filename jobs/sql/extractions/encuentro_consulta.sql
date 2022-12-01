@@ -52,9 +52,9 @@ planned_pregnancy                     bit,
 unplanned_cause_contraceptive_failure bit,
 unplanned_cause_violence              bit,
 pregnancy_wanted                      bit,
-lmp                                   datetime,
+lmp                                   date,
 gestational_age                       double,
-delivery_date_estimated               datetime,
+delivery_date_estimated               date,
 pregnancies                           int,
 births                                int,
 cesarians                             int,
@@ -86,7 +86,7 @@ clinical_indication                   text,
 ultrasound_type                       varchar(255),
 ultrasound_measurement_used           varchar(255),
 ultrasound_gestational_age            double,
-delivery_date_ultrasound              datetime,
+delivery_date_ultrasound              date,
 fetal_weight                          double,
 diagnosis_change_ultrasound           bit,
 birth_control_pills                   bit,
@@ -102,7 +102,7 @@ condoms                               bit,
 mifepristone                          bit,
 misoprostol                           bit,
 iron_dextran                          bit,
-next_visit_date                       datetime,
+next_visit_date                       date,
 index_asc                             int(11),
 index_desc                            int(11)
 );
@@ -141,55 +141,62 @@ select p.program_id into @asthmaProgId from program p where uuid = '2639449c-876
 select p.program_id into @malnutritionProgId from program p where uuid = '61e38de2-44f2-470e-99da-3e97e93d388f';
 select p.program_id into @epilepsyProgId from program p where uuid = '69e6a46d-674e-4281-99a0-4004f293ee57';
 select p.program_id into @ancProgId from program p where uuid = 'd830a5c1-30a2-4943-93a0-f918772496ec';
+select p.program_id into @heartsProgId from program p where uuid = '6cceab45-756f-427b-b2da-0e469d4a87e0';
 
 update temp_consult t
 inner join patient_program pp on pp.patient_id  = t.patient_id
-	and date(t.encounter_date) >= pp.date_enrolled and (date(t.encounter_date) <= pp.date_completed or pp.date_completed is null) and pp.voided = 0 
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
 	and pp.program_id = @diabetesProgId 
 set diabetes = if(pp.patient_program_id is null, 0,1);
 
 update temp_consult t
 inner join patient_program pp on pp.patient_id  = t.patient_id
-	and date(t.encounter_date) >= pp.date_enrolled and (date(t.encounter_date) <= pp.date_completed or pp.date_completed is null) and pp.voided = 0 
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
 	and pp.program_id = @hypertensionProgId 
 set hypertension = if(pp.patient_program_id is null, 0,1);
 
 update temp_consult t
 inner join patient_program pp on pp.patient_id  = t.patient_id
-	and date(t.encounter_date) >= pp.date_enrolled and (date(t.encounter_date) <= pp.date_completed or pp.date_completed is null) and pp.voided = 0 
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
 	and pp.program_id = @asthmaProgId 
 set asthma = if(pp.patient_program_id is null, 0,1);
 
 update temp_consult t
 inner join patient_program pp on pp.patient_id  = t.patient_id
-	and date(t.encounter_date) >= pp.date_enrolled and (date(t.encounter_date) <= pp.date_completed or pp.date_completed is null) and pp.voided = 0 
-	and pp.program_id = @diabetesProgId 
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @mentalHealthProgId 
 set mental_health = if(pp.patient_program_id is null, 0,1);
 
 update temp_consult t
 inner join patient_program pp on pp.patient_id  = t.patient_id
-	and date(t.encounter_date) >= pp.date_enrolled and (date(t.encounter_date) <= pp.date_completed or pp.date_completed is null) and pp.voided = 0 
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
 	and pp.program_id = @epilepsyProgId 
 set epilepsy = if(pp.patient_program_id is null, 0,1);
 
 update temp_consult t
 inner join patient_program pp on pp.patient_id  = t.patient_id
-	and date(t.encounter_date) >= pp.date_enrolled and (date(t.encounter_date) <= pp.date_completed or pp.date_completed is null) and pp.voided = 0 
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
 	and pp.program_id = @ancProgId 
 set prenatal_care = if(pp.patient_program_id is null, 0,1);
+
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @malnutritionProgId 
+set malnutrition = if(pp.patient_program_id is null, 0,1);
 
 -- asthma symptoms
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id
 	and concept_id = concept_from_mapping('PIH','1293') 
 	and value_coded = concept_from_mapping('PIH','11731')
-set t.asthma_cough = if(o.obs_id is null, 0,1);
+set t.asthma_waking = if(o.obs_id is null, 0,1);
 
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id
 	and concept_id = concept_from_mapping('PIH','11803') 
 	and value_coded = concept_from_mapping('PIH','1065')
-set t.asthma_waking = if(o.obs_id is null, 0,1);
+set t.asthma_cough = if(o.obs_id is null, 0,1);
 
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id
@@ -224,8 +231,7 @@ set proteinuria_diabetes = o.value_numeric;
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id
 	and concept_id = concept_from_mapping('PIH','6689') 
-	and value_coded = concept_from_mapping('PIH','1065')
-set t.fasting = if(o.obs_id is null, 0,1);
+set t.fasting = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null)); 
 
 update temp_consult t
 inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11732')
@@ -259,6 +265,12 @@ inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = conc
 set ldl =o.value_numeric;
 
 -- hearts fields
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @heartsProgId 
+set hearts = if(pp.patient_program_id is null, 0,1);
+
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13705') 
 set hearts_change_treatment = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null)); 
@@ -352,8 +364,10 @@ inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = conc
 set blood_type = concept_name(o.value_coded,@locale);
 
 update temp_consult t 
-inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1056') 
-set vaccine_dtp = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+inner join temp_obs o on o.encounter_id = t.encounter_id
+	and concept_id = concept_from_mapping('PIH','10156') 
+	and value_coded = concept_from_mapping('PIH','781')
+set t.vaccine_dtp = if(o.obs_id is null, 0,1);
 
 update temp_consult t
 inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','12051')
@@ -642,7 +656,6 @@ inner join temp_consult_index_desc tvid on tvid.encounter_id = t.encounter_id
 set t.index_desc = tvid.index_desc;
 
 select 
-patient_id,
 emr_id,
 CONCAT(@partition,'-',encounter_id) "encounter_id",
 encounter_type,
