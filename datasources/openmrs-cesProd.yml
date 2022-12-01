@@ -1,7 +1,0 @@
-databaseType: "mysql"
-host: ${datasources.openmrs.cesProd.host}
-port: ${datasources.openmrs.cesProd.port}
-databaseName: ${datasources.openmrs.cesProd.databaseName}
-user: ${datasources.openmrs.cesProd.user}
-password: ${datasources.openmrs.cesProd.password}
-options: ${datasources.openmrs.cesProd.options}
