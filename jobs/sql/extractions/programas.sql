@@ -1,6 +1,6 @@
 select program_id into @hypertension from program p where uuid='6959057e-9a5c-40ba-a878-292ba4fc35bc';
 select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
-
+select program_id into @hrts_program_id from program p where uuid = '6cceab45-756f-427b-b2da-0e469d4a87e0';
 
 drop temporary table if exists programas;
 create temporary table programas(
@@ -146,4 +146,5 @@ index_asc,
 index_desc
 from programas
 where emrid is not null
+and program_id <> @hrts_program_id
 order by emrid, index_asc;
