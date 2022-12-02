@@ -1,0 +1,26 @@
+CREATE TABLE encuentro_signos_vitales
+(
+	emr_id          	VARCHAR(25),
+   encounter_id		int(11),
+   encounter_location	varchar(255),
+   encounter_datetime	datetime,
+   encounter_provider 	VARCHAR(255),
+   date_entered		datetime,
+   user_entered		varchar(255),
+   height				double,
+   weight				double,
+   bmi 				double,
+   systolic_bp			int,
+   diastolic_bp		int,
+   o2_saturation		double,
+   fasting 			boolean,
+   glucose 			double,
+   temperature			double,
+   heart_rate			double,
+   respiratory_rate	double,
+   phq2				int,
+   gad2				int,
+   chief_complaint		text,
+   index_asc			int,
+   index_desc			int
+   );
