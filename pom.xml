@@ -5,6 +5,7 @@
     <artifactId>ces-etl</artifactId>
     <name>CES ETL</name>
     <description>ETL Project for Mexico OpenMRS instances</description>
+    <url>https://github.com/PIH/zl-etl</url>
     <version>1.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -18,6 +19,19 @@
         <name>Partners In Health</name>
         <url>http://pih.org</url>
     </organization>
+
+    <licenses>
+        <license>
+            <name>Mozilla Public License 2.0 with Healthcare Disclaimer</name>
+            <url>http://openmrs.org/license</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/PIH/openmrs-ces-etl.git</connection>
+        <developerConnection>scm:git:ssh://github.com:PIH/ces-etl.git</developerConnection>
+        <url>https://github.com/PIH/ces-etl</url>
+    </scm>
 
     <distributionManagement>
         <snapshotRepository>
