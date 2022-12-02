@@ -121,6 +121,37 @@
             </plugin>
 
             <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-report-sql-to-petl</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <fileSets>
+                                 <fileSet>
+                                    <sourceFile>${dataExportSqlDir}/users.sql</sourceFile>
+                                    <destinationFile>${petlJobExtractionSqlDir}/users.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${dataExportSqlDir}/user_roles.sql</sourceFile>
+                                    <destinationFile>${petlJobExtractionSqlDir}/user_roles.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${dataExportSqlDir}/user_logins.sql</sourceFile>
+                                    <destinationFile>${petlJobExtractionSqlDir}/user_logins.sql</destinationFile>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
