@@ -1,4 +1,5 @@
 SET @locale = GLOBAL_PROPERTY_VALUE('default_locale', 'en');
+SET @partition = '${partitionNum}';
 
 DROP TEMPORARY TABLE IF EXISTS temp_diagnoses;
 CREATE TEMPORARY TABLE temp_diagnoses
@@ -112,8 +113,8 @@ update temp_diagnoses set icd_10_code = retrieveICD10(coded_dx_concept_id);
 
 select 
 emr_id ,
-encounter_id,
-obs_id,
+CONCAT(@partition,'-',encounter_id) "encounter_id",
+CONCAT(@partition,'-',obs_id) "obs_id",
 encounter_location,
 encounter_datetime,
 encounter_type,
