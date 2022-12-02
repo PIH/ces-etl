@@ -22,3 +22,4 @@ configuration:
           - tableName: "visitas"
           - tableName: "programas"
           - tableName: "encuentro_consulta"
+          - tableName: "diagnosticos"
