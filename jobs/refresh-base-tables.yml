@@ -23,3 +23,4 @@ configuration:
           - tableName: "programas"
           - tableName: "encuentro_consulta"
           - tableName: "diagnosticos"
+          - tableName: "encuentro_signos_vitales"
