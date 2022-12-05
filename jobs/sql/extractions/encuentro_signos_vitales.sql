@@ -185,15 +185,14 @@ inner join temp_obs o ON t.encounter_id = o.encounter_id
 SET height = o.value_numeric;
 
 -- BMI
--- select * from temp_vitals;
 drop table if exists patient_bmi;
 CREATE TEMPORARY TABLE patient_bmi AS 
-	SELECT patient_id ,CASE WHEN (cp2.height IS NOT NULL and  cp2.weight is not null) THEN  
+	SELECT patient_id ,encounter_id, CASE WHEN (cp2.height IS NOT NULL and  cp2.weight is not null) THEN  
 						 (cp2.weight/((cp2.height/100) * (cp2.height/100)))END AS bmi
 	FROM temp_vitals cp2;
 
 UPDATE temp_vitals cp 
-inner join patient_bmi tmp on tmp.patient_id=cp.patient_id
+inner join patient_bmi tmp on tmp.patient_id=cp.patient_id and tmp.encounter_id=cp.encounter_id
 SET cp.bmi = round(tmp.bmi,1);
 
 -- temp   
