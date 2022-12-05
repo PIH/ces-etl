@@ -73,7 +73,6 @@ set td.encounter_datetime = tde.encounter_datetime,
 	td.user_entered = tde.user_entered,
 	td.encounter_location = tde.encounter_location;
 
-
  -- diagnosis info
 DROP TEMPORARY TABLE IF EXISTS temp_obs;
 create temporary table temp_obs 
@@ -92,23 +91,17 @@ create index temp_obs_ci1 on temp_obs(obs_group_id, concept_id);
 
  update temp_diagnoses t
  inner join temp_obs o on o.obs_group_id = t.obs_id and o.concept_id = concept_from_mapping('PIH','Diagnosis or problem, non-coded')
- set non_coded_diagnosis = o.value_text;
+ set non_coded_diagnosis = o.value_text,
+	coded_diagnosis = 'Diagnóstico sin codificación';
 
 update temp_diagnoses t
 inner join temp_obs o on o.obs_group_id = t.obs_id and o.concept_id = concept_from_mapping( 'PIH','7537') and o.value_coded = concept_from_mapping( 'PIH','7534')
 set t.primary_diagnosis = 1;
 
-update temp_diagnoses t 
-set t.first_time = 1
-where t.coded_dx_concept_id is not null;
-
 update temp_diagnoses t
-inner join temp_obs o on o.person_id = t.patient_id 
-	and o.concept_id = concept_from_mapping('PIH','DIAGNOSIS')
-	and o.value_coded = t.coded_dx_concept_id
-	and o.obs_datetime < t.encounter_datetime
-set t.first_time = null;	
-	
+inner join temp_obs o on o.obs_group_id = t.obs_id and o.concept_id = concept_from_mapping( 'PIH','1379') and o.value_coded = concept_from_mapping( 'PIH','1345')
+set t.first_time = 1;
+
 update temp_diagnoses set icd_10_code = retrieveICD10(coded_dx_concept_id);
 
 select 
