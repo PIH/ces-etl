@@ -2,9 +2,13 @@ SET sql_safe_updates = 0;
 
 set @locale = 'es';
 set @partition = '${partitionNum}';
+
 SET @consultEncTypeId = (select encounter_type_id from encounter_type et where uuid = 'aa61d509-6e76-4036-a65d-7813c0c3b752');
 set @yes = concept_from_mapping('PIH','1065');
 set @no = concept_from_mapping('PIH','1066');
+set @symptom_present = concept_from_mapping('PIH','1293');
+set @symptom_absent = concept_from_mapping('PIH','1734');
+
 
 DROP TEMPORARY TABLE IF EXISTS temp_consult;
 CREATE TEMPORARY TABLE temp_consult
@@ -187,28 +191,20 @@ set malnutrition = if(pp.patient_program_id is null, 0,1);
 
 -- asthma symptoms
 update temp_consult t 
-inner join temp_obs o on o.encounter_id = t.encounter_id
-	and concept_id = concept_from_mapping('PIH','1293') 
-	and value_coded = concept_from_mapping('PIH','11731')
-set t.asthma_waking = if(o.obs_id is null, 0,1);
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.value_coded = concept_from_mapping('PIH','11731') 
+set asthma_waking = if(o.concept_id = @symptom_present,1,if(o.concept_id = @symptom_absent,0,null));
 
 update temp_consult t 
-inner join temp_obs o on o.encounter_id = t.encounter_id
-	and concept_id = concept_from_mapping('PIH','11803') 
-	and value_coded = concept_from_mapping('PIH','1065')
-set t.asthma_cough = if(o.obs_id is null, 0,1);
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11804') 
+set asthma_cough = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t 
-inner join temp_obs o on o.encounter_id = t.encounter_id
-	and concept_id = concept_from_mapping('PIH','11724') 
-	and value_coded = concept_from_mapping('PIH','1065')
-set t.asthma_medicate = if(o.obs_id is null, 0,1);
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11724') 
+set asthma_medicate = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t 
-inner join temp_obs o on o.encounter_id = t.encounter_id
-	and concept_id = concept_from_mapping('PIH','11925') 
-	and value_coded = concept_from_mapping('PIH','1065')
-set t.asthma_activity = if(o.obs_id is null, 0,1);
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11925') 
+set asthma_activity = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 -- diabetes symptoms
 
