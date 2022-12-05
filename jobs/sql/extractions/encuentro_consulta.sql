@@ -129,8 +129,9 @@ where o.voided = 0;
 -- create index to_encounter_id on temp_obs(encounter_id);
 -- create index to_concept_id on temp_obs(concept_id);
 create index to_ci1 on temp_obs(encounter_id, concept_id);
-create index to_ci2 on temp_obs(encounter_id, concept_id,value_coded);
-create index to_ci3 on temp_obs(obs_group_id, concept_id,value_coded);
+create index to_ci2 on temp_obs(encounter_id, value_coded);
+create index to_ci3 on temp_obs(encounter_id, concept_id,value_coded);
+create index to_ci4 on temp_obs(obs_group_id, concept_id,value_coded);
 
 
 update temp_consult t 
@@ -195,7 +196,7 @@ inner join temp_obs o on o.encounter_id = t.encounter_id and o.value_coded = con
 set asthma_waking = if(o.concept_id = @symptom_present,1,if(o.concept_id = @symptom_absent,0,null));
 
 update temp_consult t 
-inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11804') 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11803') 
 set asthma_cough = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t 
