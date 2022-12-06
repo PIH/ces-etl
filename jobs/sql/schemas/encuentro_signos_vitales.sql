@@ -5,7 +5,7 @@ CREATE TABLE encuentro_signos_vitales
     encounter_location	varchar(255),
     encounter_datetime	datetime,
     encounter_provider 	VARCHAR(255),
-    date_entered		datetime,
+    date_entered		date,
     user_entered		varchar(255),
     height				float,
     weight				float,
