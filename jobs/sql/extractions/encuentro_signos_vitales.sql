@@ -15,6 +15,7 @@ CREATE TEMPORARY TABLE temp_vitals
     encounter_location	varchar(255),
     encounter_datetime	datetime,
     encounter_provider_id	int(11),
+    provider_id int,
     encounter_provider 	VARCHAR(255),
     date_entered		datetime,
     creator				int(11),
@@ -74,7 +75,8 @@ set tv.emr_id = ti.emr_id;
 -- provider name
 update temp_vitals tv 
 inner join encounter_provider ep on ep.encounter_id  = tv.encounter_id and ep.voided = 0
-set tv.encounter_provider_id = ep.encounter_provider_id ;
+set tv.encounter_provider_id = ep.encounter_provider_id,
+tv.provider_id=ep.provider_id ;
 
 DROP TEMPORARY TABLE IF EXISTS temp_providers;
 CREATE TEMPORARY TABLE temp_providers
@@ -84,16 +86,16 @@ provider_name					VARCHAR(255)
 );
 
 INSERT INTO temp_providers(provider_id)
-select distinct provider_id from encounter_provider ep
-inner join temp_vitals tv on ep.encounter_id = tv.encounter_id
+select distinct ep.provider_id from encounter_provider ep
+left outer join temp_vitals tv on ep.encounter_id = tv.encounter_id
 where ep.voided = 0;
 
-update temp_providers t set provider_name  = username(provider_id);	
+update temp_providers t set provider_name  = person_name_of_user(provider_id);	
 
 CREATE INDEX temp_providers_p ON temp_providers (provider_id);
 
 update temp_vitals tv 
-inner join temp_providers tp on tp.provider_id = tv.encounter_provider_id
+inner join temp_providers tp on tp.provider_id = tv.provider_id
 set tv.encounter_provider = tp.provider_name;
 
 -- location name
@@ -126,7 +128,7 @@ user_entered				VARCHAR(255)
 INSERT INTO temp_creators(creator)
 select distinct creator from temp_vitals tv;
 
-update temp_creators t set user_entered  = username(creator);	
+update temp_creators t set user_entered  = person_name_of_user(creator);	
 
 CREATE INDEX temp_creators_c ON temp_creators (creator);
 
@@ -327,7 +329,7 @@ select
 	encounter_location,
 	encounter_datetime,
 	encounter_provider,
-	date_entered,
+	cast(date_entered as date) date_entered,
 	user_entered,
     height,
     weight,
@@ -345,4 +347,4 @@ select
     chief_complaint,
     index_asc,
     index_desc
-from temp_vitals;
+from temp_vitals; 
