@@ -27,4 +27,4 @@ configuration:
           - tableName: "summary_db_restore"
           - tableName: "users"
           - tableName: "user_roles"
-            #- tableName: "user_logins"
+          - tableName: "user_logins"
