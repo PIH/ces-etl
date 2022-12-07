@@ -7,7 +7,7 @@ errorHandling:
   retryInterval: 1
   retryIntervalUnit: "DAYS"
 configuration:
-  maxConcurrentJobs: 1  # Import 1 site at a time
+  maxConcurrentJobs: 7  # Import 7 site at a time
   iterations:
     - siteName: "chiapas"   #siteName is populated in each table and also used to identify the appropriate data source
       partitionNum: "1"     #partitionNum is used to identify the sqlserver partition that this site's data is loaded into
