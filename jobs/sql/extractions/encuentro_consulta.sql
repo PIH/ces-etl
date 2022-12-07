@@ -195,8 +195,11 @@ update temp_consult t
 inner join temp_obs o on o.encounter_id = t.encounter_id and o.value_coded = concept_from_mapping('PIH','11731') 
 set asthma_waking = if(o.concept_id = @symptom_present,1,if(o.concept_id = @symptom_absent,0,null));
 
+-- this cough question is captured by either of these concepts but not both, 
+-- depending on whether the patient is <5 yrs or older
 update temp_consult t 
-inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11803') 
+inner join temp_obs o on o.encounter_id = t.encounter_id and 
+	o.concept_id in (concept_from_mapping('PIH','11803'),  concept_from_mapping('PIH','11804'))
 set asthma_cough = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
 
 update temp_consult t 
