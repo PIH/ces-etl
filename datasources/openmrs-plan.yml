@@ -1,7 +1,0 @@
-databaseType: "mysql"
-host: ${datasources.openmrs.plan.host}
-port: ${datasources.openmrs.plan.port}
-databaseName: ${datasources.openmrs.plan.databaseName}
-user: ${datasources.openmrs.plan.user}
-password: ${datasources.openmrs.plan.password}
-options: ${datasources.openmrs.plan.options}

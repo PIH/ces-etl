@@ -23,7 +23,7 @@ configuration:
       partitionNum: "6"
     - siteName: "monterrey"
       partitionNum: "7"
-    - siteName: "plan"
+    - siteName: "planBaja"
       partitionNum: "8"
     - siteName: "planAlta"
       partitionNum: "9"
