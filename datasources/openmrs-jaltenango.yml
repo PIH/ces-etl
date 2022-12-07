@@ -1,7 +1,0 @@
-databaseType: "mysql"
-host: ${datasources.openmrs.jaltenango.host}
-port: ${datasources.openmrs.jaltenango.port}
-databaseName: ${datasources.openmrs.jaltenango.databaseName}
-user: ${datasources.openmrs.jaltenango.user}
-password: ${datasources.openmrs.jaltenango.password}
-options: ${datasources.openmrs.jaltenango.options}

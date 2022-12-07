@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${datasources.openmrs.chiapas.host}
+port: ${datasources.openmrs.chiapas.port}
+databaseName: ${datasources.openmrs.chiapas.databaseName}
+user: ${datasources.openmrs.chiapas.user}
+password: ${datasources.openmrs.chiapas.password}
+options: ${datasources.openmrs.chiapas.options}
