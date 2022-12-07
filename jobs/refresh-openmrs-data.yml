@@ -3,9 +3,9 @@ description: "Refreshing OpenMRS Data for all sites"
 schedule:
   cron: "${executeCron.refreshOpenmrsData}"
 errorHandling:
-  maxAttempts: 10
-  retryInterval: 15
-  retryIntervalUnit: "MINUTES"
+  maxAttempts: 1
+  retryInterval: 1
+  retryIntervalUnit: "DAYS"
 configuration:
   maxConcurrentJobs: 1  # Import 1 site at a time
   iterations:
