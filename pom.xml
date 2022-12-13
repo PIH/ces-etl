@@ -149,7 +149,7 @@
                             <fileSets>
                                  <fileSet>
                                     <sourceFile>${dataExportSqlDir}/users.sql</sourceFile>
-                                    <destinationFile>${petlJobExtractionSqlDir}/users.sql</destinationFile>
+                                    <destinationFile>${petlJobExtractionSqlDir}/usuarios.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${dataExportSqlDir}/user_roles.sql</sourceFile>
