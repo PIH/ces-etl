@@ -25,6 +25,6 @@ configuration:
           - tableName: "diagnosticos"
           - tableName: "encuentro_signos_vitales"
           - tableName: "summary_db_restore"
-          - tableName: "users"
+          - tableName: "usuarios"
           - tableName: "user_roles"
           - tableName: "user_logins"
