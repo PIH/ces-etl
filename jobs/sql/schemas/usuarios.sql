@@ -1,4 +1,4 @@
-CREATE TABLE users
+CREATE TABLE usuarios
 (
     usuario             varchar(50),
     nombres             varchar(50),
