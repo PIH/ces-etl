@@ -153,11 +153,11 @@
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${dataExportSqlDir}/user_roles.sql</sourceFile>
-                                    <destinationFile>${petlJobExtractionSqlDir}/user_roles.sql</destinationFile>
+                                    <destinationFile>${petlJobExtractionSqlDir}/usuario_roles.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${dataExportSqlDir}/user_logins.sql</sourceFile>
-                                    <destinationFile>${petlJobExtractionSqlDir}/user_logins.sql</destinationFile>
+                                    <destinationFile>${petlJobExtractionSqlDir}/usuario_credenciales.sql</destinationFile>
                                 </fileSet>
                             </fileSets>
                         </configuration>
