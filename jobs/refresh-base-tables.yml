@@ -26,5 +26,5 @@ configuration:
           - tableName: "encuentro_signos_vitales"
           - tableName: "summary_db_restore"
           - tableName: "usuarios"
-          - tableName: "user_roles"
-          - tableName: "user_logins"
+          - tableName: "usuario_roles"
+          - tableName: "usuario_credenciales"
