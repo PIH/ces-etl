@@ -2,7 +2,7 @@ CREATE TABLE encuentro_signos_vitales
 (
     emr_id          	VARCHAR(25),
     encuentro_id		int,
-    emr_instance		varchar(255),
+    emr_instancia		varchar(255),
     encuentro_fecha		datetime,
     proveedor 		 	VARCHAR(255),
     entrada_fecha		date,
