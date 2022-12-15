@@ -171,6 +171,7 @@ INSERT INTO ces_patients (patient_id,emr_id)
 SELECT DISTINCT p.patient_id, pid.identifier 
 FROM patient p INNER JOIN patient_identifier pid ON p.patient_id =pid.patient_id
 and pid.identifier_type = @identifier_type
+and pid.voided=0
 GROUP BY patient_id;
 
 create index ces_patients_vi on ces_patients(patient_id);
