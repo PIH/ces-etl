@@ -1,6 +1,7 @@
 CREATE TABLE encuentro_consulta
 (
 emrid                                  varchar(50),
+person_uuid                            char(38),  
 encuentro_id                           varchar(25),
 encuentro_tipo                         varchar(255),  
 encuentro_fecha                        datetime,
