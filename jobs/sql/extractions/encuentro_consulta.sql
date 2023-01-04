@@ -14,6 +14,7 @@ DROP TEMPORARY TABLE IF EXISTS temp_consult;
 CREATE TEMPORARY TABLE temp_consult
 (
 patient_id                            int(11),
+person_uuid                           char(38),
 emr_id                                varchar(50),
 encounter_id                          int(11),
 encounter_type                        varchar(255),
@@ -115,6 +116,11 @@ INSERT INTO temp_consult(patient_id, emr_id,encounter_id, encounter_date, date_e
 SELECT patient_id, patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f916c5ec'), encounter_id,  encounter_datetime, date_created, person_name_of_user(creator), location_name(location_id), encounter_type_name_from_id(encounter_type), visit_id
 FROM encounter  WHERE voided = 0 AND encounter_type IN (@consultEncTypeId)
 ;
+
+
+update temp_consult t
+inner join person p on p.person_id = t.patient_id
+set t.person_uuid = p.uuid ;
 
 update temp_consult t
 set provider = provider(t.encounter_id);
@@ -657,6 +663,7 @@ set t.index_desc = tvid.index_desc;
 
 select 
 emr_id,
+person_uuid,
 CONCAT(@partition,'-',encounter_id) "encounter_id",
 encounter_type,
 encounter_date,
