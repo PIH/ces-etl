@@ -3,6 +3,7 @@ select patient_identifier_type_id into @identifier_type from patient_identifier_
 DROP TABLE IF EXISTS ces_patients;
 CREATE TEMPORARY TABLE ces_patients (
 patient_id int, 
+person_uuid char(38),
 emr_id varchar(30),
 reg_location varchar(30),
 reg_date date,
@@ -196,7 +197,8 @@ SET cp.last_enc_type  = x.name,
 -- ######################## personal details ################################################################################
 UPDATE ces_patients cp 
 INNER JOIN (
-	SELECT DISTINCT p2.person_id,
+	SELECT DISTINCT p2.person_id, 
+	uuid,
 	birthdate, 
 	DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(), birthdate)), "%Y")+0 age_in_years,
 	gender,
@@ -205,6 +207,7 @@ INNER JOIN (
 	FROM person p2
 ) x ON cp.patient_id =x.person_id
 SET cp.dob = x.birthdate,
+	cp.person_uuid = x.uuid,
 	cp.age_in_years = x.age_in_years,
 	cp.gender =x.gender,
 	cp.dead =x.death,
@@ -333,6 +336,7 @@ WHERE person_id =cp.patient_id
 
 SELECT
 emr_id,
+person_uuid,
 reg_location,
 reg_date,
 dob,
