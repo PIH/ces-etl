@@ -1,5 +1,7 @@
 select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
 
+select encounter_type_id into @regEncounterId from encounter_type et where uuid = '873f968a-73a8-4f9c-ac78-9f4778b751b6';
+
 DROP TABLE IF EXISTS ces_patients;
 CREATE TEMPORARY TABLE ces_patients (
 patient_id int, 
@@ -36,7 +38,7 @@ drop table if exists first_enc;
 CREATE temporary table first_enc AS
 		SELECT patient_id, encounter_datetime -- , min(encounter_datetime) encounter_datetime
 		FROM encounter e 
-		WHERE encounter_type=2
+		WHERE encounter_type= @regEncounterId 
 		GROUP BY patient_id ;
 	
 drop table if exists reg_enc_details;
@@ -44,7 +46,7 @@ CREATE  temporary table reg_enc_details AS
 	SELECT DISTINCT e.patient_id, e.encounter_datetime  , e.encounter_id,e.encounter_type ,l.name 
         FROM encounter e INNER JOIN first_enc X ON X.patient_id =e.patient_id AND X.encounter_datetime=e.encounter_datetime
 		left outer JOIN location l ON l.location_id =e.location_id 
-		WHERE encounter_type=2;
+		WHERE encounter_type=@regEncounterId ;
 
 drop table if exists last_enc;
 CREATE temporary table last_enc AS
@@ -63,7 +65,7 @@ drop table if exists first_enc_wo_reg;
 CREATE temporary table first_enc_wo_reg AS
 		SELECT patient_id , min(encounter_datetime) encounter_datetime
 		FROM encounter e 
-		WHERE encounter_type <> 2
+		WHERE encounter_type <> @regEncounterId 
 		GROUP BY patient_id ;
 	
 	
