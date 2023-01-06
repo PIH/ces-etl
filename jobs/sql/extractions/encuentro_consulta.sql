@@ -17,6 +17,7 @@ patient_id                            int(11),
 person_uuid                           char(38),
 emr_id                                varchar(50),
 encounter_id                          int(11),
+encounter_uuid                        char(38),
 encounter_type                        varchar(255),
 encounter_date                        datetime,
 encounter_location                    varchar(255),
@@ -112,8 +113,8 @@ index_asc                             int(11),
 index_desc                            int(11)
 );
 
-INSERT INTO temp_consult(patient_id, emr_id,encounter_id, encounter_date, date_entered, user_entered, encounter_location, encounter_type, visit_id)
-SELECT patient_id, patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f916c5ec'), encounter_id,  encounter_datetime, date_created, person_name_of_user(creator), location_name(location_id), encounter_type_name_from_id(encounter_type), visit_id
+INSERT INTO temp_consult(patient_id, emr_id,encounter_id, encounter_uuid, encounter_date, date_entered, user_entered, encounter_location, encounter_type, visit_id)
+SELECT patient_id, patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f916c5ec'), encounter_id,  uuid, encounter_datetime, date_created, person_name_of_user(creator), location_name(location_id), encounter_type_name_from_id(encounter_type), visit_id
 FROM encounter  WHERE voided = 0 AND encounter_type IN (@consultEncTypeId)
 ;
 
@@ -665,6 +666,7 @@ select
 emr_id,
 person_uuid,
 CONCAT(@partition,'-',encounter_id) "encounter_id",
+encounter_uuid,
 encounter_type,
 encounter_date,
 encounter_location,
