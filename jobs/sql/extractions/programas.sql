@@ -5,6 +5,8 @@ select program_id into @hrts_program_id from program p where uuid = '6cceab45-75
 drop temporary table if exists programas;
 create temporary table programas(
 patient_id int, 
+person_uuid char(38),
+patient_program_uuid char(38),
 emrid varchar(50),
 emr_instance varchar(50),
 program varchar(50),
@@ -20,8 +22,9 @@ index_desc int
 );
 
 -- All Programs 
-insert into programas(patient_id,emr_instance,program,program_id,date_created,date_enrolled,date_completed,status)
+insert into programas(patient_id,patient_program_uuid, emr_instance,program,program_id,date_created,date_enrolled,date_completed,status)
 select  pp.patient_id,
+		pp.uuid,
 		location_name(pp.location_id) emr_instance,
 		p.name program,
 		pp.program_id,
@@ -33,6 +36,10 @@ select  pp.patient_id,
 left outer join program p on pp.program_id =p.program_id 
 left outer join concept_name cn on pp.outcome_concept_id = cn.concept_id and cn.voided=0 and cn.locale='en' and cn.locale_preferred=1
 where pp.voided=0;
+
+update programas t 
+inner join person p on p.person_id = t.patient_id
+set t.person_uuid = p.uuid;
 
 update programas t 
 set emrid = (
@@ -135,6 +142,8 @@ set es.index_desc = (
     
 select 
 emrid,
+person_uuid,
+patient_program_uuid,
 emr_instance,
 program,
 hearts,
