@@ -17,12 +17,13 @@ hearts_date date,
 date_enrolled datetime,
 date_completed datetime,
 status varchar(50),
+last_updated datetime,
 index_asc int,
 index_desc int
 );
 
 -- All Programs 
-insert into programas(patient_id,patient_program_uuid, emr_instance,program,program_id,date_created,date_enrolled,date_completed,status)
+insert into programas(patient_id,patient_program_uuid, emr_instance,program,program_id,date_created,date_enrolled,date_completed,last_updated, status)
 select  pp.patient_id,
 		pp.uuid,
 		location_name(pp.location_id) emr_instance,
@@ -31,6 +32,7 @@ select  pp.patient_id,
 		pp.date_created,
 		pp.date_enrolled,
 		pp.date_completed,
+		if(pp.date_changed > pp.date_created, pp.date_changed, pp.date_created),
 		cn.name status
 		from patient_program pp
 left outer join program p on pp.program_id =p.program_id 
@@ -151,6 +153,7 @@ hearts_date,
 cast(date_enrolled as date) date_enrolled,
 cast(date_completed as date)  as date_unenroll,
 status,
+last_updated,
 index_asc,
 index_desc
 from programas
