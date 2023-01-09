@@ -9,6 +9,7 @@ create table programas (
   fecha_inscrito       date,
   fecha_salida         date,
   estatus              varchar(50),
+  last_updated         datetime,
   index_asc            int,
   index_desc           int
 );
