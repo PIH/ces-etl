@@ -1,5 +1,6 @@
-select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
+SET @partition = '${partitionNum}';
 
+select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
 select encounter_type_id into @regEncounterId from encounter_type et where uuid = '873f968a-73a8-4f9c-ac78-9f4778b751b6';
 
 DROP TABLE IF EXISTS ces_patients;
@@ -337,7 +338,7 @@ WHERE person_id =cp.patient_id
 -- ######################### Final Select ###################################################################################
 
 SELECT
-emr_id,
+CONCAT(@partition,'-',emr_id) "emr_id",
 person_uuid,
 reg_location,
 reg_date,
