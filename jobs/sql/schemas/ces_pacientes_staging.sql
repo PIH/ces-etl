@@ -1,4 +1,4 @@
-CREATE TABLE ces_pacientes (
+CREATE TABLE ces_pacientes_staging (
 emr_id                      varchar(30),
 person_uuid                 char(38),
 registracion_localidad      varchar(30),
