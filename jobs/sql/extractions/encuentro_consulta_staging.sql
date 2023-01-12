@@ -663,7 +663,7 @@ inner join temp_consult_index_desc tvid on tvid.encounter_id = t.encounter_id
 set t.index_desc = tvid.index_desc;
 
 select 
-emr_id,
+CONCAT(@partition,'-',emr_id) "emr_id",
 person_uuid,
 CONCAT(@partition,'-',encounter_id) "encounter_id",
 encounter_uuid,
