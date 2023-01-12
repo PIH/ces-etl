@@ -23,7 +23,7 @@ configuration:
           - tableName: "ces_pacientes_staging"
           - tableName: "visitas"
           - tableName: "programas"
-          - tableName: "encuentro_consulta"
+          - tableName: "encuentro_consulta_staging"
           - tableName: "diagnosticos"
           - tableName: "encuentro_signos_vitales"
           - tableName: "summary_db_restore"
