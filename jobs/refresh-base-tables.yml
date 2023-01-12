@@ -1,3 +1,4 @@
+
 # Template that takes in the following parameters
 # ${siteName}
 # ${partitionNum}
@@ -29,3 +30,11 @@ configuration:
           - tableName: "usuarios"
           - tableName: "usuario_roles"
           - tableName: "usuario_credenciales"
+
+    - type: "iterating-job"
+      description: "Create derived tables"
+      configuration:
+        jobTemplate:
+          path: "create-derived-table-in-warehouse.yml"
+        iterations:
+          - tableName: "deduplicate_tables"
