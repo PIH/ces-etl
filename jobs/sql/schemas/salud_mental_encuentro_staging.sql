@@ -1,12 +1,15 @@
-CREATE TABLE salud_mental_encuentro (
-dbname                      varchar(30),
+CREATE TABLE salud_mental_encuentro_staging
+(
 emr_id                      varchar(30),
+person_uuid char(38),
 emr_instancia               varchar(30),
 edad_encuentro              int,
 encuentro_id                int,
+encuentro_uuid char(38),
 index_asc                   int,
 index_desc                  int,
 encuentro_fecha             date,
+date_changed date,
 entrada_fecha               date,
 entrada_persona             varchar(30),
 visita_id                   int,

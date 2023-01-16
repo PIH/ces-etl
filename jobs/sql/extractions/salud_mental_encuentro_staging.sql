@@ -1,21 +1,24 @@
+SET @partition = '${partitionNum}';
+
 SELECT name  INTO @encounter_type_name FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT encounter_type_id  INTO @encounter_type_id FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT program_id INTO @program_id FROM program p WHERE uuid='0e69c3ab-1ccb-430b-b0db-b9760319230f';
 select concept_id into @lastperioddate from concept_name where concept_id =2908 and locale='en' and voided=0 and concept_name_type='FULLY_SPECIFIED';
 select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
-set @dbname = '${partitionNum}';
 
 DROP TABLE IF EXISTS salud_mental_encountero;
 CREATE TABLE salud_mental_encountero (
-dbname varchar(30),
 patient_id int,
+person_uuid char(38),
 emr_id varchar(30),
 location varchar(30),
 age int,
 encounter_id int, 
+encounter_uuid char(38),
 index_asc int,
 index_desc int,
 encounter_date date, 
+date_changed date,
 data_entry_date date,
 data_entry_person varchar(30),
 visit_id int,
@@ -192,7 +195,8 @@ WHERE concept_id  IN (SELECT obs_id FROM mental_obs_ref )
 ;
 
 CREATE OR REPLACE VIEW mental_encounter_details AS 
-SELECT DISTINCT  encounter_id, patient_id, encounter_datetime, location_id , date_created , creator, visit_id  
+SELECT DISTINCT  encounter_id, e2.uuid "encounter_uuid", patient_id, encounter_datetime, location_id , date_created , 
+				 e2.date_changed , creator, visit_id 
 FROM encounter e2 
 WHERE encounter_id  IN (SELECT encounter_id FROM mental_encounters)
 and e2.voided=0;
@@ -228,10 +232,11 @@ GROUP BY p.patient_id;
 
 ################# Insert Patinets List ##############################################################
 
-INSERT INTO salud_mental_encountero (patient_id, emr_id,location,age,encounter_id,encounter_date , data_entry_date,data_entry_person,visit_id,mh_visit_date ,
-provider_name)
+INSERT INTO salud_mental_encountero (patient_id, emr_id,location,age,encounter_id,encounter_uuid, encounter_date , date_changed,
+					data_entry_date,data_entry_person,visit_id,mh_visit_date ,provider_name)
 SELECT DISTINCT me.patient_id ,pi2.identifier, l.name , age_at_enc(me.patient_id, me.encounter_id) AS age, 
-			  me.encounter_id, cast(me.encounter_datetime AS date) AS encounter_date,
+			  me.encounter_id, me.encounter_uuid, cast(me.encounter_datetime AS date) AS encounter_date,
+			  me.date_changed,
 			  CAST(me.date_created AS date) AS data_entry_date, 
 			  u.username AS data_entry_person,
 			  me.visit_id,
@@ -242,9 +247,6 @@ INNER JOIN location l ON me.location_id =l.location_id
 INNER JOIN users u ON u.user_id =me.creator
 INNER JOIN visit v2 ON v2.visit_id =me.visit_id 
 INNER JOIN visit_type vt ON v2.visit_type_id =vt.visit_type_id;
-
-update salud_mental_encountero t
-set t.dbname=@dbname;
 
 SELECT concept_id INTO @visit_reason_cn FROM concept WHERE uuid='86a2cf11-1ea5-4b8a-9e4b-08f4cdbe1346';
 UPDATE salud_mental_encountero t 
@@ -1367,19 +1369,27 @@ set es.index_desc = (
  and encounter_id=es.encounter_id
 );
 
-
+UPDATE salud_mental_encountero sm 
+INNER JOIN (
+	SELECT DISTINCT p2.person_id, 
+	uuid
+	FROM person p2
+) x ON sm.patient_id =x.person_id
+SET sm.person_uuid = x.uuid;
 
 -- --------------------------------------- Final Select -----------------------------------------------------------------------------------------------------------------------------------------
 SELECT 
 DISTINCT
-dbname,
-emr_id ,
+CONCAT(@partition,'-',emr_id) "emr_id" ,
+person_uuid,
 location ,
 age ,
 encounter_id , 
+encounter_uuid,
 index_asc,
 index_desc,
 encounter_date , 
+date_changed ,
 data_entry_date ,
 data_entry_person ,
 visit_id ,
