@@ -1,4 +1,4 @@
-create table programas (
+create table programas_staging (
   emr_id               varchar(50),
   person_uuid          char(38),
   patient_program_uuid char(38),
