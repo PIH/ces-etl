@@ -1,10 +1,10 @@
 --
 -- ces_pacientes
 --
+-- update uuids that should be changed because of merging
 drop table if exists #staging_pacientes;
 select * into #staging_pacientes from ces_pacientes_staging cp; 
 
--- update uuids that should be changed because of merging
 update sp
 set sp.person_uuid = mh.winner_person_uuid
 from #staging_pacientes sp 
@@ -42,10 +42,10 @@ where emr_id =
 --
 -- encuentro_consulta
 --
+-- update uuids that should be changed because of merging
 drop table if exists #staging_encuentro_consulta;
 select * into #staging_encuentro_consulta from encuentro_consulta_staging; 
 
--- update uuids that should be changed because of merging
 update sec
 set sec.person_uuid = mh.winner_person_uuid
 from #staging_encuentro_consulta sec
@@ -82,10 +82,14 @@ where sec.encuentro_id  =
 --
 -- programas
 --
+-- update uuids that should be changed because of merging
 drop table if exists #staging_programas;
 select * into #staging_programas from programas_staging; 
 
--- update uuids that should be changed because of merging
+-- add unique identifier column
+ALTER TABLE  #staging_programas 
+ADD unique_pp_id int IDENTITY(1,1);
+
 update sp
 set sp.person_uuid = mh.winner_person_uuid
 from #staging_programas sp 
@@ -96,8 +100,8 @@ inner join merge_history mh on mh.loser_person_uuid = sp.person_uuid
 -- ordered by last updated, and then prioritizing where the enrollment location equals the site 
 drop table if exists programas;
 select * into programas from #staging_programas sp
-where emr_id =
-	(select top 1 emr_id from  #staging_programas sp2
+where sp.unique_pp_id  =
+	(select top 1 sp2.unique_pp_id  from  #staging_programas sp2
 	where sp2.person_uuid = sp.person_uuid 
 	order by last_updated desc,
 	iif(case sp2.emr_instancia
@@ -119,4 +123,8 @@ where emr_id =
 		when 'CES Oficina' then 'jaltenango'
 		when 'Hospital' then 'jaltenango'		
 	   end = site, 1, 0) desc)
+;
+
+select p.patient_program_uuid , count(*)from programas p
+group by p.patient_program_uuid 
 ;
