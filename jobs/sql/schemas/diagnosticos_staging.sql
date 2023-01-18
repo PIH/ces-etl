@@ -1,4 +1,4 @@
-CREATE TABLE diagnosticos
+CREATE TABLE diagnosticos_staging
 (
 	emr_id                       varchar(50),
 	person_uuid                  char(38),
