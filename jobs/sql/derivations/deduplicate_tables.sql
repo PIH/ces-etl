@@ -102,7 +102,7 @@ drop table if exists programas;
 select * into programas from #staging_programas sp
 where sp.unique_pp_id  =
 	(select top 1 sp2.unique_pp_id  from  #staging_programas sp2
-	where sp2.person_uuid = sp.person_uuid 
+	where sp2.patient_program_uuid = sp.patient_program_uuid 
 	order by last_updated desc,
 	iif(case sp2.emr_instancia
 		when 'Soledad' then 'soledad'
@@ -123,8 +123,4 @@ where sp.unique_pp_id  =
 		when 'CES Oficina' then 'jaltenango'
 		when 'Hospital' then 'jaltenango'		
 	   end = site, 1, 0) desc)
-;
-
-select p.patient_program_uuid , count(*)from programas p
-group by p.patient_program_uuid 
 ;
