@@ -4,9 +4,11 @@ SET @partition = '${partitionNum}';
 DROP TEMPORARY TABLE IF EXISTS temp_diagnoses;
 CREATE TEMPORARY TABLE temp_diagnoses
 (
-    patient_id              int(11),
-    emr_id 					varchar(50),
+    patient_id				int(11),
+	emr_id 					varchar(50),
  	encounter_id			int(11),
+ 	obs_uuid 		 		char(38),
+ 	person_uuid				char(38),
 	obs_id					int(11),
 	encounter_location	 	varchar(255),
 	encounter_datetime		datetime,
@@ -26,6 +28,7 @@ insert into temp_diagnoses (
 	emr_id,
 	encounter_id,
 	obs_id,
+	obs_uuid,
 	date_created
 )
 select 
@@ -33,6 +36,7 @@ select
 	patient_identifier(o.person_id,'506add39-794f-11e8-9bcd-74e5f916c5ec'),
 	o.encounter_id,
 	o.obs_id,
+	o.uuid,
 	o.date_created 
 from obs o 
 where concept_id = concept_from_mapping('PIH','Visit Diagnoses')
@@ -48,6 +52,7 @@ CREATE TEMPORARY TABLE temp_dx_encounter
 (
    	patient_id					int(11),
 	encounter_id				int(11),
+	obs_uuid					char(38),
 	encounter_location			varchar(255),
 	encounter_datetime			datetime,
 	user_entered				varchar(255),
@@ -64,14 +69,16 @@ inner join encounter e on e.encounter_id = t.encounter_id
 set t.user_entered = person_name_of_user(e.creator),
 	t.encounter_type = encounter_type_name_from_id(e.encounter_type),
 	t.encounter_datetime = e.encounter_datetime,
-	t.encounter_location = location_name(location_id);
+	t.encounter_location = location_name(location_id)
+	;
 	
 update temp_diagnoses td
 inner join temp_dx_encounter tde on tde.encounter_id = td.encounter_id
 set td.encounter_datetime = tde.encounter_datetime,
 	td.encounter_type = tde.encounter_type,
 	td.user_entered = tde.user_entered,
-	td.encounter_location = tde.encounter_location;
+	td.encounter_location = tde.encounter_location
+	;
 
  -- diagnosis info
 DROP TEMPORARY TABLE IF EXISTS temp_obs;
@@ -104,9 +111,15 @@ set t.first_time = 1;
 
 update temp_diagnoses set icd_10_code = retrieveICD10(coded_dx_concept_id);
 
+update temp_diagnoses t 
+inner join person p on p.person_id = t.patient_id
+set t.person_uuid = p.uuid;
+
 select 
-emr_id ,
+CONCAT(@partition,'-',emr_id) "emr_id",
+person_uuid,
 CONCAT(@partition,'-',encounter_id) "encounter_id",
+obs_uuid,
 CONCAT(@partition,'-',obs_id) "obs_id",
 encounter_location,
 encounter_datetime,
