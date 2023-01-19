@@ -1,14 +1,16 @@
+SET @partition = '${partitionNum}';
+
 SELECT name  INTO @encounter_type_name FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT encounter_type_id  INTO @encounter_type_id FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT program_id INTO @program_id FROM program p WHERE uuid='0e69c3ab-1ccb-430b-b0db-b9760319230f';
 select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
-set @dbname = '${partitionNum}';
 
 DROP TABLE IF EXISTS salud_mental_paciente;
 CREATE TEMPORARY TABLE salud_mental_paciente (
-dbname varchar(30),
 Patient_id	int,
 emr_id	varchar(50),
+person_uuid                 char(38),
+date_changed date,
 age	int,
 gender	varchar(30),
 dead	bit,
@@ -153,8 +155,6 @@ INNER JOIN (SELECT person_id,gender, dead, death_date
 						FROM person
 						GROUP BY person_id) p ON pl.patient_id=p.person_id;
 					
-UPDATE salud_mental_paciente t
-SET t.dbname=@dbname;
 
 -- --------------- Mental Encounters Columns -------------------------------------
 					
@@ -905,11 +905,21 @@ SET t.GAD7_q7 = (
 	LIMIT 1
 );
 
+UPDATE salud_mental_paciente sm 
+INNER JOIN (
+	SELECT DISTINCT p2.person_id, 
+	uuid, date_changed
+	FROM person p2
+	where voided=0
+) x ON sm.patient_id =x.person_id
+SET sm.person_uuid = x.uuid,
+sm.date_changed=x.date_changed;
 
 SELECT 
-dbname,
-emr_id	,
-age	,
+CONCAT(@partition,'-',emr_id) "emr_id" ,
+person_uuid,
+date_changed,
+age,
 gender	,
 dead	,
 death_Date	,
