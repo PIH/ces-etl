@@ -164,3 +164,42 @@ where s.encuentro_id  =
 		when 'Hospital' then 'jaltenango'		
 	   end = site, 1, 0) desc)
 ;
+--
+-- diagnosticos
+--
+-- update uuids that should be changed because of merging
+drop table if exists #staging_diagnosticos;
+select * into #staging_diagnosticos from diagnosticos_staging; 
+
+update s
+set s.person_uuid = mh.winner_person_uuid
+from #staging_diagnosticos s
+inner join merge_history mh on mh.loser_person_uuid = s.person_uuid 
+; 
+
+-- choose single diagnosis (obs) row based on rows where encounter location = site 
+drop table if exists diagnosticos;
+select * into diagnosticos from #staging_diagnosticos s
+where s.diagnosticos_id  =
+	(select top 1 s2.diagnosticos_id from #staging_diagnosticos s2
+	where s2.obs_uuid = s.obs_uuid 
+	order by iif(case s2.emr_instancia
+		when 'Soledad' then 'soledad'
+		when 'Salvador' then 'salvador'
+		when 'Monterrey' then 'monterrey'
+		when 'Matazano' then 'matazano'
+		when 'Letrero' then 'letrero'
+		when 'Laguna del Cofre' then 'laguna'
+		when 'Capitan' then 'capitan'
+		when 'Honduras' then 'honduras'
+		when 'Casa Materna' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'	
+		when 'Pediatría' then 'jaltenango'
+		when 'Reforma' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'		
+	   end = site, 1, 0) desc)
+;
