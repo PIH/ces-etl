@@ -16,7 +16,7 @@ configuration:
         iterations:
           - tableName: "merge_history"
           - tableName: "covid_diagnoses"
-          - tableName: "salud_mental_paciente"
+          - tableName: "salud_mental_paciente_staging"
           - tableName: "salud_mental_encuentro_staging"
           - tableName: "salud_mental_estatus"
           - tableName: "ces_pacientes_staging"
