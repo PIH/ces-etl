@@ -1,4 +1,4 @@
-CREATE TABLE encuentro_signos_vitales
+CREATE TABLE encuentro_signos_vitales_staging
 (
     emr_id          	VARCHAR(25),
     encuentro_id		int,
