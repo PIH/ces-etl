@@ -244,3 +244,42 @@ where emr_id =
 		when 'Hospital' then 'jaltenango'		
 	   end = site, 1, 0) desc)
 ;
+--
+-- encuentro_signos_vitales
+--
+-- update uuids that should be changed because of merging
+drop table if exists #staging_encuentro_signos_vitales;
+select * into #staging_encuentro_signos_vitales from encuentro_signos_vitales_staging; 
+
+update sec
+set sec.person_uuid = mh.winner_person_uuid
+from #staging_encuentro_signos_vitales sec
+inner join merge_history mh on mh.loser_person_uuid = sec.person_uuid 
+; 
+
+-- choose single encounter row based on rows where encounter location = site 
+drop table if exists encuentro_signos_vitales;
+select * into encuentro_signos_vitales from #staging_encuentro_signos_vitales sec
+where sec.encuentro_id  =
+	(select top 1 sec2.encuentro_id from #staging_encuentro_signos_vitales sec2
+	where sec2.encounter_uuid = sec.encounter_uuid 
+	order by iif(case sec2.emr_instancia
+		when 'Soledad' then 'soledad'
+		when 'Salvador' then 'salvador'
+		when 'Monterrey' then 'monterrey'
+		when 'Matazano' then 'matazano'
+		when 'Letrero' then 'letrero'
+		when 'Laguna del Cofre' then 'laguna'
+		when 'Capitan' then 'capitan'
+		when 'Honduras' then 'honduras'
+		when 'Casa Materna' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'	
+		when 'Pediatría' then 'jaltenango'
+		when 'Reforma' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'		
+	   end = site, 1, 0) desc)
+;
