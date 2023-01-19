@@ -24,7 +24,7 @@ configuration:
           - tableName: "programas_staging"
           - tableName: "encuentro_consulta_staging"
           - tableName: "diagnosticos_staging"
-          - tableName: "encuentro_signos_vitales"
+          - tableName: "encuentro_signos_vitales_staging"
           - tableName: "summary_db_restore"
           - tableName: "usuarios"
           - tableName: "usuario_roles"
