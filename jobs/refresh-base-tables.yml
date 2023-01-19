@@ -18,7 +18,7 @@ configuration:
           - tableName: "covid_diagnoses"
           - tableName: "salud_mental_paciente_staging"
           - tableName: "salud_mental_encuentro_staging"
-          - tableName: "salud_mental_estatus"
+          - tableName: "salud_mental_estatus_staging"
           - tableName: "ces_pacientes_staging"
           - tableName: "visitas"
           - tableName: "programas_staging"
