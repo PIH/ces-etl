@@ -11,8 +11,6 @@ SELECT concept_id INTO @transfered FROM concept WHERE uuid='3cdd5c02-26fe-102b-8
 SELECT concept_id INTO @patient_refused FROM concept WHERE uuid='efab937b-853e-47da-b97e-220f1bdff97d';
 SELECT concept_id INTO @completed FROM concept WHERE uuid='3cdcecea-26fe-102b-80cb-0017a47871b2';
 
-SELECT @program_id
-
 DROP TABLE IF EXISTS salud_mental_estatus;
 CREATE TEMPORARY TABLE salud_mental_estatus (
 patient_id int,
@@ -34,9 +32,6 @@ FROM  patient_identifier
 where voided = 0 
 and identifier_type = @identifier_type
 GROUP BY patient_id;
-
-truncate table salud_mental_estatus;
-
 
 insert into salud_mental_estatus (patient_id, emr_id, emr_instancia, resultado_salud_mental, int_rank,resultado_salud_mental_fecha, patient_program_uuid, date_changed)
 SELECT distinct pp.patient_id,pi2.identifier 'emr_id', l.name 'emr_instancia',
