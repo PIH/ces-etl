@@ -96,7 +96,7 @@ from #staging_programas sp
 inner join merge_history mh on mh.loser_person_uuid = sp.person_uuid 
 ; 
 
--- choose single pacientes row based on row with latest encounter
+-- choose single programas row based on row with latest encounter
 -- ordered by last updated, and then prioritizing where the enrollment location equals the site 
 drop table if exists programas;
 select * into programas from #staging_programas sp
@@ -264,6 +264,52 @@ where sec.encuentro_id  =
 	(select top 1 sec2.encuentro_id from #staging_encuentro_signos_vitales sec2
 	where sec2.encounter_uuid = sec.encounter_uuid 
 	order by iif(case sec2.emr_instancia
+		when 'Soledad' then 'soledad'
+		when 'Salvador' then 'salvador'
+		when 'Monterrey' then 'monterrey'
+		when 'Matazano' then 'matazano'
+		when 'Letrero' then 'letrero'
+		when 'Laguna del Cofre' then 'laguna'
+		when 'Capitan' then 'capitan'
+		when 'Honduras' then 'honduras'
+		when 'Casa Materna' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'	
+		when 'Pediatría' then 'jaltenango'
+		when 'Reforma' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'		
+	   end = site, 1, 0) desc)
+;
+--
+-- salud_mental_estatus
+--
+-- update uuids that should be changed because of merging
+drop table if exists #staging_salud_mental_estatus;
+select * into #staging_salud_mental_estatus from salud_mental_estatus_staging; 
+
+-- add unique identifier column
+ALTER TABLE  #staging_salud_mental_estatus 
+ADD unique_pp_id int IDENTITY(1,1);
+
+update sp
+set sp.person_uuid = mh.winner_person_uuid
+from #staging_salud_mental_estatus sp 
+inner join merge_history mh on mh.loser_person_uuid = sp.person_uuid 
+; 
+
+-- choose single salud_mental_estatus row based on row that was changed most recently
+-- ordered by last updated, and then prioritizing where the enrollment location equals the site 
+-- note it is deduplicated by patient_program_uuid and status since there are multiple rows for each program and status
+drop table if exists salud_mental_estatus;
+select * into salud_mental_estatus from #staging_salud_mental_estatus sp
+where sp.unique_pp_id  =
+	(select top 1 sp2.unique_pp_id  from  #staging_salud_mental_estatus sp2
+	where  sp2.patient_program_uuid+convert(varchar(255), sp2.resultado_salud_mental)=  sp.patient_program_uuid+convert(varchar(255), sp.resultado_salud_mental)
+	order by date_changed desc,
+	iif(case sp2.emr_instancia
 		when 'Soledad' then 'soledad'
 		when 'Salvador' then 'salvador'
 		when 'Monterrey' then 'monterrey'
