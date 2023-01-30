@@ -2,7 +2,7 @@
 -- ---- Ascending Order ------------------------------------------
 drop table if exists int_asc;
 create table int_asc
-select DISTINCT s.* from salud_mental_estatus s
+select DISTINCT patient_id,resultado_salud_mental_fecha,int_rank, patient_program_uuid from salud_mental_estatus_tmp s
 ORDER BY patient_id asc, resultado_salud_mental_fecha asc, int_rank asc;
 
 
@@ -21,7 +21,7 @@ SELECT
 FROM
     int_asc;
     
-update salud_mental_estatus es
+update salud_mental_estatus_tmp es
 set es.index_asc = (
  select DISTINCT index_asc
  from asc_order
@@ -34,7 +34,8 @@ set es.index_asc = (
 -- -------- Descending Order --------------------------------------------------    
 drop table if exists int_desc;
 create table int_desc
-select * from salud_mental_estatus
+select distinct patient_id,resultado_salud_mental_fecha,int_rank, patient_program_uuid 
+from salud_mental_estatus_tmp
 ORDER BY patient_id asc, resultado_salud_mental_fecha desc, int_rank desc;
 
 DROP TABLE IF EXISTS desc_order;
@@ -50,7 +51,7 @@ SELECT
 FROM
     int_desc;
     
-update salud_mental_estatus es
+update salud_mental_estatus_tmp es
 set es.index_desc = (
  select index_desc
  from desc_order
@@ -59,6 +60,23 @@ set es.index_desc = (
  and int_rank=es.int_rank
  AND patient_program_uuid=es.patient_program_uuid
 );
+
+drop table if exists salud_mental_estatus;
+select 
+distinct 
+emr_id,
+person_uuid,
+patient_program_uuid,
+date_changed,
+emr_instancia,
+resultado_salud_mental,
+resultado_salud_mental_fecha,
+index_asc,
+index_desc
+from salud_mental_estatus_tmp
+into salud_mental_estatus;
+
+
 -- *********************************************************************************
 -- *********** Update programas ****************************************************
 

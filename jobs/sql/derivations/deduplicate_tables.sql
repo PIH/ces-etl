@@ -303,8 +303,8 @@ inner join merge_history mh on mh.loser_person_uuid = sp.person_uuid
 -- choose single salud_mental_estatus row based on row that was changed most recently
 -- ordered by last updated, and then prioritizing where the enrollment location equals the site 
 -- note it is deduplicated by patient_program_uuid and status since there are multiple rows for each program and status
-drop table if exists salud_mental_estatus;
-select * into salud_mental_estatus from #staging_salud_mental_estatus sp
+drop table if exists salud_mental_estatus_tmp;
+select * into salud_mental_estatus_tmp from #staging_salud_mental_estatus sp
 where sp.unique_pp_id  =
 	(select top 1 sp2.unique_pp_id  from  #staging_salud_mental_estatus sp2
 	where  sp2.patient_program_uuid+convert(varchar(255), sp2.resultado_salud_mental)=  sp.patient_program_uuid+convert(varchar(255), sp.resultado_salud_mental)
