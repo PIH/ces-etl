@@ -2,7 +2,7 @@ CREATE TABLE diagnosticos_staging
 (
 	emr_id                       varchar(50),
 	person_uuid                  char(38),
-	visit_id                     varchar(50),
+	visita_id                     varchar(50),
  	encuentro_id                 varchar(50),
 	obs_uuid                     char(38),
 	diagnosticos_id              varchar(50),
