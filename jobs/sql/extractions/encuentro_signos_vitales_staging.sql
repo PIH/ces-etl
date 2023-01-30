@@ -12,6 +12,7 @@ CREATE TEMPORARY TABLE temp_vitals
 	patient_id			int(11),
 	person_uuid			char(38),
 	emr_id          	VARCHAR(25),
+	visit_id			int(11),
     encounter_id		int(11),
     encounter_uuid			char(38),
     encounter_location_id	int(11),
@@ -41,8 +42,8 @@ CREATE TEMPORARY TABLE temp_vitals
     index_desc			int
     );
    
-insert into temp_vitals(patient_id, encounter_id, encounter_uuid, encounter_datetime, date_entered, creator, encounter_location_id)   
-select e.patient_id,  e.encounter_id, e.uuid , e.encounter_datetime, e.date_created, e.creator, e.location_id  from encounter e
+insert into temp_vitals(patient_id, visit_id, encounter_id, encounter_uuid, encounter_datetime, date_entered, creator, encounter_location_id)   
+select e.patient_id,  visit_id, e.encounter_id, e.uuid , e.encounter_datetime, e.date_created, e.creator, e.location_id  from encounter e
 where e.encounter_type = @vitals_encounter
 and e.voided = 0;
 
@@ -275,6 +276,7 @@ set t.person_uuid = p.uuid;
 select 
 	CONCAT(@partition,'-',emr_id) "emr_id",
 	person_uuid,
+	CONCAT(@partition,'-',visit_id) "visit_id",
 	CONCAT(@partition,'-',encounter_id) "encounter_id",
 	encounter_uuid,
 	encounter_location,
