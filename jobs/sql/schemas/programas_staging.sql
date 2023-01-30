@@ -11,5 +11,7 @@ create table programas_staging (
   estatus              varchar(50),
   last_updated         datetime,
   index_asc            int,
-  index_desc           int
+  index_desc           int,
+  program_id            int,
+  date_created          datetime
 );

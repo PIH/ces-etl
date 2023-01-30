@@ -20,6 +20,7 @@ ON tmp.patient_id=x.patient_id
 AND tmp.resultado_salud_mental_fecha = x.resultado_salud_mental_fecha 
 AND tmp.int_rank=x.int_rank;
 
+DROP TABLE IF EXISTS salud_mental_estatus;
 select  
 emr_id ,
 person_uuid,
@@ -35,68 +36,50 @@ from salud_mental_estatus_tmp;
 -- *********************************************************************************
 -- *********** Update programas ****************************************************
 
--- ---- Ascending Order ------------------------------------------
 
-drop table if exists int_asc;
-create table int_asc
-select * from programas vs 
-ORDER BY emr_id asc, date_enrolled asc, program_id asc, date_created asc;
 
-set @row_number := 0;
-DROP TABLE IF EXISTS asc_order;
-CREATE TABLE asc_order
-SELECT 
-    @row_number:=CASE
-        WHEN @emr_id = emr_id  
-			THEN @row_number + 1
-        ELSE 1
-    END AS index_asc,
-    @emr_id:=emr_id  emr_id,
-    date_enrolled,program_id,date_created
-FROM
-    int_asc;
-   
-update programas es
-set es.index_asc = (
- select distinct index_asc 
- from asc_order
- where emr_id=es.emr_id 
- and date_enrolled=es.date_enrolled
- and program_id=es.program_id
- and date_created=es.date_created
-);
-    
 
--- ---- Descending Order ------------------------------------------
+UPDATE tmp 
+SET index_asc = x.index_asc
+FROM programas_tmp tmp INNER JOIN (
+SELECT emr_id,date_enrolled,program_id,date_created,
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, fecha_inscrito asc, program_id asc, date_created asc) index_asc
+FROM programas_tmp) x 
+ON tmp.emr_id=x.emr_id 
+AND tmp.fecha_inscrito = x.fecha_inscrito 
+AND tmp.program_id=x.program_id
+AND tmp.date_created=x.date_created;
 
-drop table if exists int_desc;
-create table int_desc
-select * from programas vs 
-ORDER BY emr_id asc, date_enrolled desc, program_id desc, date_created desc;
+UPDATE tmp 
+SET index_desc = x.index_desc
+FROM programas_tmp tmp INNER JOIN (
+SELECT emr_id,date_enrolled,program_id,date_created,
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, fecha_inscrito desc, program_id desc, date_created desc) index_desc
+FROM programas_tmp) x 
+ON tmp.emr_id=x.emr_id 
+AND tmp.fecha_inscrito = x.fecha_inscrito 
+AND tmp.program_id=x.program_id
+AND tmp.date_created=x.date_created;
 
-set @row_number := 0;
-DROP TABLE IF EXISTS desc_order;
-CREATE TABLE desc_order
-SELECT 
-    @row_number:=CASE
-        WHEN @emr_id = emr_id  
-			THEN @row_number + 1
-        ELSE 1
-    END AS index_desc,
-    @emr_id:=emr_id  emr_id,
-    date_enrolled,program_id,date_created
-FROM
-    int_desc;
-   
-update programas es
-set es.index_desc = (
- select distinct index_desc 
- from desc_order
- where emr_id= es.emr_id 
- and date_enrolled=es.date_enrolled
- and program_id=es.program_id
- and date_created=es.date_created
-);
+DROP TABLE IF EXISTS programas;
+select 
+emr_id,
+person_uuid,
+patient_program_uuid,
+emr_instancia,
+programa,
+hearts,
+hearts_fecha,
+fecha_inscrito,
+fecha_salida,
+estatus,
+last_updated,
+index_asc,
+index_desc,
+program_id,
+date_created
+INTO programas_tmp
+from programas;
 
 -- *********************************************************************************
 -- *********** Update encountero_consluta ****************************************************
