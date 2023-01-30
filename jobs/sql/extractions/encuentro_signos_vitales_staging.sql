@@ -267,65 +267,7 @@ inner join temp_obs o ON t.encounter_id = o.encounter_id
         AND o.concept_id = @cc 
 SET chief_complaint = o.value_text;
 
--- The indexes are calculated using the ecnounter_date
-### index ascending
-DROP TEMPORARY TABLE IF EXISTS temp_vitals_index_asc;
-CREATE TEMPORARY TABLE temp_vitals_index_asc
-(
-    SELECT
-            all_vitals_id,
-    		emr_id,
-            encounter_datetime,
-            date_entered,
-            index_asc
-FROM (SELECT
-            @r:= IF(@u = emr_id, @r + 1,1) index_asc,
-            encounter_datetime,
-            date_entered,
-            all_vitals_id,
-            emr_id,
-            @u:= emr_id
-      FROM temp_vitals,
-                    (SELECT @r:= 1) AS r,
-                    (SELECT @u:= 0) AS u
-            ORDER BY emr_id, encounter_datetime ASC, date_entered ASC
-        ) index_ascending );
-
-create index temp_vitals_index_asc_avi on temp_vitals_index_asc(all_vitals_id);
-
-update temp_vitals t
-inner join temp_vitals_index_asc tvia on tvia.all_vitals_id = t.all_vitals_id
-set t.index_asc = tvia.index_asc;
-
-### index descending
-DROP TEMPORARY TABLE IF EXISTS temp_vitals_index_desc;
-CREATE TEMPORARY TABLE temp_vitals_index_desc
-(
-    SELECT
-            all_vitals_id,
-    		emr_id,
-            encounter_datetime,
-            date_entered,
-            index_desc
-FROM (SELECT
-            @r:= IF(@u = emr_id, @r + 1,1) index_desc,
-            encounter_datetime,
-            date_entered,
-            all_vitals_id,
-            emr_id,
-            @u:= emr_id
-      FROM temp_vitals,
-                    (SELECT @r:= 1) AS r,
-                    (SELECT @u:= 0) AS u
-            ORDER BY emr_id, encounter_datetime desc, date_entered desc
-        ) index_descending );
-
-create index temp_vitals_index_desc_avi on temp_vitals_index_desc(all_vitals_id);
-
-update temp_vitals t
-inner join temp_vitals_index_desc tvid on tvid.all_vitals_id = t.all_vitals_id
-set t.index_desc = tvid.index_desc;
-
+-- person UUID
 update temp_vitals t 
 inner join person p on p.person_id = t.patient_id
 set t.person_uuid = p.uuid;
