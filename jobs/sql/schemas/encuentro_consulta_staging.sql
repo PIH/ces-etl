@@ -2,6 +2,7 @@ CREATE TABLE encuentro_consulta_staging
 (
 emrid                                  varchar(50),
 person_uuid                            char(38),  
+visita_id                              varchar(25),  
 encuentro_id                           varchar(25),
 encounter_uuid                         char(38),
 encuentro_tipo                         varchar(255),  
