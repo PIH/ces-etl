@@ -93,7 +93,9 @@ cast(date_completed as date)  as date_unenroll,
 status,
 last_updated,
 index_asc,
-index_desc
+index_desc,
+program_id,
+date_created
 from programas
 where emr_id is not null
 and program_id <> @hrts_program_id

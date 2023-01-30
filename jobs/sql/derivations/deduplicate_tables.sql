@@ -98,8 +98,8 @@ inner join merge_history mh on mh.loser_person_uuid = sp.person_uuid
 
 -- choose single programas row based on row with latest encounter
 -- ordered by last updated, and then prioritizing where the enrollment location equals the site 
-drop table if exists programas;
-select * into programas from #staging_programas sp
+drop table if exists programas_tmp;
+select * into programas_tmp from #staging_programas sp
 where sp.unique_pp_id  =
 	(select top 1 sp2.unique_pp_id  from  #staging_programas sp2
 	where sp2.patient_program_uuid = sp.patient_program_uuid 
