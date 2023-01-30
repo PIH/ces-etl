@@ -89,6 +89,7 @@ SET sm.person_uuid = x.uuid;
 
 select 
 distinct 
+patient_id,
 CONCAT(@partition,'-',emr_id) "emr_id" ,
 person_uuid,
 patient_program_uuid,
@@ -96,6 +97,7 @@ date_changed,
 emr_instancia,
 resultado_salud_mental,
 resultado_salud_mental_fecha,
+int_rank,
 index_asc,
 index_desc
 from salud_mental_estatus

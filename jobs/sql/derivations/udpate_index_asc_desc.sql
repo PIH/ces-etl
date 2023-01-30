@@ -9,7 +9,7 @@ FROM salud_mental_estatus_tmp ) x
 ON tmp.patient_id=x.patient_id 
 AND tmp.resultado_salud_mental_fecha = x.resultado_salud_mental_fecha 
 AND tmp.int_rank=x.int_rank;
--- -------- Descending Order --------------------------------------------------    
+-- -------- Descending Order -------------------------------------------------- 
 UPDATE tmp 
 SET index_desc = x.index_desc
 FROM salud_mental_estatus_tmp tmp INNER JOIN (
@@ -32,7 +32,6 @@ index_asc,
 index_desc
 into salud_mental_estatus
 from salud_mental_estatus_tmp;
-
 -- *********************************************************************************
 -- *********** Update programas ****************************************************
 
