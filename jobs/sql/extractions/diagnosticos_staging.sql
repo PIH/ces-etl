@@ -6,6 +6,7 @@ CREATE TEMPORARY TABLE temp_diagnoses
 (
     patient_id				int(11),
 	emr_id 					varchar(50),
+	visit_id				int(11),
  	encounter_id			int(11),
  	obs_uuid 		 		char(38),
  	person_uuid				char(38),
@@ -51,6 +52,7 @@ DROP TEMPORARY TABLE IF EXISTS temp_dx_encounter;
 CREATE TEMPORARY TABLE temp_dx_encounter
 (
    	patient_id					int(11),
+   	visit_id					int(11),
 	encounter_id				int(11),
 	obs_uuid					char(38),
 	encounter_location			varchar(255),
@@ -69,7 +71,8 @@ inner join encounter e on e.encounter_id = t.encounter_id
 set t.user_entered = person_name_of_user(e.creator),
 	t.encounter_type = encounter_type_name_from_id(e.encounter_type),
 	t.encounter_datetime = e.encounter_datetime,
-	t.encounter_location = location_name(location_id)
+	t.encounter_location = location_name(location_id),
+	t.visit_id = e.visit_id 
 	;
 	
 update temp_diagnoses td
@@ -77,7 +80,8 @@ inner join temp_dx_encounter tde on tde.encounter_id = td.encounter_id
 set td.encounter_datetime = tde.encounter_datetime,
 	td.encounter_type = tde.encounter_type,
 	td.user_entered = tde.user_entered,
-	td.encounter_location = tde.encounter_location
+	td.encounter_location = tde.encounter_location,
+	td.visit_id = tde.visit_id
 	;
 
  -- diagnosis info
@@ -118,6 +122,7 @@ set t.person_uuid = p.uuid;
 select 
 CONCAT(@partition,'-',emr_id) "emr_id",
 person_uuid,
+CONCAT(@partition,'-',visit_id) "visit_id",
 CONCAT(@partition,'-',encounter_id) "encounter_id",
 obs_uuid,
 CONCAT(@partition,'-',obs_id) "obs_id",
