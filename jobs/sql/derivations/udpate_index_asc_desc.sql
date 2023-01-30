@@ -1,64 +1,38 @@
 -- *********** Update salud_mental_estatus *****************************************
 -- ---- Ascending Order ------------------------------------------
-drop table if exists int_asc;
-create table int_asc
-select DISTINCT s.* from salud_mental_estatus s
-ORDER BY patient_id asc, resultado_salud_mental_fecha asc, int_rank asc;
-
-
-set @row_number := 0;
-
-DROP TABLE IF EXISTS asc_order;
-CREATE TABLE asc_order
-SELECT 
-    @row_number:=CASE
-        WHEN @patient_id = patient_id 
-			THEN @row_number + 1
-        ELSE 1
-    END AS index_asc,
-    @patient_id:=patient_id patient_id,
-    resultado_salud_mental_fecha,int_rank, patient_program_uuid
-FROM
-    int_asc;
-    
-update salud_mental_estatus es
-set es.index_asc = (
- select DISTINCT index_asc
- from asc_order
- where patient_id= es.patient_id 
- and resultado_salud_mental_fecha=es.resultado_salud_mental_fecha
- and int_rank=es.int_rank
- AND patient_program_uuid=es.patient_program_uuid
-);
-
+UPDATE tmp 
+SET index_asc = x.index_asc
+FROM salud_mental_estatus_tmp tmp INNER JOIN (
+SELECT patient_id,resultado_salud_mental_fecha, int_rank,
+rank() over(PARTITION BY patient_id ORDER BY patient_id asc, resultado_salud_mental_fecha asc, int_rank asc) index_asc
+FROM salud_mental_estatus_tmp ) x 
+ON tmp.patient_id=x.patient_id 
+AND tmp.resultado_salud_mental_fecha = x.resultado_salud_mental_fecha 
+AND tmp.int_rank=x.int_rank;
 -- -------- Descending Order --------------------------------------------------    
-drop table if exists int_desc;
-create table int_desc
-select * from salud_mental_estatus
-ORDER BY patient_id asc, resultado_salud_mental_fecha desc, int_rank desc;
+UPDATE tmp 
+SET index_desc = x.index_desc
+FROM salud_mental_estatus_tmp tmp INNER JOIN (
+SELECT patient_id,resultado_salud_mental_fecha, int_rank,
+rank() over(PARTITION BY patient_id ORDER BY patient_id asc, resultado_salud_mental_fecha desc, int_rank desc) index_desc
+FROM salud_mental_estatus_tmp ) x 
+ON tmp.patient_id=x.patient_id 
+AND tmp.resultado_salud_mental_fecha = x.resultado_salud_mental_fecha 
+AND tmp.int_rank=x.int_rank;
 
-DROP TABLE IF EXISTS desc_order;
-CREATE TABLE desc_order
-SELECT 
-    @row_number:=CASE
-        WHEN @patient_id = patient_id 
-			THEN @row_number + 1
-        ELSE 1
-    END AS index_desc,
-    @patient_id:=patient_id patient_id,
-    resultado_salud_mental_fecha,int_rank, patient_program_uuid
-FROM
-    int_desc;
-    
-update salud_mental_estatus es
-set es.index_desc = (
- select index_desc
- from desc_order
- where patient_id=es.patient_id 
- and resultado_salud_mental_fecha=es.resultado_salud_mental_fecha
- and int_rank=es.int_rank
- AND patient_program_uuid=es.patient_program_uuid
-);
+select  
+emr_id ,
+person_uuid,
+patient_program_uuid,
+date_changed,
+emr_instancia,
+resultado_salud_mental,
+resultado_salud_mental_fecha,
+index_asc,
+index_desc
+into salud_mental_estatus
+from salud_mental_estatus_tmp;
+
 -- *********************************************************************************
 -- *********** Update programas ****************************************************
 

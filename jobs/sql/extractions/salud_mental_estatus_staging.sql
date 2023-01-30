@@ -9,6 +9,7 @@ SELECT concept_id INTO @lost_followup FROM concept WHERE uuid='3ceb0ed8-26fe-102
 SELECT concept_id INTO @muerte FROM concept WHERE uuid='3cdd446a-26fe-102b-80cb-0017a47871b2';
 SELECT concept_id INTO @transfered FROM concept WHERE uuid='3cdd5c02-26fe-102b-80cb-0017a47871b2';
 SELECT concept_id INTO @patient_refused FROM concept WHERE uuid='efab937b-853e-47da-b97e-220f1bdff97d';
+SELECT concept_id  INTO @patient_refused_2 FROM concept WHERE uuid='3cdc0604-26fe-102b-80cb-0017a47871b2';
 SELECT concept_id INTO @completed FROM concept WHERE uuid='3cdcecea-26fe-102b-80cb-0017a47871b2';
 
 DROP TABLE IF EXISTS salud_mental_estatus;
@@ -46,7 +47,7 @@ SELECT DISTINCT pp.patient_id,pi2.identifier 'emr_id', l.name 'emr_instancia',
 	  cn.name as 'resultado_salud_mental' , 
 	  case when cn.concept_id =@lost_followup then 2
 	  when cn.concept_id =@transfered then 3
-	  when cn.concept_id =@patient_refused then 4
+	  when (cn.concept_id =@patient_refused or cn.concept_id =@patient_refused_2) then 4
 	  when cn.concept_id =@completed then 5
 	  when cn.concept_id =@muerte then 6 end as int_rank,
 	  date_completed  'resultado_salud_mental_fecha',
