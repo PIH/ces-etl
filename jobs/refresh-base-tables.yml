@@ -36,3 +36,4 @@ configuration:
           path: "create-derived-table-in-warehouse.yml"
         iterations:
           - tableName: "deduplicate_tables"
+          - tableName: "udpate_index_asc_desc"
