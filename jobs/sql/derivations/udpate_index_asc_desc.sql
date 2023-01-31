@@ -36,13 +36,10 @@ from salud_mental_estatus_tmp;
 -- *********************************************************************************
 -- *********** Update programas ****************************************************
 
-
-
-
 UPDATE tmp 
 SET index_asc = x.index_asc
 FROM programas_tmp tmp INNER JOIN (
-SELECT emr_id,date_enrolled,program_id,date_created,
+SELECT emr_id,fecha_inscrito,program_id,date_created,
 rank() over(PARTITION BY emr_id ORDER BY emr_id asc, fecha_inscrito asc, program_id asc, date_created asc) index_asc
 FROM programas_tmp) x 
 ON tmp.emr_id=x.emr_id 
@@ -53,7 +50,7 @@ AND tmp.date_created=x.date_created;
 UPDATE tmp 
 SET index_desc = x.index_desc
 FROM programas_tmp tmp INNER JOIN (
-SELECT emr_id,date_enrolled,program_id,date_created,
+SELECT emr_id,fecha_inscrito,program_id,date_created,
 rank() over(PARTITION BY emr_id ORDER BY emr_id asc, fecha_inscrito desc, program_id desc, date_created desc) index_desc
 FROM programas_tmp) x 
 ON tmp.emr_id=x.emr_id 
