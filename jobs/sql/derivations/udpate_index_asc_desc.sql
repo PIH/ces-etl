@@ -104,64 +104,62 @@ AND tmp.encuentro_id=x.encuentro_id;
 -- *********************************************************************************
 
 -- *********** Update encountero_signos_vitales ****************************************************
--- The indexes are calculated using the ecnounter_date
--- index ascending
-DROP TEMPORARY TABLE IF EXISTS temp_vitals_index_asc;
-CREATE TEMPORARY TABLE temp_vitals_index_asc
-(
-    SELECT
-            all_vitals_id,
-    		emr_id,
-            encounter_datetime,
-            date_entered,
-            index_asc
-FROM (SELECT
-            @r:= IF(@u = emr_id, @r + 1,1) index_asc,
-            encounter_datetime,
-            date_entered,
-            all_vitals_id,
-            emr_id,
-            @u:= emr_id
-      FROM encuentro_signos_vitales,
-                    (SELECT @r:= 1) AS r,
-                    (SELECT @u:= 0) AS u
-            ORDER BY emr_id, encounter_datetime ASC, date_entered ASC
-        ) index_ascending );
 
-create index temp_vitals_index_asc_avi on temp_vitals_index_asc(all_vitals_id);
 
-update encuentro_signos_vitales t
-inner join temp_vitals_index_asc tvia on tvia.all_vitals_id = t.all_vitals_id
-set t.index_asc = tvia.index_asc;
+            
+UPDATE tmp 
+SET index_asc = x.index_asc
+FROM encuentro_signos_vitales_tmp tmp INNER JOIN (
+SELECT emr_id, all_vitals_id, encuentro_fecha, entrada_fecha,
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, all_vitals_id ASC, encuentro_fecha asc, entrada_fecha asc) index_asc
+FROM encuentro_signos_vitales_tmp) x 
+ON tmp.emr_id=x.emr_id 
+AND tmp.all_vitals_id = x.all_vitals_id 
+AND tmp.encuentro_fecha=x.encuentro_fecha
+AND tmp.entrada_fecha=x.entrada_fecha;
 
--- index descending
-DROP TEMPORARY TABLE IF EXISTS temp_vitals_index_desc;
-CREATE TEMPORARY TABLE temp_vitals_index_desc
-(
-    SELECT
-            all_vitals_id,
-    		emr_id,
-            encounter_datetime,
-            date_entered,
-            index_desc
-FROM (SELECT
-            @r:= IF(@u = emr_id, @r + 1,1) index_desc,
-            encounter_datetime,
-            date_entered,
-            all_vitals_id,
-            emr_id,
-            @u:= emr_id
-      FROM encuentro_signos_vitales,
-                    (SELECT @r:= 1) AS r,
-                    (SELECT @u:= 0) AS u
-            ORDER BY emr_id, encounter_datetime desc, date_entered desc
-        ) index_descending );
+UPDATE tmp 
+SET index_desc = x.index_desc
+FROM encuentro_signos_vitales_tmp tmp INNER JOIN (
+SELECT emr_id, all_vitals_id, encuentro_fecha, entrada_fecha,
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, all_vitals_id desc, encuentro_fecha desc, entrada_fecha desc) index_desc
+FROM encuentro_signos_vitales_tmp) x 
+ON tmp.emr_id=x.emr_id 
+AND tmp.all_vitals_id = x.all_vitals_id 
+AND tmp.encuentro_fecha=x.encuentro_fecha
+AND tmp.entrada_fecha=x.entrada_fecha;
 
-create index temp_vitals_index_desc_avi on temp_vitals_index_desc(all_vitals_id);
 
-update encuentro_signos_vitales t
-inner join temp_vitals_index_desc tvid on tvid.all_vitals_id = t.all_vitals_id
-set t.index_desc = tvid.index_desc;
+DROP TABLE IF EXISTS encuentro_signos_vitales;
+select 
+	emr_id,
+	person_uuid,
+	visita_id,
+	encuentro_id,
+	encounter_uuid,
+	emr_instancia,
+	encuentro_fecha,
+	proveedor,
+	entrada_fecha,
+	entrada_persona,
+    talla,
+    peso,
+    imc,
+    presion_sistolica,
+    presion_diastolica,
+    sat_o2,
+    ayuno,
+    glucosa,
+    temperatura,
+    frecuencia_cardiaca,
+    frecuencia_respiratoria,
+    phq2,
+    gad2,
+    molestia_principal,
+    index_asc,
+    index_desc
+    INTO encuentro_signos_vitales
+    FROM encuentro_signos_vitales_tmp;
 
 -- *********************************************************************************
 

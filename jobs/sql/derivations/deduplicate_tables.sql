@@ -258,8 +258,8 @@ inner join merge_history mh on mh.loser_person_uuid = sec.person_uuid
 ; 
 
 -- choose single encounter row based on rows where encounter location = site 
-drop table if exists encuentro_signos_vitales;
-select * into encuentro_signos_vitales from #staging_encuentro_signos_vitales sec
+drop table if exists encuentro_signos_vitales_tmp;
+select * into encuentro_signos_vitales_tmp from #staging_encuentro_signos_vitales sec
 where sec.encuentro_id  =
 	(select top 1 sec2.encuentro_id from #staging_encuentro_signos_vitales sec2
 	where sec2.encounter_uuid = sec.encounter_uuid 
