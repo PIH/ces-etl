@@ -80,58 +80,26 @@ from programas_tmp;
 
 -- *********************************************************************************
 -- *********** Update encountero_consluta ****************************************************
---  index ascending
-drop temporary table if exists temp_consult_index_asc;
-CREATE TEMPORARY TABLE temp_consult_index_asc
-(
-    SELECT
-            patient_id,
-            encounter_date,
-            encounter_id,
-            index_asc
-FROM (SELECT
-            @r:= IF(@u = patient_id, @r + 1,1) index_asc,
-            encounter_date,
-            encounter_id,
-            patient_id,
-            @u:= patient_id
-      FROM encuentro_consulta,
-                    (SELECT @r:= 1) AS r,
-                    (SELECT @u:= 0) AS u
-            ORDER BY patient_id, encounter_date ASC, encounter_id ASC
-        ) index_ascending );
 
-CREATE INDEX tvia_e ON temp_consult_index_asc(encounter_id);
+UPDATE tmp 
+SET index_asc = x.index_asc
+FROM encuentro_consulta tmp INNER JOIN (
+SELECT emrid,encuentro_fecha,encuentro_id,
+rank() over(PARTITION BY emrid ORDER BY emrid asc, encuentro_fecha asc, encuentro_id asc) index_asc
+FROM encuentro_consulta) x 
+ON tmp.emrid=x.emrid 
+AND tmp.encuentro_fecha = x.encuentro_fecha 
+AND tmp.encuentro_id=x.encuentro_id;
 
-update encuentro_consulta t
-inner join temp_consult_index_asc tvia on tvia.encounter_id = t.encounter_id
-set t.index_asc = tvia.index_asc;
-
-drop temporary table if exists temp_consult_index_desc;
-CREATE TEMPORARY TABLE temp_consult_index_desc
-(
-    SELECT
-            patient_id,
-            encounter_date,
-            encounter_id,
-            index_desc
-FROM (SELECT
-            @r:= IF(@u = patient_id, @r + 1,1) index_desc,
-            encounter_date,
-            encounter_id,
-            patient_id,
-            @u:= patient_id
-      FROM encuentro_consulta,
-                    (SELECT @r:= 1) AS r,
-                    (SELECT @u:= 0) AS u
-            ORDER BY patient_id, encounter_date DESC, encounter_id DESC
-        ) index_descending );
-
-CREATE INDEX tvia_e ON temp_consult_index_desc(encounter_id);
-
-update encuentro_consulta t
-inner join temp_consult_index_desc tvid on tvid.encounter_id = t.encounter_id
-set t.index_desc = tvid.index_desc;
+UPDATE tmp 
+SET index_desc = x.index_desc
+FROM encuentro_consulta tmp INNER JOIN (
+SELECT emrid,encuentro_fecha,encuentro_id,
+rank() over(PARTITION BY emrid ORDER BY emrid asc, encuentro_fecha desc, encuentro_id desc) index_desc
+FROM encuentro_consulta) x 
+ON tmp.emrid=x.emrid 
+AND tmp.encuentro_fecha = x.encuentro_fecha 
+AND tmp.encuentro_id=x.encuentro_id;
 
 -- *********************************************************************************
 
