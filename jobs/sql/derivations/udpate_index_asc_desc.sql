@@ -75,8 +75,8 @@ index_asc,
 index_desc,
 program_id,
 date_created
-INTO programas_tmp
-from programas;
+INTO programas
+from programas_tmp;
 
 -- *********************************************************************************
 -- *********** Update encountero_consluta ****************************************************
