@@ -1,8 +1,6 @@
 SET sql_safe_updates = 0;
 SET @partition = '${partitionNum}';
 
-select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
-
 SET @vitals_encounter = (SELECT encounter_type_id FROM encounter_type WHERE uuid = '4fb47712-34a6-40d2-8ed3-e153abbd25b7');
 
 DROP TEMPORARY TABLE IF EXISTS temp_vitals;
@@ -60,17 +58,10 @@ emr_id							VARCHAR(25)
 INSERT INTO temp_identifiers(patient_id)
 select distinct patient_id from temp_vitals;
 
-update temp_identifiers t set emr_id =(
-		select distinct identifier
-		from patient_identifier 
-		where identifier_type = @identifier_type
-		and voided = 0
-		and patient_id = t.patient_id
-		and preferred=1
-);	
-
-
 CREATE INDEX temp_identifiers_p ON temp_identifiers (patient_id);
+
+update temp_identifiers t 
+set emr_id = patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f916c5ec');
 
 update temp_vitals tv 
 inner join temp_identifiers ti on ti.patient_id = tv.patient_id
