@@ -21,8 +21,6 @@ configuration:
       partitionNum: "5"
     - siteName: "matazano"
       partitionNum: "6"
-    - siteName: "monterrey"
-      partitionNum: "7"
     - siteName: "planBaja"
       partitionNum: "8"
     - siteName: "planAlta"
