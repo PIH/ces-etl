@@ -79,6 +79,12 @@ where sec.encuentro_id  =
 	   end = site, 1, 0) desc)
 ;
 
+-- update emr_id based on what was chosen on ces_pacientes 
+update x
+set x.emrid = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
+from encuentro_consulta x
+;
+
 --
 -- programas
 --
@@ -125,6 +131,12 @@ where sp.unique_pp_id  =
 	   end = site, 1, 0) desc)
 ;
 
+-- update emr_id based on what was chosen on ces_pacientes 
+update x
+set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
+from programas x
+;
+
 --
 -- salud_mental_encuentro
 --
@@ -164,6 +176,12 @@ where s.encuentro_id  =
 		when 'Hospital' then 'jaltenango'		
 	   end = site, 1, 0) desc)
 ;
+
+-- update emr_id based on what was chosen on ces_pacientes 
+update x
+set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
+from salud_mental_encuentro x
+;
 --
 -- diagnosticos
 --
@@ -202,6 +220,11 @@ where s.diagnosticos_id  =
 		when 'CES Oficina' then 'jaltenango'
 		when 'Hospital' then 'jaltenango'		
 	   end = site, 1, 0) desc)
+;
+-- update emr_id based on what was chosen on ces_pacientes 
+update x
+set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
+from diagnosticos x
 ;
 --
 -- salud_mental_paciente
@@ -244,6 +267,11 @@ where emr_id =
 		when 'Hospital' then 'jaltenango'		
 	   end = site, 1, 0) desc)
 ;
+-- update emr_id based on what was chosen on ces_pacientes 
+update x
+set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
+from salud_mental_paciente x
+;
 --
 -- encuentro_signos_vitales
 --
@@ -282,6 +310,11 @@ where sec.encuentro_id  =
 		when 'CES Oficina' then 'jaltenango'
 		when 'Hospital' then 'jaltenango'		
 	   end = site, 1, 0) desc)
+;
+-- update emr_id based on what was chosen on ces_pacientes 
+update x
+set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid)
+from encuentro_signos_vitales_tmp x
 ;
 --
 -- salud_mental_estatus
@@ -328,4 +361,9 @@ where sp.unique_pp_id  =
 		when 'CES Oficina' then 'jaltenango'
 		when 'Hospital' then 'jaltenango'		
 	   end = site, 1, 0) desc)
+;
+-- update emr_id based on what was chosen on ces_pacientes 
+update x
+set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid)
+from salud_mental_estatus_tmp x
 ;
