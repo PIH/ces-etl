@@ -22,7 +22,7 @@ where emr_id =
 	iif(case sp2.registracion_localidad
 		when 'Soledad' then 'soledad'
 		when 'Salvador' then 'salvador'
-		when 'Monterrey' then 'monterrey'
+		when 'Monterrey' then 'jaltenango'
 		when 'Matazano' then 'matazano'
 		when 'Letrero' then 'letrero'
 		when 'Laguna del Cofre' then 'laguna'
@@ -61,7 +61,7 @@ where sec.encuentro_id  =
 	order by iif(case sec2.emr_instancia
 		when 'Soledad' then 'soledad'
 		when 'Salvador' then 'salvador'
-		when 'Monterrey' then 'monterrey'
+		when 'Monterrey' then 'jaltenango'
 		when 'Matazano' then 'matazano'
 		when 'Letrero' then 'letrero'
 		when 'Laguna del Cofre' then 'laguna'
@@ -113,7 +113,7 @@ where sp.unique_pp_id  =
 	iif(case sp2.emr_instancia
 		when 'Soledad' then 'soledad'
 		when 'Salvador' then 'salvador'
-		when 'Monterrey' then 'monterrey'
+		when 'Monterrey' then 'jaltenango'
 		when 'Matazano' then 'matazano'
 		when 'Letrero' then 'letrero'
 		when 'Laguna del Cofre' then 'laguna'
@@ -159,7 +159,7 @@ where s.encuentro_id  =
 	order by iif(case s2.emr_instancia
 		when 'Soledad' then 'soledad'
 		when 'Salvador' then 'salvador'
-		when 'Monterrey' then 'monterrey'
+		when 'Monterrey' then 'jaltenango'
 		when 'Matazano' then 'matazano'
 		when 'Letrero' then 'letrero'
 		when 'Laguna del Cofre' then 'laguna'
@@ -204,7 +204,7 @@ where s.diagnosticos_id  =
 	order by iif(case s2.emr_instancia
 		when 'Soledad' then 'soledad'
 		when 'Salvador' then 'salvador'
-		when 'Monterrey' then 'monterrey'
+		when 'Monterrey' then 'jaltenango'
 		when 'Matazano' then 'matazano'
 		when 'Letrero' then 'letrero'
 		when 'Laguna del Cofre' then 'laguna'
@@ -250,7 +250,7 @@ where emr_id =
 	iif(case sp2.inscripcion_salud_mental_localidad
 		when 'Soledad' then 'soledad'
 		when 'Salvador' then 'salvador'
-		when 'Monterrey' then 'monterrey'
+		when 'Monterrey' then 'jaltenango'
 		when 'Matazano' then 'matazano'
 		when 'Letrero' then 'letrero'
 		when 'Laguna del Cofre' then 'laguna'
@@ -294,7 +294,7 @@ where sec.encuentro_id  =
 	order by iif(case sec2.emr_instancia
 		when 'Soledad' then 'soledad'
 		when 'Salvador' then 'salvador'
-		when 'Monterrey' then 'monterrey'
+		when 'Monterrey' then 'jaltenango'
 		when 'Matazano' then 'matazano'
 		when 'Letrero' then 'letrero'
 		when 'Laguna del Cofre' then 'laguna'
@@ -345,7 +345,7 @@ where sp.unique_pp_id  =
 	iif(case sp2.emr_instancia
 		when 'Soledad' then 'soledad'
 		when 'Salvador' then 'salvador'
-		when 'Monterrey' then 'monterrey'
+		when 'Monterrey' then 'jaltenango'
 		when 'Matazano' then 'matazano'
 		when 'Letrero' then 'letrero'
 		when 'Laguna del Cofre' then 'laguna'
