@@ -84,7 +84,6 @@ where p.program_id=@hypertension;
     
 select 
 CONCAT(@partition,'-',emr_id) "emr_id",
-site,
 person_uuid,
 patient_program_uuid,
 emr_instance,

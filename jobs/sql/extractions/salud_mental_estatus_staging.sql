@@ -93,7 +93,6 @@ select
 distinct 
 patient_id,
 CONCAT(@partition,'-',emr_id) "emr_id" ,
-site,
 person_uuid,
 patient_program_uuid,
 date_changed,

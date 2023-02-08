@@ -1,6 +1,5 @@
 create table programas_staging (
   emr_id               varchar(50),
-  site varchar(25),
   person_uuid          char(38),
   patient_program_uuid char(38),
   emr_instancia        varchar(50),
