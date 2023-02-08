@@ -1,5 +1,6 @@
 
 SET @partition = '${partitionNum}';
+set @site = '${siteName}';
 select program_id into @hypertension from program p where uuid='6959057e-9a5c-40ba-a878-292ba4fc35bc';
 select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
 select program_id into @hrts_program_id from program p where uuid = '6cceab45-756f-427b-b2da-0e469d4a87e0';
@@ -7,6 +8,7 @@ select program_id into @hrts_program_id from program p where uuid = '6cceab45-75
 drop temporary table if exists programas;
 create temporary table programas(
 patient_id int, 
+site varchar(25),
 person_uuid char(38),
 patient_program_uuid char(38),
 emr_id varchar(50),
@@ -25,8 +27,8 @@ index_desc int
 );
 
 -- All Programs 
-insert into programas(patient_id,patient_program_uuid, emr_instance,program,program_id,date_created,date_enrolled,date_completed,last_updated, status)
-select  pp.patient_id,
+insert into programas(site,patient_id,patient_program_uuid, emr_instance,program,program_id,date_created,date_enrolled,date_completed,last_updated, status)
+select  @site, pp.patient_id,
 		pp.uuid,
 		location_name(pp.location_id) emr_instance,
 		p.name program,
@@ -82,6 +84,7 @@ where p.program_id=@hypertension;
     
 select 
 CONCAT(@partition,'-',emr_id) "emr_id",
+site,
 person_uuid,
 patient_program_uuid,
 emr_instance,
