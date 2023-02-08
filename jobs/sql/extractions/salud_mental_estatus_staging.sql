@@ -1,4 +1,5 @@
 SET @partition = '${partitionNum}';
+set @site = '${siteName}';
 
 SELECT program_id INTO @program_id FROM program p WHERE uuid='0e69c3ab-1ccb-430b-b0db-b9760319230f';
 select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
@@ -15,6 +16,7 @@ SELECT concept_id INTO @completed FROM concept WHERE uuid='3cdcecea-26fe-102b-80
 DROP TABLE IF EXISTS salud_mental_estatus;
 CREATE TEMPORARY TABLE salud_mental_estatus (
 patient_id int,
+site varchar(25),
 person_uuid char(38),
 emr_id varchar(30),
 patient_program_uuid char(38),
@@ -34,8 +36,8 @@ where voided = 0
 and identifier_type = @identifier_type
 GROUP BY patient_id;
 
-insert into salud_mental_estatus (patient_id, emr_id, emr_instancia, resultado_salud_mental, int_rank,resultado_salud_mental_fecha, patient_program_uuid, date_changed)
-SELECT distinct pp.patient_id,pi2.identifier 'emr_id', l.name 'emr_instancia',
+insert into salud_mental_estatus (site,patient_id, emr_id, emr_instancia, resultado_salud_mental, int_rank,resultado_salud_mental_fecha, patient_program_uuid, date_changed)
+SELECT distinct @site, pp.patient_id,pi2.identifier 'emr_id', l.name 'emr_instancia',
 	  'inscrito' as 'resultado_salud_mental' , 1 as int_rank, date_enrolled  'resultado_salud_mental_fecha',
 	  pp.uuid AS patient_program_uuid, pp.date_changed
 FROM patient_program pp 
@@ -43,7 +45,7 @@ inner join tmp_patient_identifier_v2 pi2 on pi2.patient_id = pp.patient_id
 left outer join location l on pp.location_id =l.location_id 
 WHERE program_id =@program_id
 union all
-SELECT DISTINCT pp.patient_id,pi2.identifier 'emr_id', l.name 'emr_instancia',
+SELECT DISTINCT @site, pp.patient_id,pi2.identifier 'emr_id', l.name 'emr_instancia',
 	  cn.name as 'resultado_salud_mental' , 
 	  case when cn.concept_id =@lost_followup then 2
 	  when cn.concept_id =@transfered then 3
@@ -91,6 +93,7 @@ select
 distinct 
 patient_id,
 CONCAT(@partition,'-',emr_id) "emr_id" ,
+site,
 person_uuid,
 patient_program_uuid,
 date_changed,
