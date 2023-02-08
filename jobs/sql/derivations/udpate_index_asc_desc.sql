@@ -23,6 +23,7 @@ AND tmp.int_rank=x.int_rank;
 DROP TABLE IF EXISTS salud_mental_estatus;
 select  
 emr_id ,
+site,
 person_uuid,
 patient_program_uuid,
 date_changed,
@@ -61,6 +62,7 @@ AND tmp.date_created=x.date_created;
 DROP TABLE IF EXISTS programas;
 select 
 emr_id,
+site,
 person_uuid,
 patient_program_uuid,
 emr_instancia,
@@ -133,6 +135,7 @@ AND tmp.entrada_fecha=x.entrada_fecha;
 DROP TABLE IF EXISTS encuentro_signos_vitales;
 select 
 	emr_id,
+    site,
 	person_uuid,
 	visita_id,
 	encuentro_id,
