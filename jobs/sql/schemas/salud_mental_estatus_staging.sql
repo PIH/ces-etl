@@ -2,7 +2,6 @@ CREATE TABLE salud_mental_estatus_staging
 (
 patient_id int,
 emr_id varchar(30),
-site varchar(25),
 person_uuid char(38),
 patient_program_uuid char(38),
 date_changed date,

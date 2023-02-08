@@ -268,7 +268,6 @@ set t.person_uuid = p.uuid;
 
 select 
         all_vitals_id,
-        site,
 	CONCAT(@partition,'-',emr_id) "emr_id",
 	person_uuid,
 	CONCAT(@partition,'-',visit_id) "visit_id",
