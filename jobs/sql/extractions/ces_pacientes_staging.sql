@@ -246,6 +246,8 @@ SET cp.localidad = (
 	AND person_id = cp.patient_id
 	order by preferred desc, date_created desc limit 1
 );
+
+
 -- ---------------------------- civil_status and other regsteration flags -------------------------------------------
 
 -- UPDATE ces_patients cp 
