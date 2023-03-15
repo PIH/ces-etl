@@ -15,6 +15,7 @@ age_in_years int,
 gender char(1),
 state varchar(50),
 municipilty varchar(50),
+localidad varchar(50),
 migrant bit,
 Indigenous bit,
 Disability bit,
@@ -237,6 +238,14 @@ SET cp.state = (
 	order by preferred desc, date_created desc limit 1
 );
 
+UPDATE ces_patients cp
+SET cp.localidad = (
+	SELECT city_village
+	FROM person_address
+	WHERE voided=0
+	AND person_id = cp.patient_id
+	order by preferred desc, date_created desc limit 1
+);
 -- ---------------------------- civil_status and other regsteration flags -------------------------------------------
 
 -- UPDATE ces_patients cp 
@@ -347,6 +356,7 @@ age_in_years,
 gender,
 state,
 municipilty,
+localidad,
 migrant,
 Indigenous,
 Disability,
