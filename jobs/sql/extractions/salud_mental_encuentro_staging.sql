@@ -1280,7 +1280,9 @@ create or replace view diagnosis_pre_data as
 		on o.concept_id = cn.concept_id 
 		where locale='en'
         and o.encounter_id in (select encounter_id from mental_encounter_details)
-        and obs_group_id in (select obs_group_id from obs where concept_id in (1309, 1305, 1314))
+        and obs_group_id in (
+			select obs_group_id from obs where concept_id 
+			in (concept_from_mapping('PIH',7537), concept_from_mapping('PIH',3064), concept_from_mapping('PIH',7416)))
         and (value_coded_name_id is not null or value_text is not null)
         order by obs_group_id asc;
 
