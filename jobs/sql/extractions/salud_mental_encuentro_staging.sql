@@ -46,9 +46,10 @@ GAD7_q5	int,
 GAD7_q6	int,
 GAD7_q7	int,
 GAD7_score int,
-analysis_notes varchar(5000),
+analysis_notes varchar(3000),
 visit_end_status varchar(30),
-diagnosis varchar(255), 
+diagnosis varchar(1000), 
+diagnosis_en varchar(1000), 
 primary_diagnosis varchar(100),
 psychosis boolean,
 mood_disorder boolean,
@@ -1272,29 +1273,38 @@ WHERE t.prenatal_care is true;
 
 -- ------------------------------------ Diagnosis -------------------------------------------------------------------------------------------------------------------------------------------
 create or replace view diagnosis_pre_data as 
-        select  
-		distinct person_id, encounter_id,
-		case when concept_name(value_coded,'en') is not null then concept_name(value_coded,'en') else value_text end as diagnosis
-		from obs o 
-		left outer join concept_name cn 
-		on o.concept_id = cn.concept_id 
-		where locale='en'
-        and o.encounter_id in (select encounter_id from mental_encounter_details)
-        and obs_group_id in (
-			select obs_group_id from obs where concept_id 
-			in (concept_from_mapping('PIH',7537), concept_from_mapping('PIH',3064), concept_from_mapping('PIH',7416)))
-        and (value_coded_name_id is not null or value_text is not null)
-        order by obs_group_id asc;
+	      select  
+			distinct person_id, encounter_id,
+			o.obs_group_id,o.voided,o.concept_id,
+			case when concept_name(value_coded,'en') is not null then concept_name(value_coded,'es') else value_text end as diagnosis,
+			case when concept_name(value_coded,'en') is not null then concept_name(value_coded,'en') else value_text end as diagnosis_en
+			from obs o 
+			left outer join concept_name cn 
+			on o.concept_id = cn.concept_id 
+			where locale='en'
+	      AND o.concept_id =concept_from_mapping('PIH',3064)
+	      AND o.voided = 0; 
 
 CREATE OR REPLACE VIEW diagnosis_data as 
 select person_id, encounter_id, 
-		group_concat(diagnosis) as diagnosis
+		group_concat(diagnosis SEPARATOR '; ') as diagnosis,
+		group_concat(diagnosis_en) as diagnosis_en
 		from diagnosis_pre_data
 group by person_id, encounter_id;
 
 UPDATE salud_mental_encountero t 
 SET t.diagnosis = (
 SELECT diagnosis
+FROM diagnosis_data dd
+WHERE dd.person_id=t.patient_id 
+AND dd.encounter_id=t.encounter_id 
+limit 1
+);
+
+
+UPDATE salud_mental_encountero t 
+SET t.diagnosis_en = (
+SELECT diagnosis_en
 FROM diagnosis_data dd
 WHERE dd.person_id=t.patient_id 
 AND dd.encounter_id=t.encounter_id 
@@ -1421,7 +1431,7 @@ GAD7_q7	,
 GAD7_score ,
 analysis_notes ,
 visit_end_status ,
-diagnosis , 
+diagnosis, 
 primary_diagnosis ,
 psychosis ,
 mood_disorder ,
