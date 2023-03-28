@@ -19,7 +19,7 @@ configuration:
           - tableName: "salud_mental_encuentro_staging"
           - tableName: "salud_mental_estatus_staging"
           - tableName: "ces_pacientes_staging"
-          - tableName: "visitas"
+          - tableName: "visitas_staging"
           - tableName: "programas_staging"
           - tableName: "encuentro_consulta_staging"
           - tableName: "diagnosticos_staging"
