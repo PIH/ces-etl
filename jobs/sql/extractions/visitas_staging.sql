@@ -1,10 +1,14 @@
+set @locale = 'es';
+set @partition = '${partitionNum}';
 select patient_identifier_type_id into @identifier_type from patient_identifier_type pit where uuid ='506add39-794f-11e8-9bcd-74e5f916c5ec';
 
 drop temporary table if exists temp_visits;
 create temporary table temp_visits
 (patient_id			int(11),
 emr_id				varchar(50),
+person_uuid         char(38),
 visit_id			int(11),
+visit_uuid 	        char(38),
 visit_date_started	datetime,
 visit_date_stopped	datetime,
 visit_date_entered	datetime,
@@ -18,12 +22,16 @@ visit_location		varchar(255),
 index_asc			int,
 index_desc			int);
 
-insert into temp_visits(patient_id, visit_id, visit_date_started, visit_date_stopped, visit_date_entered, visit_type_id, visit_creator, location_id)
-select patient_id, visit_id, date_started, date_stopped, date_created, visit_type_id, creator, location_id  
+insert into temp_visits(patient_id, visit_id, visit_date_started, visit_date_stopped, visit_date_entered, visit_type_id, visit_creator, location_id,visit_uuid)
+select patient_id, visit_id, date_started, date_stopped, date_created, visit_type_id, creator, location_id, uuid  
 from visit v 
 where v.voided = 0;
 
 create index temp_visits_vi on temp_visits(visit_id);
+
+update temp_visits t
+inner join person p on p.person_id = t.patient_id
+set t.person_uuid = p.uuid ;
 
 -- emr_id
 DROP TEMPORARY TABLE IF EXISTS temp_identifiers;
@@ -149,10 +157,11 @@ set es.index_desc = (
  and visit_id=es.visit_id
 );
 
-
 select
-emr_id as emrid,
-visit_id,
+CONCAT(@partition,'-',emr_id) "emr_id",
+person_uuid,
+CONCAT(@partition,'-',visit_id) "visit_id",
+visit_uuid,
 visit_date_started,
 visit_date_stopped,
 visit_date_entered,
