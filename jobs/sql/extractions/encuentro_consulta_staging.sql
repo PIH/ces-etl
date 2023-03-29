@@ -109,6 +109,12 @@ mifepristone                          bit,
 misoprostol                           bit,
 iron_dextran                          bit,
 next_visit_date                       date,
+prueba_sifilis						varchar(20),
+prueba_hepb							varchar(20),
+prueba_clamidia						varchar(20),
+prueba_gonorrea						varchar(20),
+prueba_hepc							varchar(20),
+comentario_ultrasonido				text,
 index_asc                             int(11),
 index_desc                            int(11)
 );
@@ -539,6 +545,41 @@ inner join temp_obs o on o.encounter_id = t.encounter_id AND
 					@ssa_etonogestrel)
 set implant = if(o.obs_id is null,0,1);	
 
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','12265')
+set prueba_sifilis = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;	
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','7451')
+set prueba_hepb = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;	
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','12335')
+set prueba_clamidia = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;							
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','12334')
+set prueba_gonorrea = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;	
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','7452')
+set prueba_hepc = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;	
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','7018')
+set comentario_ultrasonido = value_text;								
+	
 select drug_id into @ssa_norelgestromina from drug  where uuid = '953f26a9-56a3-472e-9e16-68785aec6076';
 
 update temp_consult t 
@@ -705,6 +746,12 @@ mifepristone,
 misoprostol,
 iron_dextran,
 next_visit_date,
+prueba_sifilis,
+prueba_hepb,
+prueba_clamidia,
+prueba_gonorrea,
+prueba_hepc,
+comentario_ultrasonido,
 index_asc,
 index_desc
 from temp_consult

@@ -94,6 +94,12 @@ mifepristona                           bit,
 misoprostol                            bit,
 hierro_dextran                         bit,
 proxima_cita                           date,
+prueba_sifilis						varchar(20),
+prueba_hepb							varchar(20),
+prueba_clamidia						varchar(20),
+prueba_gonorrea						varchar(20),
+prueba_hepc							varchar(20),
+comentario_ultrasonido				text,
 index_asc                              int,
 index_desc                             int
 );
