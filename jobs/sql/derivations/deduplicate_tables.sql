@@ -367,3 +367,47 @@ update x
 set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid)
 from salud_mental_estatus_tmp x
 ;
+--
+-- visitas
+--
+-- update uuids that should be changed because of merging
+drop table if exists #staging_visitas;
+select * into #staging_visitas from visitas_staging; 
+
+update sv
+set sv.person_uuid = mh.winner_person_uuid
+from #staging_visitas sv
+inner join merge_history mh on mh.loser_person_uuid = sv.person_uuid 
+; 
+
+-- choose single visit row based on rows where visit location = site 
+drop table if exists visitas;
+select * into visitas from #staging_visitas sv
+where sv.visita_id =
+	(select top 1 sv2.visita_id from #staging_visitas sv2
+	where sv2.visit_uuid = sv.visit_uuid 
+	order by iif(case sv2.emr_instancia
+		when 'Soledad' then 'soledad'
+		when 'Salvador' then 'salvador'
+		when 'Monterrey' then 'jaltenango'
+		when 'Matazano' then 'matazano'
+		when 'Letrero' then 'letrero'
+		when 'Laguna del Cofre' then 'laguna'
+		when 'Capitan' then 'capitan'
+		when 'Honduras' then 'honduras'
+		when 'Casa Materna' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'	
+		when 'Pediatría' then 'jaltenango'
+		when 'Reforma' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'		
+	   end = site, 1, 0) desc)
+;
+
+-- update emr_id based on what was chosen on ces_pacientes 
+update x
+set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
+from visitas x;
