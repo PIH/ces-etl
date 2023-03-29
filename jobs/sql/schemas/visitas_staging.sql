@@ -1,4 +1,4 @@
-create table visitas (
+create table visitas_staging (
   emr_id                varchar(50),
   person_uuid           char(38),  
   visita_id             varchar(50),  
