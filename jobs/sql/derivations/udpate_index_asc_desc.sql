@@ -104,18 +104,18 @@ AND tmp.visita_id=x.visita_id;
 
 DROP TABLE IF EXISTS visitas;
 select 
-emr_id,
-person_uuid,
-visit_id,
-visit_uuid,
-visit_date_started,
-visit_date_stopped,
-visit_date_entered,
-visit_user_entered,
-visit_type,
-visit_location,
-index_asc,
-index_desc
+  emr_id,
+  person_uuid,  
+  visita_id ,  
+  visit_uuid ,  
+  visita_fecha_inicio,
+  visita_fecha_termina ,
+  visita_fecha_entrada ,
+  entrada_persona,
+  visita_tipo ,
+  emr_instancia ,
+  index_asc,
+  index_desc
 INTO visitas
 from visitas_tmp;
 
