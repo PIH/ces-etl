@@ -87,7 +87,7 @@ update temp_visits tv
 inner join temp_users tu on tu.creator = tv.visit_creator
 set tv.visit_user_entered = tu.creator_name;
 
-
+/*
 -- ---- Ascending Order ------------------------------------------
 
 drop table if exists int_asc;
@@ -156,6 +156,7 @@ set es.index_desc = (
  and visit_date_started=es.visit_date_started
  and visit_id=es.visit_id
 );
+*/
 
 select
 CONCAT(@partition,'-',emr_id) "emr_id",
