@@ -82,26 +82,25 @@ from programas_tmp;
 
 -- *********************************************************************************
 -- *********** Update visitas ****************************************************
-
 UPDATE tmp 
 SET index_asc = x.index_asc
 FROM visitas_tmp tmp INNER JOIN (
-SELECT emr_id,visit_date_started,visit_id,
-rank() over(PARTITION BY emr_id ORDER BY emr_id asc, visit_date_started asc, visit_id asc) index_asc
+SELECT emr_id,visita_fecha_inicio,visita_id,
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, visita_fecha_inicio asc, visita_id asc) index_asc
 FROM visitas_tmp) x 
 ON tmp.emr_id=x.emr_id 
-AND tmp.visit_date_started = x.visit_date_started 
-AND tmp.visit_id=x.visit_id;
+AND tmp.visita_fecha_inicio = x.visita_fecha_inicio 
+AND tmp.visita_id=x.visita_id;
 
 UPDATE tmp 
 SET index_desc = x.index_desc
 FROM visitas_tmp tmp INNER JOIN (
-SELECT emr_id,visit_date_started,visit_id,
-rank() over(PARTITION BY emr_id ORDER BY emr_id asc, visit_date_started desc, visit_id desc) index_desc
+SELECT emr_id,visita_fecha_inicio,visita_id,
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, visita_fecha_inicio desc, visita_id desc) index_desc
 FROM visitas_tmp) x 
 ON tmp.emr_id=x.emr_id 
-AND tmp.visit_date_started = x.visit_date_started 
-AND tmp.visit_id=x.visit_id;
+AND tmp.visita_fecha_inicio = x.visita_fecha_inicio 
+AND tmp.visita_id=x.visita_id;
 
 DROP TABLE IF EXISTS visitas;
 select 
