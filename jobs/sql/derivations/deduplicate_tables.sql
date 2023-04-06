@@ -381,8 +381,8 @@ inner join merge_history mh on mh.loser_person_uuid = sv.person_uuid
 ; 
 
 -- choose single visit row based on rows where visit location = site 
-drop table if exists visitas;
-select * into visitas from #staging_visitas sv
+drop table if exists visitas_tmp;
+select * into visitas_tmp from #staging_visitas sv
 where sv.visita_id =
 	(select top 1 sv2.visita_id from #staging_visitas sv2
 	where sv2.visit_uuid = sv.visit_uuid 
