@@ -8,6 +8,9 @@ CREATE TEMPORARY TABLE ces_patients (
 patient_id int, 
 person_uuid char(38),
 emr_id varchar(30),
+first_name varchar(255),
+middle_name varchar(255),
+last_name varchar(255),
 reg_location varchar(30),
 reg_date date,
 dob date,
@@ -247,6 +250,14 @@ SET cp.localidad = (
 	order by preferred desc, date_created desc limit 1
 );
 
+update ces_patients  
+set first_name = person_given_name(patient_id);
+
+update ces_patients  
+set middle_name = person_middle_name(patient_id);
+
+update ces_patients  
+set last_name = person_family_name(patient_id);
 
 -- ---------------------------- civil_status and other regsteration flags -------------------------------------------
 
@@ -350,6 +361,8 @@ WHERE person_id =cp.patient_id
 
 SELECT
 CONCAT(@partition,'-',emr_id) "emr_id",
+CONCAT(IFNULL(first_name,''), ' ',IFNULL(middle_name,'')) "first_middle_name", 
+last_name,
 person_uuid,
 reg_location,
 reg_date,

@@ -1,5 +1,7 @@
 CREATE TABLE ces_pacientes_staging (
 emr_id                      varchar(30),
+nombres                     varchar(511),
+apellidos                   varchar(255), 
 person_uuid                 char(38),
 registracion_localidad      varchar(30),
 registracion_fecha          date,
