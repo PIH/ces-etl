@@ -362,7 +362,6 @@ WHERE person_id =cp.patient_id
 SELECT
 CONCAT(@partition,'-',emr_id) "emr_id",
 CONCAT(IFNULL(first_name,''), ' ',IF(middle_name is null,'',CONCAT('''',middle_name,''''))) "first_middle_name", 
-patient_id,
 last_name,
 person_uuid,
 reg_location,
