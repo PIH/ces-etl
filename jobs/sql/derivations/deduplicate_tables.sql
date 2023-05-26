@@ -410,4 +410,4 @@ where sv.visita_id =
 -- update emr_id based on what was chosen on ces_pacientes 
 update x
 set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
-from visitas x;
+from visitas_tmp x;
