@@ -1,0 +1,15 @@
+type: "job-pipeline"
+description: "Test job"
+parameters:
+  siteName: "reforma"
+  partitionNum: "10"
+configuration:
+  jobs:
+    - path: "create-source-views-and-functions.yml"
+    - type: "iterating-job"
+      description: "Importing from ${siteName} using partition ${partitionNum}"
+      configuration:
+        jobTemplate:
+          path: "import-to-table-partition.yml"
+        iterations:
+          - tableName: "salud_mental_encuentro_staging"
