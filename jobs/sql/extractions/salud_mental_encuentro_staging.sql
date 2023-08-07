@@ -1,4 +1,4 @@
-SET @partition = '${partitionNum}';  # Temp do not commit
+SET @partition = '${partitionNum}';
 
 drop temporary table if exists salud_mental_encountero;
 create temporary table salud_mental_encountero (
