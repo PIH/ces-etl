@@ -492,4 +492,4 @@ medication_10_units ,
 medication_10_instructions ,
 next_appointment
 FROM salud_mental_encountero
-order by CONCAT(@partition,'-',emr_id), encounter_date asc;
+order by CONCAT(@partition,'-',emr_id), encounter_date;
