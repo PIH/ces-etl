@@ -1,11 +1,11 @@
 type: "job-pipeline"
 description: "Refresh OpenMRS data and derived data for all sites"
+schedule:
+  cron: "${executeCron.refreshOpenmrsData}"
 configuration:
   jobs:
     - type: "iterating-job"
       description: "Refreshing OpenMRS Data for all sites"
-      schedule:
-        cron: "${executeCron.refreshOpenmrsData}"
       configuration:
         maxConcurrentJobs: 12
         errorHandling:
