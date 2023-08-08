@@ -8,7 +8,9 @@ CREATE TABLE usuarios
     creado_por          varchar(50),
     tipo_proveedor      varchar(50),
     fecha_última_acceso     datetime,
-    número_accesos_registrados int
+    número_accesos_registrados int,
+    mfa_enabled         bit,
+    mfa_type            varchar(20)
 )
 ;
 
