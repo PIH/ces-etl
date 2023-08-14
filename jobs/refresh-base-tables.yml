@@ -22,6 +22,7 @@ configuration:
           - tableName: "visitas_staging"
           - tableName: "programas_staging"
           - tableName: "encuentro_consulta_staging"
+          - tableName: "medicamentos_staging"
           - tableName: "diagnosticos_staging"
           - tableName: "encuentro_signos_vitales_staging"
           - tableName: "summary_db_restore"
