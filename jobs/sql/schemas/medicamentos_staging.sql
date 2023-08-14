@@ -1,13 +1,13 @@
-CREATE TABLE medicamentos_staging
+CREATE TABLE #medicamentos_staging
 (
  person_uuid          char(38),      
  emr_id               varchar(50),  
- encuentro_id         int(11),      
+ encuentro_id         int,      
  medication           varchar(255), 
- duration             double,       
+ duration             float,       
  duration_units       varchar(255), 
  admin_inxs           text,         
- dose1_dose           double,       
+ dose1_dose           float,       
  dose1_dose_units     varchar(255), 
  dose1_morning        bit,      
  dose1_morning_text   varchar(255), 
@@ -17,7 +17,7 @@ CREATE TABLE medicamentos_staging
  dose1_afternoon_text varchar(255),  
  dose1_evening        bit,      
  dose1_evening_text   varchar(255), 
- dose2_dose           double,       
+ dose2_dose           float,       
  dose2_dose_units     varchar(255), 
  dose2_morning        bit,      
  dose2_morning_text   varchar(255), 
