@@ -84,6 +84,51 @@ update x
 set x.emrid = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
 from encuentro_consulta x
 ;
+--
+-- medicamentos
+--
+-- update uuids that should be changed because of merging
+drop table if exists #staging_medicamentos;
+select * into #staging_medicamentos from medicamentos_staging; 
+
+update sm
+set sm.person_uuid = mh.winner_person_uuid
+from #staging_medicamentos sm
+inner join merge_history mh on mh.loser_person_uuid = sm.person_uuid 
+; 
+
+-- choose single encounter row based on rows where encounter location = site 
+drop table if exists medicamentos;
+select * into medicamentos from #staging_medicamentos sm
+where sm.encuentro_id  =
+	(select top 1 sm2.encuentro_id from #staging_medicamentos sm2
+	where sm2.encounter_uuid = sm.encounter_uuid 
+	order by iif(case sm2.emr_instancia
+		when 'Soledad' then 'soledad'
+		when 'Salvador' then 'salvador'
+		when 'Monterrey' then 'jaltenango'
+		when 'Matazano' then 'matazano'
+		when 'Letrero' then 'letrero'
+		when 'Laguna del Cofre' then 'laguna'
+		when 'Capitan' then 'capitan'
+		when 'Honduras' then 'honduras'
+		when 'Casa Materna' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'	
+		when 'Pediatría' then 'jaltenango'
+		when 'Reforma' then 'jaltenango'
+		when 'CER' then 'jaltenango'
+		when 'CES Oficina' then 'jaltenango'
+		when 'Hospital' then 'jaltenango'		
+	   end = site, 1, 0) desc)
+;
+
+-- update emr_id based on what was chosen on ces_pacientes 
+update x
+set x.emrid = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
+from medicamentos x
+;
 
 --
 -- programas
