@@ -3,6 +3,7 @@ CREATE TABLE #medicamentos_staging
  person_uuid          char(38),      
  emr_id               varchar(50),  
  encuentro_id         int,      
+ emr_instancia        varchar(255),
  medication           varchar(255), 
  duration             float,       
  duration_units       varchar(255), 
