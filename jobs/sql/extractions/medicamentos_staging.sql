@@ -8,7 +8,8 @@ CREATE TEMPORARY TABLE temp_medications
  person_uuid          char(38),
  emr_id               varchar(50),  
  obs_group_id         int(11),       
- encounter_id         int(11),      
+ encounter_id         int(11),    
+ encounter_location   varchar(255),
  medication           varchar(255), 
  duration             double,       
  duration_units       varchar(255), 
@@ -49,6 +50,9 @@ from obs o
 where concept_id = @prescription_construct
 and o.voided = 0
 ;
+
+update temp_medications t
+set encounter_location = encounter_location_name(t.encounter_id);
 
 update temp_medications t
 inner join person p on t.patient_id = p.person_id 
@@ -157,6 +161,7 @@ select
 	person_uuid,
 	emr_id,
 	encounter_id,
+	encounter_location,
 	medication,
 	duration,
 	duration_units,
