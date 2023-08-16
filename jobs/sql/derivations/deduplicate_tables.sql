@@ -126,7 +126,7 @@ where sm.encuentro_id  =
 
 -- update emr_id based on what was chosen on ces_pacientes 
 update x
-set x.emrid = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
+set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
 from medicamentos x
 ;
 
