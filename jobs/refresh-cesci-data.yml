@@ -1,15 +1,21 @@
-type: "iterating-job"
-description: "Refreshing OpenMRS Data for CES-CI"
+type: "job-pipeline"
+description: "Refresh OpenMRS data and derived data ces-ci"
 schedule:
   cron: "${executeCron.refreshCesCiData}"
-errorHandling:
-  maxAttempts: 10
-  retryInterval: 15
-  retryIntervalUnit: "MINUTES"
 configuration:
-  maxConcurrentJobs: 1
-  iterations:
-    - siteName: "cesci"
-      partitionNum: "13"
-  jobTemplate:
-    path: "refresh-base-tables.yml"
+  jobs:
+    - type: "iterating-job"
+      description: "Refreshing OpenMRS Data for CES-CI"
+      errorHandling:
+        maxAttempts: 10
+        retryInterval: 15
+        retryIntervalUnit: "MINUTES"
+      configuration:
+        maxConcurrentJobs: 1
+        iterations:
+          - siteName: "cesci"
+            partitionNum: "13"
+        jobTemplate:
+          path: "refresh-base-tables.yml"            
+
+    - path: "refresh-derived-data.yml" 
