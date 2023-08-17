@@ -145,7 +145,7 @@ update salud_mental_encountero set location = encounter_location_name(encounter_
 update salud_mental_encountero set age = age_at_enc(patient_id, encounter_id);
 update salud_mental_encountero set data_entry_person = username(data_entry_user_id);
 update salud_mental_encountero set mh_visit_date = visit_date(encounter_id);
-update salud_mental_encountero set provider_name = username(data_entry_user_id);  # TODO: Seems wrong
+update salud_mental_encountero set provider_name = username(data_entry_user_id);
 
 -- Observation values.  We use a temporary table to first collect the obs relevant for these encounters for performance reasons
 
@@ -209,68 +209,70 @@ update salud_mental_encountero set next_appointment = date(obs_value_datetime_fr
 -- First thing is to get all medication obs name obs in order.
 
 select concept_from_mapping('PIH','1282') into @medName;
+SET @row_number=0;
 
 drop table if exists temp_mh_medication_name_obs;
 create temporary table temp_mh_medication_name_obs
-select encounter_id,
+select encounter_id encounter_id_src,
        obs_id,
+       obs_group_id,
        value_drug,
-       @obs_group_id:=obs_group_id obs_group_id,
-       @row_number:=if(@obs_group_id = obs_group_id, @row_number + 1, 1) obs_group_order
-from   temp_obs
-where  concept_id = @medName
+       @row_number:=if(@encounter_id = encounter_id, @row_number + 1, 1) rank,
+       @encounter_id:=encounter_id encounter_id
+from   temp_obs 
+where  concept_id = @medName -- AND person_id=51
 order by encounter_id, obs_group_id, date_created asc;
-create index temp_mh_medication_name_obs_idx1 on temp_mh_medication_name_obs(encounter_id, obs_group_order);
+create index temp_mh_medication_name_obs_idx1 on temp_mh_medication_name_obs(encounter_id, rank);
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_1_obs_group_id = o.obs_group_id, e.medication_1_name = drugName(o.value_drug)
-where o.obs_group_order = 1;
+where o.rank = 1;
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_2_obs_group_id = o.obs_group_id, e.medication_2_name = drugName(o.value_drug)
-where o.obs_group_order = 2;
+where o.rank = 2;
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_3_obs_group_id = o.obs_group_id, e.medication_3_name = drugName(o.value_drug)
-where o.obs_group_order = 3;
+where o.rank = 3;
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_4_obs_group_id = o.obs_group_id, e.medication_4_name = drugName(o.value_drug)
-where o.obs_group_order = 4;
+where o.rank = 4;
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_5_obs_group_id = o.obs_group_id, e.medication_5_name = drugName(o.value_drug)
-where o.obs_group_order = 5;
+where o.rank = 5;
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_6_obs_group_id = o.obs_group_id, e.medication_6_name = drugName(o.value_drug)
-where o.obs_group_order = 6;
+where o.rank = 6;
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_7_obs_group_id = o.obs_group_id, e.medication_7_name = drugName(o.value_drug)
-where o.obs_group_order = 7;
+where o.rank = 7;
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_8_obs_group_id = o.obs_group_id, e.medication_8_name = drugName(o.value_drug)
-where o.obs_group_order = 8;
+where o.rank = 8;
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_9_obs_group_id = o.obs_group_id, e.medication_9_name = drugName(o.value_drug)
-where o.obs_group_order = 9;
+where o.rank = 9;
 
 update salud_mental_encountero e
     inner join temp_mh_medication_name_obs o on e.encounter_id = o.encounter_id
 set e.medication_10_obs_group_id = o.obs_group_id, e.medication_10_name = drugName(o.value_drug)
-where o.obs_group_order = 10;
+where o.rank = 10;
 
 -- Once the medication names are established with the relevent groups, other group members can be added
 
@@ -285,16 +287,16 @@ update salud_mental_encountero set medication_8_instructions = obs_from_group_id
 update salud_mental_encountero set medication_9_instructions = obs_from_group_id_value_text_from_temp(medication_9_obs_group_id, 'PIH', '9072');
 update salud_mental_encountero set medication_10_instructions = obs_from_group_id_value_text_from_temp(medication_10_obs_group_id, 'PIH', '9072');
 
-update salud_mental_encountero set medication_1_units = obs_from_group_id_value_text_from_temp(medication_1_obs_group_id, 'PIH', '9071');
-update salud_mental_encountero set medication_2_units = obs_from_group_id_value_text_from_temp(medication_2_obs_group_id, 'PIH', '9071');
-update salud_mental_encountero set medication_3_units = obs_from_group_id_value_text_from_temp(medication_3_obs_group_id, 'PIH', '9071');
-update salud_mental_encountero set medication_4_units = obs_from_group_id_value_text_from_temp(medication_4_obs_group_id, 'PIH', '9071');
-update salud_mental_encountero set medication_5_units = obs_from_group_id_value_text_from_temp(medication_5_obs_group_id, 'PIH', '9071');
-update salud_mental_encountero set medication_6_units = obs_from_group_id_value_text_from_temp(medication_6_obs_group_id, 'PIH', '9071');
-update salud_mental_encountero set medication_7_units = obs_from_group_id_value_text_from_temp(medication_7_obs_group_id, 'PIH', '9071');
-update salud_mental_encountero set medication_8_units = obs_from_group_id_value_text_from_temp(medication_8_obs_group_id, 'PIH', '9071');
-update salud_mental_encountero set medication_9_units = obs_from_group_id_value_text_from_temp(medication_9_obs_group_id, 'PIH', '9071');
-update salud_mental_encountero set medication_10_units = obs_from_group_id_value_text_from_temp(medication_10_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_1_units = obs_from_group_id_value_numeric_from_temp(medication_1_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_2_units = obs_from_group_id_value_numeric_from_temp(medication_2_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_3_units = obs_from_group_id_value_numeric_from_temp(medication_3_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_4_units = obs_from_group_id_value_numeric_from_temp(medication_4_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_5_units = obs_from_group_id_value_numeric_from_temp(medication_5_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_6_units = obs_from_group_id_value_numeric_from_temp(medication_6_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_7_units = obs_from_group_id_value_numeric_from_temp(medication_7_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_8_units = obs_from_group_id_value_numeric_from_temp(medication_8_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_9_units = obs_from_group_id_value_numeric_from_temp(medication_9_obs_group_id, 'PIH', '9071');
+update salud_mental_encountero set medication_10_units = obs_from_group_id_value_numeric_from_temp(medication_10_obs_group_id, 'PIH', '9071');
 
 -- ---------------------------------------- Prenatal ---------------------------------------------------
 
