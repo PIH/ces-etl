@@ -159,7 +159,7 @@ inner join obs o on o.obs_group_id = t.obs_group_id
 	and o.concept_id = @part_of_day2
 	and o.value_coded = @evening
 	and o.voided = 0
-set dose2_evening = if(o.obs_id is null,null,1),a
+set dose2_evening = if(o.obs_id is null,null,1),
 	dose2_evening_text = o.comments;
 
 select
