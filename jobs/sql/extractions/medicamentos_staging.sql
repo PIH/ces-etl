@@ -35,7 +35,9 @@ CREATE TEMPORARY TABLE temp_medications
  dose2_afternoon      boolean,      
  dose2_afternoon_text varchar(255),  
  dose2_evening        boolean,      
- dose2_evening_text   varchar(255)  
+ dose2_evening_text   varchar(255),
+ index_asc            int,
+ index_desc           int
 );	
 
 set @prescription_construct = concept_from_mapping('PIH','14822');
@@ -193,6 +195,6 @@ select
 	dose2_afternoon_text,
 	dose2_evening,
 	dose2_evening_text,
-	null, -- index_asc
-	null -- index_desc
+	index_asc,
+	index_desc
 from temp_medications;
