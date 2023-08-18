@@ -10,6 +10,7 @@ CREATE TEMPORARY TABLE temp_medications
  obs_group_id         int(11),       
  encounter_id         int(11),    
  encounter_uuid       char(38),
+ encounter_date       datetime,
  encounter_location   varchar(255),
  medication           varchar(255), 
  duration             double,       
@@ -55,7 +56,8 @@ and o.voided = 0
 update temp_medications t
 inner join encounter e on t.encounter_id = e.encounter_id 
 set encounter_location = location_name(e.location_id),
-	encounter_uuid = uuid;
+	encounter_uuid = uuid,
+	encounter_date = e.encounter_datetime ;
 
 update temp_medications t
 inner join person p on t.patient_id = p.person_id 
@@ -157,7 +159,7 @@ inner join obs o on o.obs_group_id = t.obs_group_id
 	and o.concept_id = @part_of_day2
 	and o.value_coded = @evening
 	and o.voided = 0
-set dose2_evening = if(o.obs_id is null,null,1),
+set dose2_evening = if(o.obs_id is null,null,1),a
 	dose2_evening_text = o.comments;
 
 select
@@ -165,6 +167,7 @@ select
 	emr_id,
 	CONCAT(@partition,'-',encounter_id) "encounter_id",
 	encounter_uuid,
+	encounter_date,
 	encounter_location,
 	medication,
 	duration,
