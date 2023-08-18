@@ -192,5 +192,7 @@ select
 	dose2_afternoon,
 	dose2_afternoon_text,
 	dose2_evening,
-	dose2_evening_text
+	dose2_evening_text,
+	null, -- index_asc
+	null -- index_desc
 from temp_medications;
