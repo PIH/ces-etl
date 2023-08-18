@@ -29,5 +29,7 @@ CREATE TABLE medicamentos_staging
  dosis2_tarde                   bit,           
  dosis2_tarde_instrucciones     varchar(255),  
  dosis2_noche                   bit,           
- dosis2_noche_instrucciones     varchar(255)  
+ dosis2_noche_instrucciones     varchar(255),
+ index_asc                      int,
+ index_desc                     int
 );

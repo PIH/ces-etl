@@ -34,6 +34,7 @@ index_asc,
 index_desc
 into salud_mental_estatus
 from salud_mental_estatus_tmp;
+
 -- *********************************************************************************
 -- *********** Update programas ****************************************************
 
@@ -81,7 +82,8 @@ INTO programas
 from programas_tmp;
 
 -- *********************************************************************************
--- *********** Update visitas ****************************************************
+-- *********** Update visitas ******************************************************
+
 UPDATE tmp 
 SET index_asc = x.index_asc
 FROM visitas_tmp tmp INNER JOIN (
@@ -119,9 +121,8 @@ select
 INTO visitas
 from visitas_tmp;
 
-
 -- *********************************************************************************
--- *********** Update encountero_consluta ****************************************************
+-- *********** Update encountero_consluta ******************************************
 
 UPDATE tmp 
 SET index_asc = x.index_asc
@@ -144,10 +145,32 @@ AND tmp.encuentro_fecha = x.encuentro_fecha
 AND tmp.encuentro_id=x.encuentro_id;
 
 -- *********************************************************************************
+-- *********** Update medicamentos *************************************************
 
--- *********** Update encountero_signos_vitales ****************************************************
+UPDATE tmp 
+SET index_asc = x.index_asc
+FROM medicamentos tmp INNER JOIN (
+SELECT emr_id,encuentro_fecha,encuentro_id,medicamento_nombre,
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, encuentro_fecha asc, encuentro_id asc, medicamento_nombre asc) index_asc
+FROM medicamentos) x 
+ON tmp.emr_id=x.emr_id 
+AND tmp.encuentro_fecha = x.encuentro_fecha 
+AND tmp.encuentro_id=x.encuentro_id
+AND tmp.medicamento_nombre = x.medicamento_nombre;
 
+UPDATE tmp 
+SET index_desc = x.index_desc
+FROM medicamentos tmp INNER JOIN (
+SELECT emr_id,encuentro_fecha,encuentro_id,medicamento_nombre,
+rank() over(PARTITION BY emr_id ORDER BY emr_id desc, encuentro_fecha desc, encuentro_id desc, medicamento_nombre desc) index_desc
+FROM medicamentos) x 
+ON tmp.emr_id=x.emr_id 
+AND tmp.encuentro_fecha = x.encuentro_fecha 
+AND tmp.encuentro_id=x.encuentro_id
+AND tmp.medicamento_nombre = x.medicamento_nombre;
 
+-- *********************************************************************************
+-- *********** Update encountero_signos_vitales ************************************
             
 UPDATE tmp 
 SET index_asc = x.index_asc
@@ -203,6 +226,4 @@ select
     index_desc
     INTO encuentro_signos_vitales
     FROM encuentro_signos_vitales_tmp;
-
--- *********************************************************************************
-
+-- ***********************************************************
