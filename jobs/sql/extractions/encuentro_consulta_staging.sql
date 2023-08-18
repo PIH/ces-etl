@@ -1,196 +1,758 @@
-SET @locale = GLOBAL_PROPERTY_VALUE('default_locale', 'en');
-SET @partition = '${partitionNum}';
+SET sql_safe_updates = 0;
 
-DROP TEMPORARY TABLE IF EXISTS temp_medications;
-CREATE TEMPORARY TABLE temp_medications
+set @locale = 'es';
+set @partition = '${partitionNum}';
+
+SET @consultEncTypeId = (select encounter_type_id from encounter_type et where uuid = 'aa61d509-6e76-4036-a65d-7813c0c3b752');
+set @yes = concept_from_mapping('PIH','1065');
+set @no = concept_from_mapping('PIH','1066');
+set @symptom_present = concept_from_mapping('PIH','1293');
+set @symptom_absent = concept_from_mapping('PIH','1734');
+
+
+DROP TEMPORARY TABLE IF EXISTS temp_consult;
+CREATE TEMPORARY TABLE temp_consult
 (
- patient_id           int(11), 
- person_uuid          char(38),
- emr_id               varchar(50),  
- obs_group_id         int(11),       
- encounter_id         int(11),    
- encounter_uuid       char(38),
- encounter_date       datetime,
- encounter_location   varchar(255),
- medication           varchar(255), 
- duration             double,       
- duration_units       varchar(255), 
- admin_inxs           text,         
- dose1_dose           double,       
- dose1_dose_units     varchar(255), 
- dose1_morning        boolean,      
- dose1_morning_text   varchar(255), 
- dose1_noon           boolean,      
- dose1_noon_text      varchar(255), 
- dose1_afternoon      boolean,      
- dose1_afternoon_text varchar(255),  
- dose1_evening        boolean,      
- dose1_evening_text   varchar(255), 
- dose2_dose           double,       
- dose2_dose_units     varchar(255), 
- dose2_morning        boolean,      
- dose2_morning_text   varchar(255), 
- dose2_noon           boolean,      
- dose2_noon_text      varchar(255), 
- dose2_afternoon      boolean,      
- dose2_afternoon_text varchar(255),  
- dose2_evening        boolean,      
- dose2_evening_text   varchar(255)  
-);	
+patient_id                            int(11),
+person_uuid                           char(38),
+emr_id                                varchar(50),
+encounter_id                          int(11),
+encounter_uuid                        char(38),
+encounter_type                        varchar(255),
+encounter_date                        datetime,
+encounter_location                    varchar(255),
+date_entered                          datetime,
+user_entered                          varchar(255),
+provider                              varchar(255),
+visit_id                              int(11),
+consult_reason                        varchar(255),
+diabetes                              bit,
+asthma                                bit,
+malnutrition                          bit,
+epilepsy                              bit,
+hypertension                          bit,
+prenatal_care                         bit,
+mental_health                         bit,
+asthma_cough                          bit,
+asthma_waking                         bit,
+asthma_medicate                       bit,
+asthma_activity                       bit,
+glucose                               double,
+fasting                               bit,
+hba1c                                 double,
+proteinuria_diabetes                  int,
+abdominal_circumference               double,
+foot_exam                             varchar(255),
+hypoglycemia_symptoms                 bit, 
+alcohol                               varchar(255),
+tobacco                               varchar(255),
+total_cholesterol                     double,
+hdl                                   double,
+ldl                                   double,
+hearts                                bit,
+hearts_change_treatment               bit,
+hearts_cardiovascular_risk            double,
+epilepsy_attacks_before               double,
+epilepsy_attacks_last_4weeks          double,
+planned_pregnancy                     bit,
+unplanned_cause_contraceptive_failure bit,
+unplanned_cause_violence              bit,
+pregnancy_wanted                      bit,
+lmp                                   date,
+gestational_age                       double,
+delivery_date_estimated               date,
+pregnancies                           int,
+births                                int,
+cesarians                             int,
+miscarriages                          int,
+stillbirths                           int,
+ultrasound_report                     text,
+hiv_test_prenatal                     varchar(255),
+vdrl_test                             varchar(255),
+hemoglobin                            double,
+proteinuria_prenatal                  double,
+blood_type                            varchar(255),
+vaccine_dtp                           bit,
+glucose_tolerance_curve               varchar(255),
+delivery_plan                         text,
+phq9                                  int,
+gad7                                  int,
+physical_exam                         text,
+tb_suspected                          bit,
+tb_test                               varchar(255),
+hiv_suspected                         bit,
+hiv_test                              varchar(255),
+covid_suspected                       bit,
+covid_test                            varchar(255),
+analysis                              text,
+primary_dx_obs_group_id               int(11),
+primary_diagnosis                     varchar(255),
+secondary_diagnosis                   varchar(1200),
+clinical_indication                   text, 
+ultrasound_type                       varchar(255),
+ultrasound_measurement_used           varchar(255),
+ultrasound_gestational_age            double,
+delivery_date_ultrasound              date,
+fetal_weight                          double,
+diagnosis_change_ultrasound           bit,
+birth_control_pills                   bit,
+1month_injection                      bit,
+2month_injection                      bit,
+3month_injection                      bit,
+implant                               bit,
+birth_control_patch                   bit,
+emergency_birth_control               bit,
+iud_copper                            bit,
+iud_mirena                            bit,
+condoms                               bit,
+mifepristone                          bit,
+misoprostol                           bit,
+iron_dextran                          bit,
+next_visit_date                       date,
+prueba_sifilis						varchar(20),
+prueba_hepb							varchar(20),
+prueba_clamidia						varchar(20),
+prueba_gonorrea						varchar(20),
+prueba_hepc							varchar(20),
+comentario_ultrasonido				text,
+index_asc                             int(11),
+index_desc                            int(11)
+);
 
-set @prescription_construct = concept_from_mapping('PIH','14822');
-
-insert into temp_medications
-	(patient_id,
-	encounter_id,
-	obs_group_id)
-select 
-	o.person_id,
-	o.encounter_id ,
-	o.obs_id
-from obs o 
-where concept_id = @prescription_construct
-and o.voided = 0
+INSERT INTO temp_consult(patient_id, emr_id,encounter_id, encounter_uuid, encounter_date, date_entered, user_entered, encounter_location, encounter_type, visit_id)
+SELECT patient_id, patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f916c5ec'), encounter_id,  uuid, encounter_datetime, date_created, person_name_of_user(creator), location_name(location_id), encounter_type_name_from_id(encounter_type), visit_id
+FROM encounter  WHERE voided = 0 AND encounter_type IN (@consultEncTypeId)
 ;
 
-update temp_medications t
-inner join encounter e on t.encounter_id = e.encounter_id 
-set encounter_location = location_name(e.location_id),
-	encounter_uuid = uuid,
-	encounter_date = e.encounter_datetime ;
 
-update temp_medications t
-inner join person p on t.patient_id = p.person_id 
-set person_uuid = p.uuid;
+update temp_consult t
+inner join person p on p.person_id = t.patient_id
+set t.person_uuid = p.uuid ;
 
-update temp_medications
-set emr_id = patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f916c5ec');
+update temp_consult t
+set provider = provider(t.encounter_id);
 
-update temp_medications t
-set medication = obs_from_group_id_value_drug(t.obs_group_id, 'PIH','1282');
+drop temporary table if exists temp_obs;
+create temporary table temp_obs 
+select o.obs_id, o.voided ,o.obs_group_id , o.encounter_id, o.person_id, o.concept_id, o.value_coded, o.value_numeric, o.value_text,o.value_datetime, o.value_drug , o.comments, o.date_created ,o.obs_datetime  
+from obs o
+inner join temp_consult t on t.encounter_id = o.encounter_id
+where o.voided = 0;
 
-update temp_medications t
-set duration = obs_from_group_id_value_numeric(t.obs_group_id, 'PIH','9075');
-
-update temp_medications t
-set duration_units = obs_from_group_id_value_coded(t.obs_group_id, 'PIH','6412',@locale);
-
-update temp_medications t
-set admin_inxs = obs_from_group_id_value_text(t.obs_group_id, 'PIH','9072');
-
-update temp_medications t
-set dose1_dose = obs_from_group_id_value_numeric(t.obs_group_id, 'PIH','9073');
-
-update temp_medications t
-set dose1_dose_units = obs_from_group_id_value_coded(t.obs_group_id, 'PIH','10744',@locale);
-
-update temp_medications t
-set dose2_dose = obs_from_group_id_value_numeric(t.obs_group_id, 'PIH','14824');
-
-update temp_medications t
-set dose2_dose_units = obs_from_group_id_value_coded(t.obs_group_id, 'PIH','14825',@locale);
+-- create index to_encounter_id on temp_obs(encounter_id);
+-- create index to_concept_id on temp_obs(concept_id);
+create index to_ci1 on temp_obs(encounter_id, concept_id);
+create index to_ci2 on temp_obs(encounter_id, value_coded);
+create index to_ci3 on temp_obs(encounter_id, concept_id,value_coded);
+create index to_ci4 on temp_obs(obs_group_id, concept_id,value_coded);
 
 
-set @part_of_day = concept_from_mapping('PIH','7392');
-set @part_of_day2 = concept_from_mapping('PIH','14823');
-set @morning = concept_from_mapping('PIH','6105');
-set @noon = concept_from_mapping('PIH','3425');
-set @afternoon = concept_from_mapping('PIH','7393');
-set @evening = concept_from_mapping('PIH','6106');
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','6189') 
+set t.consult_reason = concept_name(o.value_coded, @locale);
 
-update temp_medications t
-inner join obs o on o.obs_group_id = t.obs_group_id
-	and o.concept_id = @part_of_day
-	and o.value_coded = @morning
-	and o.voided = 0
-set dose1_morning = if(o.obs_id is null,null,1),
-	dose1_morning_text = o.comments;
+-- program indicators
+select p.program_id into @diabetesProgId from program p where uuid = '3f038507-f4bc-4877-ade0-96ce170fc8eb';
+select p.program_id into @hypertensionProgId from program p where uuid = '6959057e-9a5c-40ba-a878-292ba4fc35bc';
+select p.program_id into @mentalHealthProgId from program p where uuid = '0e69c3ab-1ccb-430b-b0db-b9760319230f';
+select p.program_id into @asthmaProgId from program p where uuid = '2639449c-8764-4003-be5f-dba522b4b680';
+select p.program_id into @malnutritionProgId from program p where uuid = '61e38de2-44f2-470e-99da-3e97e93d388f';
+select p.program_id into @epilepsyProgId from program p where uuid = '69e6a46d-674e-4281-99a0-4004f293ee57';
+select p.program_id into @ancProgId from program p where uuid = 'd830a5c1-30a2-4943-93a0-f918772496ec';
+select p.program_id into @heartsProgId from program p where uuid = '6cceab45-756f-427b-b2da-0e469d4a87e0';
 
-update temp_medications t
-inner join obs o on o.obs_group_id = t.obs_group_id
-	and o.concept_id = @part_of_day
-	and o.value_coded = @noon
-	and o.voided = 0
-set dose1_noon = if(o.obs_id is null,null,1),
-	dose1_noon_text = o.comments;
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @diabetesProgId 
+set diabetes = if(pp.patient_program_id is null, 0,1);
 
-update temp_medications t
-inner join obs o on o.obs_group_id = t.obs_group_id
-	and o.concept_id = @part_of_day
-	and o.value_coded = @afternoon
-	and o.voided = 0
-set dose1_afternoon = if(o.obs_id is null,null,1),
-	dose1_afternoon_text = o.comments;
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @hypertensionProgId 
+set hypertension = if(pp.patient_program_id is null, 0,1);
 
-update temp_medications t
-inner join obs o on o.obs_group_id = t.obs_group_id
-	and o.concept_id = @part_of_day
-	and o.value_coded = @evening
-	and o.voided = 0
-set dose1_evening = if(o.obs_id is null,null,1),
-	dose1_evening_text = o.comments;
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @asthmaProgId 
+set asthma = if(pp.patient_program_id is null, 0,1);
 
-update temp_medications t
-inner join obs o on o.obs_group_id = t.obs_group_id
-	and o.concept_id = @part_of_day2
-	and o.value_coded = @morning
-	and o.voided = 0
-set dose2_morning = if(o.obs_id is null,null,1),
-	dose2_morning_text = o.comments;
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @mentalHealthProgId 
+set mental_health = if(pp.patient_program_id is null, 0,1);
 
-update temp_medications t
-inner join obs o on o.obs_group_id = t.obs_group_id
-	and o.concept_id = @part_of_day2
-	and o.value_coded = @noon
-	and o.voided = 0
-set dose2_noon = if(o.obs_id is null,null,1),
-	dose2_noon_text = o.comments;
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @epilepsyProgId 
+set epilepsy = if(pp.patient_program_id is null, 0,1);
 
-update temp_medications t
-inner join obs o on o.obs_group_id = t.obs_group_id
-	and o.concept_id = @part_of_day2
-	and o.value_coded = @afternoon
-	and o.voided = 0
-set dose2_afternoon = if(o.obs_id is null,null,1),
-	dose2_afternoon_text = o.comments;
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @ancProgId 
+set prenatal_care = if(pp.patient_program_id is null, 0,1);
 
-update temp_medications t
-inner join obs o on o.obs_group_id = t.obs_group_id
-	and o.concept_id = @part_of_day2
-	and o.value_coded = @evening
-	and o.voided = 0
-set dose2_evening = if(o.obs_id is null,null,1),
-	dose2_evening_text = o.comments;
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @malnutritionProgId 
+set malnutrition = if(pp.patient_program_id is null, 0,1);
 
-select
-	person_uuid,
-	emr_id,
-	CONCAT(@partition,'-',encounter_id) "encounter_id",
-	encounter_uuid,
-	encounter_date,
-	encounter_location,
-	medication,
-	duration,
-	duration_units,
-	admin_inxs,
-	dose1_dose,
-	dose1_dose_units,
-	dose1_morning,
-	dose1_morning_text,
-	dose1_noon,
-	dose1_noon_text,
-	dose1_afternoon,
-	dose1_afternoon_text,
-	dose1_evening,
-	dose1_evening_text,
-	dose2_dose,
-	dose2_dose_units,
-	dose2_morning,
-	dose2_morning_text,
-	dose2_noon,
-	dose2_noon_text,
-	dose2_afternoon,
-	dose2_afternoon_text,
-	dose2_evening,
-	dose2_evening_text
-from temp_medications;
+-- asthma symptoms
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.value_coded = concept_from_mapping('PIH','11731') 
+set asthma_waking = if(o.concept_id = @symptom_present,1,if(o.concept_id = @symptom_absent,0,null));
+
+-- this cough question is captured by either of these concepts but not both, 
+-- depending on whether the patient is <5 yrs or older
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and 
+	o.concept_id in (concept_from_mapping('PIH','11803'),  concept_from_mapping('PIH','11804'))
+set asthma_cough = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11724') 
+set asthma_medicate = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11925') 
+set asthma_activity = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+-- diabetes symptoms
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','887')
+set glucose = o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','7460')
+set hba1c = o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','10542')
+set abdominal_circumference = o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','849')
+set proteinuria_diabetes = o.value_numeric;
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id
+	and concept_id = concept_from_mapping('PIH','6689') 
+set t.fasting = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null)); 
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11732')
+set foot_exam = concept_name(o.value_coded,@locale);
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id
+	and concept_id = concept_from_mapping('PIH','7412') 
+	and value_coded = concept_from_mapping('PIH','1065')
+set t.hypoglycemia_symptoms = if(o.obs_id is null, 0,1);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1552')
+set alcohol = concept_name(o.value_coded,@locale);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','2545')
+set tobacco = concept_name(o.value_coded,@locale);
+
+-- hypertension fields
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1006')
+set total_cholesterol =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1007')
+set hdl =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1008')
+set ldl =o.value_numeric;
+
+-- hearts fields
+update temp_consult t
+inner join patient_program pp on pp.patient_id  = t.patient_id
+	and date(t.encounter_date) >= date(pp.date_enrolled) and (date(t.encounter_date) <= date(pp.date_completed) or pp.date_completed is null) and pp.voided = 0 
+	and pp.program_id = @heartsProgId 
+set hearts = if(pp.patient_program_id is null, 0,1);
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13705') 
+set hearts_change_treatment = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null)); 
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13703')
+set hearts_cardiovascular_risk =o.value_numeric;
+
+-- epilepsy fields
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','6798')
+set epilepsy_attacks_before =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','6797')
+set epilepsy_attacks_last_4weeks =o.value_numeric;
+
+-- prenatal care
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13732') 
+set planned_pregnancy = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13730') 
+set unplanned_cause_contraceptive_failure = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11049') 
+set unplanned_cause_violence = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13732') 
+set planned_pregnancy = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13731') 
+set pregnancy_wanted = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','968')
+set lmp =o.value_datetime;
+
+update temp_consult t 
+set delivery_date_estimated = DATE_ADD(t.lmp, INTERVAL 280 DAY);
+
+update temp_consult t 
+set gestational_age = DATEDIFF(encounter_date,lmp)/7; 
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','5624')
+set pregnancies =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1053')
+set births =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','7011')
+set cesarians =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13733')
+set miscarriages =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13734')
+set stillbirths =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','7018')
+set ultrasound_report =o.value_text;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1040')
+set hiv_test_prenatal = concept_name(o.value_coded,@locale);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','299')
+set vdrl_test = concept_name(o.value_coded,@locale);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','21')
+set hemoglobin =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','849')
+set proteinuria_prenatal =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','300')
+set blood_type = concept_name(o.value_coded,@locale);
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id
+	and concept_id = concept_from_mapping('PIH','10156') 
+	and value_coded = concept_from_mapping('PIH','781')
+set t.vaccine_dtp = if(o.obs_id is null, 0,1);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','12051')
+set glucose_tolerance_curve = concept_name(o.value_coded,@locale);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11968')
+set delivery_plan =o.value_text;
+
+-- mental health
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11586')
+set phq9 =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','11733')
+set gad7 =o.value_numeric;
+
+-- physical exam
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1336')
+set physical_exam =o.value_text;
+
+-- infectious disease
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13519') 
+set tb_suspected = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','3046')
+set tb_test = concept_name(o.value_coded,@locale);
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13518') 
+set hiv_suspected = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','2169')
+set hiv_test = concept_name(o.value_coded,@locale);
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','13520') 
+set covid_suspected = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id 
+	and o.concept_id in (concept_from_mapping('PIH','12824'),
+		concept_from_mapping('PIH','12829'),
+		concept_from_mapping('PIH','12821'))
+set covid_test = concept_name(o.value_coded,@locale);
+	
+	-- analysis section
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','1364')
+set analysis =o.value_text;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','10534')
+set clinical_indication =o.value_text;
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','7537') AND 
+	o.value_coded = concept_from_mapping('PIH','7534')
+set primary_dx_obs_group_id = o.obs_group_id;
+
+update temp_consult t
+inner join temp_obs o on o.obs_group_id = primary_dx_obs_group_id and o.concept_id = concept_from_mapping('PIH','3064')
+set primary_diagnosis = concept_name(o.value_coded,@locale);
+
+update temp_consult t
+set secondary_diagnosis = 
+(select GROUP_CONCAT(concept_name(o2.value_coded,@locale))
+from temp_obs o2 
+	where o2.encounter_id = t.encounter_id AND 
+	o2.concept_id = concept_from_mapping('PIH','3064') AND
+	o2.obs_group_id <> primary_dx_obs_group_id
+);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','5096')
+set next_visit_date =o.value_datetime;
+
+-- obstetric
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14068')
+set ultrasound_type = concept_name(o.value_coded,@locale);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14085')
+set ultrasound_measurement_used = concept_name(o.value_coded,@locale);
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14086')
+set ultrasound_gestational_age =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14084')
+set fetal_weight =o.value_numeric;
+
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','5596')
+set delivery_date_ultrasound =o.value_datetime;
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','14091') 
+set diagnosis_change_ultrasound = if(o.value_coded = @yes,1,if(o.value_coded = @no,0,null));
+
+-- medication columns
+
+select drug_id into @ces_levonorgestrel_etinilestradiol from drug  where uuid = 'e24bfc91-043e-4bc7-81df-64af00ee8193';
+select drug_id into @ssa_levonorgestrel03mg  from drug  where uuid = '2f97e964-3fbc-4da6-a619-d7ad5c95e391';
+select drug_id into @ssa_levonorgestrel_etinilestradiol01 from drug  where uuid = '1f003a43-d738-4c7d-ab87-8239db9e50fe';
+select drug_id into @ssa_levonorgestrel_etinilestradiol02 from drug  where uuid = '81a9ed8d-6ae8-408f-a96d-a4a295d20e15';
+select drug_id into @desogestrel_etinilestradiol01 from drug  where uuid = '54f1a7c3-a18f-469c-8172-f630cb1d3ba1';
+select drug_id into @desogestrel_etinilestradiol02 from drug  where uuid = '172f7d64-c03c-452a-b1c4-8f6da5696cec';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug in (@ces_levonorgestrel_etinilestradiol,
+					@ssa_levonorgestrel03mg,
+					@ssa_levonorgestrel_etinilestradiol01,
+					@ssa_levonorgestrel_etinilestradiol02,
+					@desogestrel_etinilestradiol01,
+					@desogestrel_etinilestradiol02)
+set birth_control_pills = if(o.obs_id is null,0,1);					
+
+select drug_id into @ces_algestona_estradiol  from drug  where uuid = '5b429d13-1296-40e6-a309-09387935eb0d';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug = @ces_algestona_estradiol
+set 1month_injection = if(o.obs_id is null,0,1);	
+
+select drug_id into @ces_noretisterona  from drug  where uuid = '64c2da40-ce90-4574-aab4-dfd1d189e797';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug = @ces_noretisterona
+set 2month_injection = if(o.obs_id is null,0,1);	
+
+select drug_id into @ces_medroxyprogesterona   from drug  where uuid = '82e2b78d-4418-4a13-be61-f3152276cd74';
+select drug_id into @ssa_medroxyprogesterona   from drug  where uuid = '9c80b0cb-72ea-40be-a896-b20d579c509c';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug in (@ces_medroxyprogesterona,
+					@ssa_medroxyprogesterona)
+set 3month_injection = if(o.obs_id is null,0,1);	
+
+select drug_id into @ces_implante_anticonceptivo   from drug  where uuid = 'b2311114-eed2-4c66-aea7-a3658e8c1dd0';
+select drug_id into @ssa_etonogestrel   from drug  where uuid = '77db3a71-f333-4122-82b0-46af04d379b9';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug in (@ces_implante_anticonceptivo,
+					@ssa_etonogestrel)
+set implant = if(o.obs_id is null,0,1);	
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','12265')
+set prueba_sifilis = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;	
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','7451')
+set prueba_hepb = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;	
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','12335')
+set prueba_clamidia = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;							
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','12334')
+set prueba_gonorrea = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;	
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','7452')
+set prueba_hepc = CASE WHEN value_coded=concept_from_mapping('PIH',703) THEN 'positivo' 
+						  WHEN value_coded=concept_from_mapping('PIH',664) THEN 'negativo'
+						 ELSE NULL END;	
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','7018')
+set comentario_ultrasonido = value_text;								
+	
+select drug_id into @ssa_norelgestromina from drug  where uuid = '953f26a9-56a3-472e-9e16-68785aec6076';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug = @ssa_norelgestromina
+set birth_control_patch = if(o.obs_id is null,0,1);	
+
+select drug_id into @ssa_levonorgestrel_75  from drug  where uuid = 'c72e7ed6-c179-481e-9873-812e20aee1fa';
+select drug_id into @ces_levonorgestrel from drug  where uuid = '9ebb0696-073c-47d6-835d-fc3b2a19b02a';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug in (@ssa_levonorgestrel_75,
+					@ces_levonorgestrel)
+set emergency_birth_control = if(o.obs_id is null,0,1);	
+
+select drug_id into @ces_diu_de_cobre from drug where uuid = '86dd0423-28a5-4752-996f-f3921b59cc18';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug = @ces_diu_de_cobre
+set iud_copper = if(o.obs_id is null,0,1);	
+
+select drug_id into @ces_diu_de_hormona from drug  where uuid = 'f80bf96f-6291-4227-949a-f8b2cc3c773a';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug = @ces_diu_de_hormona
+set iud_mirena = if(o.obs_id is null,0,1);	
+
+select drug_id into @ssa_condon_masculino from drug  where uuid = 'cf154c4a-632a-4a6b-abac-55216d046aed';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug = @ssa_condon_masculino
+set condoms = if(o.obs_id is null,0,1);
+
+select drug_id into @ces_mifepristona from drug  where uuid = '90369966-65a8-433d-8daf-791faf0593db';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug = @ces_mifepristona
+set mifepristone = if(o.obs_id is null,0,1);
+
+select drug_id into @ssa_misoprostol from drug  where uuid = '0b4c8973-7c6a-4096-b315-fa9878df17c6';
+select drug_id into @ces_misoprostol from drug  where uuid = '2199a10e-5f56-44a4-87cb-38159f268dda';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug in (@ssa_misoprostol,
+					@ces_misoprostol)
+set misoprostol = if(o.obs_id is null,0,1);	
+
+select drug_id into @ssa_hierro_dextran from drug  where uuid = '41cc9856-98a8-40f5-be89-0d129f5040b1';
+
+update temp_consult t 
+inner join temp_obs o on o.encounter_id = t.encounter_id AND 
+	o.concept_id = concept_from_mapping('PIH','1282') AND 
+	value_drug = @ssa_hierro_dextran
+set iron_dextran = if(o.obs_id is null,0,1);
+
+-- The ascending/descending indexes are calculated ordering on the dispense date
+-- new temp tables are used to build them and then joined into the main temp table.
+
+select 
+CONCAT(@partition,'-',emr_id) "emr_id",
+person_uuid,
+CONCAT(@partition,'-',visit_id) "visit_id",
+CONCAT(@partition,'-',encounter_id) "encounter_id",
+encounter_uuid,
+encounter_type,
+encounter_date,
+encounter_location,
+date_entered,
+user_entered,
+provider,
+consult_reason,
+diabetes,
+asthma,
+malnutrition,
+epilepsy,
+hypertension,
+prenatal_care,
+mental_health,
+asthma_cough,
+asthma_waking,
+asthma_medicate,
+asthma_activity,
+glucose,
+fasting,
+hba1c,
+proteinuria_diabetes,
+abdominal_circumference,
+foot_exam,
+hypoglycemia_symptoms,
+alcohol,
+tobacco,
+total_cholesterol,
+hdl,
+ldl,
+hearts,
+hearts_change_treatment,
+hearts_cardiovascular_risk,
+epilepsy_attacks_before,
+epilepsy_attacks_last_4weeks,
+planned_pregnancy,
+unplanned_cause_contraceptive_failure,
+unplanned_cause_violence,
+pregnancy_wanted,
+lmp,
+gestational_age,
+delivery_date_estimated,
+pregnancies,
+births,
+cesarians,
+miscarriages,
+stillbirths,
+ultrasound_report,
+hiv_test_prenatal,
+vdrl_test,
+hemoglobin,
+proteinuria_prenatal,
+blood_type,
+vaccine_dtp,
+glucose_tolerance_curve,
+delivery_plan,
+phq9,
+gad7,
+physical_exam,
+tb_suspected,
+tb_test,
+hiv_suspected,
+hiv_test,
+covid_suspected,
+covid_test,
+analysis,
+primary_diagnosis,
+secondary_diagnosis,
+clinical_indication,					
+ultrasound_type,
+ultrasound_measurement_used,
+ultrasound_gestational_age,
+delivery_date_ultrasound,
+fetal_weight,
+diagnosis_change_ultrasound,
+birth_control_pills,
+1month_injection,
+2month_injection,
+3month_injection,
+implant,
+birth_control_patch,
+emergency_birth_control,
+iud_copper,
+iud_mirena,
+condoms,
+mifepristone,
+misoprostol,
+iron_dextran,
+next_visit_date,
+prueba_sifilis,
+prueba_hepb,
+prueba_clamidia,
+prueba_gonorrea,
+prueba_hepc,
+comentario_ultrasonido,
+index_asc,
+index_desc
+from temp_consult
+;
