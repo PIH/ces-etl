@@ -1,4 +1,4 @@
-# This job should be run after the site data is fully loaded into sql server to create ay derived data needed    
+# This job should be run after the site data is fully loaded into sql server to create ay derived data needed
 type: "job-pipeline"
 description: "Refresh Derived Tables"
 configuration:
@@ -17,3 +17,4 @@ configuration:
           path: "create-derived-table-in-warehouse.yml"
         iterations:
           - tableName: "update_index_asc_desc"
+          - tableName: "dim_date"
