@@ -159,6 +159,10 @@
                                     <sourceFile>${dataExportSqlDir}/user_logins.sql</sourceFile>
                                     <destinationFile>${petlJobExtractionSqlDir}/usuario_credenciales.sql</destinationFile>
                                 </fileSet>
+                                <fileSet>
+                                    <sourceFile>${dataExportSqlDir}/summary_db_restore.sql</sourceFile>
+                                    <destinationFile>${petlJobExtractionSqlDir}/summary_db_restore.sql</destinationFile>
+                                </fileSet>                                      
                             </fileSets>
                         </configuration>
                     </execution>
