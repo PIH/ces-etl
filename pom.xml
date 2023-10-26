@@ -76,7 +76,7 @@
                                 <artifactItem>
                                     <groupId>org.pih.openmrs</groupId>
                                     <artifactId>openmrs-config-ces</artifactId>
-                                    <version>1.33.0-SNAPSHOT</version>
+                                    <version>1.37.0-SNAPSHOT</version>
                                     <type>zip</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/openmrs-config-ces</outputDirectory>
@@ -159,6 +159,10 @@
                                     <sourceFile>${dataExportSqlDir}/user_logins.sql</sourceFile>
                                     <destinationFile>${petlJobExtractionSqlDir}/usuario_credenciales.sql</destinationFile>
                                 </fileSet>
+                                <fileSet>
+                                    <sourceFile>${dataExportSqlDir}/summary_db_restore.sql</sourceFile>
+                                    <destinationFile>${petlJobExtractionSqlDir}/summary_db_restore.sql</destinationFile>
+                                </fileSet>                                      
                             </fileSets>
                         </configuration>
                     </execution>
