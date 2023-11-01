@@ -6,7 +6,7 @@
     <name>CES ETL</name>
     <description>ETL Project for Mexico OpenMRS instances</description>
     <url>https://github.com/PIH/ces-etl</url>
-    <version>1.11.0-SNAPSHOT</version>
+    <version>1.11.0</version>
     <packaging>pom</packaging>
 
     <developers>
