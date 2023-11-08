@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.reforma.databaseName}
 user: ${datasources.openmrs.reforma.user}
 password: ${datasources.openmrs.reforma.password}
 options: ${datasources.openmrs.reforma.options}
+containerName: ${datasources.openmrs.reforma.containerName}

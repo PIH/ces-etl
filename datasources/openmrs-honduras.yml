@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.honduras.databaseName}
 user: ${datasources.openmrs.honduras.user}
 password: ${datasources.openmrs.honduras.password}
 options: ${datasources.openmrs.honduras.options}
+containerName: ${datasources.openmrs.honduras.containerName}

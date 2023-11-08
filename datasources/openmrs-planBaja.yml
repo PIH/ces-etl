@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.planBaja.databaseName}
 user: ${datasources.openmrs.planBaja.user}
 password: ${datasources.openmrs.planBaja.password}
 options: ${datasources.openmrs.planBaja.options}
+containerName: ${datasources.openmrs.planBaja.containerName}

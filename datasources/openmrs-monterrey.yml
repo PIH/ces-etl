@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.monterrey.databaseName}
 user: ${datasources.openmrs.monterrey.user}
 password: ${datasources.openmrs.monterrey.password}
 options: ${datasources.openmrs.monterrey.options}
+containerName: ${datasources.openmrs.monterrey.containerName}

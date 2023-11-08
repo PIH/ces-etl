@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.laguna.databaseName}
 user: ${datasources.openmrs.laguna.user}
 password: ${datasources.openmrs.laguna.password}
 options: ${datasources.openmrs.laguna.options}
+containerName: ${datasources.openmrs.laguna.containerName}

@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.matazano.databaseName}
 user: ${datasources.openmrs.matazano.user}
 password: ${datasources.openmrs.matazano.password}
 options: ${datasources.openmrs.matazano.options}
+containerName: ${datasources.openmrs.matazano.containerName}

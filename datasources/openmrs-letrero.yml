@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.letrero.databaseName}
 user: ${datasources.openmrs.letrero.user}
 password: ${datasources.openmrs.letrero.password}
 options: ${datasources.openmrs.letrero.options}
+containerName: ${datasources.openmrs.letrero.containerName}

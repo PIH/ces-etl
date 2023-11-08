@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.jaltenango.databaseName}
 user: ${datasources.openmrs.jaltenango.user}
 password: ${datasources.openmrs.jaltenango.password}
 options: ${datasources.openmrs.jaltenango.options}
+containerName: ${datasources.openmrs.jaltenango.containerName}

@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.cesci.databaseName}
 user: ${datasources.openmrs.cesci.user}
 password: ${datasources.openmrs.cesci.password}
 options: ${datasources.openmrs.cesci.options}
+containerName: ""

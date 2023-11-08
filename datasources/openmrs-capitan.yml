@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.capitan.databaseName}
 user: ${datasources.openmrs.capitan.user}
 password: ${datasources.openmrs.capitan.password}
 options: ${datasources.openmrs.capitan.options}
+containerName: ${datasources.openmrs.capitan.containerName}

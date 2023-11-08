@@ -5,3 +5,4 @@ databaseName: ${datasources.openmrs.salvador.databaseName}
 user: ${datasources.openmrs.salvador.user}
 password: ${datasources.openmrs.salvador.password}
 options: ${datasources.openmrs.salvador.options}
+containerName: ${datasources.openmrs.salvador.containerName}
