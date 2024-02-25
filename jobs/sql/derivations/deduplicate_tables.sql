@@ -149,8 +149,8 @@ inner join merge_history mh on mh.loser_person_uuid = sp.person_uuid
 
 -- choose single programas row based on row with latest encounter
 -- ordered by last updated, and then prioritizing where the enrollment location equals the site 
-drop table if exists programas_tmp;
-select * into programas_tmp from #staging_programas sp
+drop table if exists programas;
+select * into programas from #staging_programas sp
 where sp.unique_pp_id  =
 	(select top 1 sp2.unique_pp_id  from  #staging_programas sp2
 	where sp2.patient_program_uuid = sp.patient_program_uuid 
@@ -331,8 +331,8 @@ inner join merge_history mh on mh.loser_person_uuid = sec.person_uuid
 ; 
 
 -- choose single encounter row based on rows where encounter location = site 
-drop table if exists encuentro_signos_vitales_tmp;
-select * into encuentro_signos_vitales_tmp from #staging_encuentro_signos_vitales sec
+drop table if exists encuentro_signos_vitales;
+select * into encuentro_signos_vitales from #staging_encuentro_signos_vitales sec
 where sec.encuentro_id  =
 	(select top 1 sec2.encuentro_id from #staging_encuentro_signos_vitales sec2
 	where sec2.encounter_uuid = sec.encounter_uuid 
@@ -359,7 +359,7 @@ where sec.encuentro_id  =
 -- update emr_id based on what was chosen on ces_pacientes 
 update x
 set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid)
-from encuentro_signos_vitales_tmp x
+from encuentro_signos_vitales x
 ;
 --
 -- salud_mental_estatus
@@ -381,8 +381,8 @@ inner join merge_history mh on mh.loser_person_uuid = sp.person_uuid
 -- choose single salud_mental_estatus row based on row that was changed most recently
 -- ordered by last updated, and then prioritizing where the enrollment location equals the site 
 -- note it is deduplicated by patient_program_uuid and status since there are multiple rows for each program and status
-drop table if exists salud_mental_estatus_tmp;
-select * into salud_mental_estatus_tmp from #staging_salud_mental_estatus sp
+drop table if exists salud_mental_estatus;
+select * into salud_mental_estatus from #staging_salud_mental_estatus sp
 where sp.unique_pp_id  =
 	(select top 1 sp2.unique_pp_id  from  #staging_salud_mental_estatus sp2
 	where  sp2.patient_program_uuid+convert(varchar(255), sp2.resultado_salud_mental)=  sp.patient_program_uuid+convert(varchar(255), sp.resultado_salud_mental)
@@ -410,7 +410,7 @@ where sp.unique_pp_id  =
 -- update emr_id based on what was chosen on ces_pacientes 
 update x
 set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid)
-from salud_mental_estatus_tmp x
+from salud_mental_estatus x
 ;
 --
 -- visitas
@@ -426,8 +426,8 @@ inner join merge_history mh on mh.loser_person_uuid = sv.person_uuid
 ; 
 
 -- choose single visit row based on rows where visit location = site 
-drop table if exists visitas_tmp;
-select * into visitas_tmp from #staging_visitas sv
+drop table if exists visitas;
+select * into visitas from #staging_visitas sv
 where sv.visita_id =
 	(select top 1 sv2.visita_id from #staging_visitas sv2
 	where sv2.visit_uuid = sv.visit_uuid 
@@ -455,4 +455,4 @@ where sv.visita_id =
 -- update emr_id based on what was chosen on ces_pacientes 
 update x
 set x.emr_id = (select emr_id from ces_pacientes cp where cp.person_uuid = x.person_uuid  )
-from visitas_tmp x;
+from visitas x;
