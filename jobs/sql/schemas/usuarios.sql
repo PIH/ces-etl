@@ -3,6 +3,7 @@ CREATE TABLE usuarios
     usuario             varchar(50),
     nombres             varchar(50),
     apellidos           varchar(50),
+    correo_electronico  varchar(500),
     cuenta_activada     bit,
     fecha_creado        datetime,
     creado_por          varchar(50),
