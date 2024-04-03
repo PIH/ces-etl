@@ -13,6 +13,7 @@ CREATE TEMPORARY TABLE temp_medications
  encounter_date       datetime,
  encounter_location   varchar(255),
  medication           varchar(255), 
+ boxes_jars           double,
  duration             double,       
  duration_units       varchar(255), 
  admin_inxs           text,         
@@ -70,6 +71,9 @@ set emr_id = patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f916c5ec
 
 update temp_medications t
 set medication = obs_from_group_id_value_drug(t.obs_group_id, 'PIH','1282');
+
+update temp_medications t
+set boxes_jars = obs_from_group_id_value_numeric(t.obs_group_id, 'PIH','15173');
 
 update temp_medications t
 set duration = obs_from_group_id_value_numeric(t.obs_group_id, 'PIH','9075');
@@ -172,6 +176,7 @@ select
 	encounter_date,
 	encounter_location,
 	medication,
+	boxes_jars,
 	duration,
 	duration_units,
 	admin_inxs,
