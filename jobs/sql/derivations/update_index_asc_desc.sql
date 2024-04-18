@@ -97,7 +97,7 @@ UPDATE tmp
 SET index_asc = x.index_asc
 FROM medicamentos tmp INNER JOIN (
 SELECT encuentro_id,medicamento_nombre,
-rank() over(PARTITION BY encuentro_id ORDER BY encuentro_id asc, medicamento_nombre asc) index_asc
+rank() over(PARTITION BY encuentro_id ORDER BY encuentro_id asc, medicamento_nombre asc, encuentro_fecha asc) index_asc
 FROM medicamentos) x 
 ON tmp.encuentro_id=x.encuentro_id
 AND tmp.medicamento_nombre = x.medicamento_nombre;
@@ -106,7 +106,7 @@ UPDATE tmp
 SET index_desc = x.index_desc
 FROM medicamentos tmp INNER JOIN (
 SELECT encuentro_id,medicamento_nombre,
-rank() over(PARTITION BY encuentro_id ORDER BY encuentro_id desc, medicamento_nombre desc) index_desc
+rank() over(PARTITION BY encuentro_id ORDER BY encuentro_id desc, medicamento_nombre desc, encuentro_fecha desc) index_desc
 FROM medicamentos) x 
 ON tmp.encuentro_id=x.encuentro_id
 AND tmp.medicamento_nombre = x.medicamento_nombre;
@@ -118,7 +118,7 @@ UPDATE tmp
 SET index_asc = x.index_asc
 FROM encuentro_signos_vitales tmp INNER JOIN (
 SELECT emr_id, all_vitals_id, encuentro_fecha, entrada_fecha,
-rank() over(PARTITION BY emr_id ORDER BY emr_id asc, all_vitals_id ASC, encuentro_fecha asc, entrada_fecha asc) index_asc
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, encuentro_fecha asc, entrada_fecha asc, all_vitals_id asc) index_asc
 FROM encuentro_signos_vitales) x 
 ON tmp.emr_id=x.emr_id 
 AND tmp.all_vitals_id = x.all_vitals_id 
@@ -129,7 +129,7 @@ UPDATE tmp
 SET index_desc = x.index_desc
 FROM encuentro_signos_vitales tmp INNER JOIN (
 SELECT emr_id, all_vitals_id, encuentro_fecha, entrada_fecha,
-rank() over(PARTITION BY emr_id ORDER BY emr_id asc, all_vitals_id desc, encuentro_fecha desc, entrada_fecha desc) index_desc
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, encuentro_fecha desc, entrada_fecha desc, all_vitals_id desc) index_desc
 FROM encuentro_signos_vitales) x 
 ON tmp.emr_id=x.emr_id 
 AND tmp.all_vitals_id = x.all_vitals_id 
