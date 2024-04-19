@@ -1,14 +1,11 @@
 SET sql_safe_updates = 0;
 SET @partition = '${partitionNum}';
-set @site = '${siteName}';
-
 SET @vitals_encounter = (SELECT encounter_type_id FROM encounter_type WHERE uuid = '4fb47712-34a6-40d2-8ed3-e153abbd25b7');
 
 DROP TEMPORARY TABLE IF EXISTS temp_vitals;
 CREATE TEMPORARY TABLE temp_vitals
 (
     all_vitals_id		int(11) PRIMARY KEY AUTO_INCREMENT,
-    site varchar(25),
 	patient_id			int(11),
 	person_uuid			char(38),
 	emr_id          	VARCHAR(25),
@@ -42,8 +39,8 @@ CREATE TEMPORARY TABLE temp_vitals
     index_desc			int
     );
    
-insert into temp_vitals(site,patient_id, visit_id, encounter_id, encounter_uuid, encounter_datetime, date_entered, creator, encounter_location_id)   
-select @site, e.patient_id,  visit_id, e.encounter_id, e.uuid , e.encounter_datetime, e.date_created, e.creator, e.location_id  from encounter e
+insert into temp_vitals(patient_id, visit_id, encounter_id, encounter_uuid, encounter_datetime, date_entered, creator, encounter_location_id)   
+select e.patient_id,  visit_id, e.encounter_id, e.uuid , e.encounter_datetime, e.date_created, e.creator, e.location_id  from encounter e
 where e.encounter_type = @vitals_encounter
 and e.voided = 0;
 
@@ -267,7 +264,7 @@ inner join person p on p.person_id = t.patient_id
 set t.person_uuid = p.uuid;
 
 select 
-        all_vitals_id,
+    CONCAT(@partition,'-',all_vitals_id) "all_vitals_id",
 	CONCAT(@partition,'-',emr_id) "emr_id",
 	person_uuid,
 	CONCAT(@partition,'-',visit_id) "visit_id",
