@@ -4,6 +4,7 @@ SET @partition = '${partitionNum}';
 DROP TEMPORARY TABLE IF EXISTS temp_medications;
 CREATE TEMPORARY TABLE temp_medications
 (
+ medications_id       int PRIMARY KEY AUTO_INCREMENT,
  patient_id           int(11), 
  person_uuid          char(38),
  emr_id               varchar(50),  
@@ -169,6 +170,7 @@ set dose2_evening = if(o.obs_id is null,null,1),
 	dose2_evening_text = o.comments;
 
 select
+    CONCAT(@partition,'-',medications_id) "medication_id",
 	person_uuid,
 	emr_id,
 	CONCAT(@partition,'-',encounter_id) "encounter_id",

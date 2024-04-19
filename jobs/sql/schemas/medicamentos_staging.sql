@@ -1,5 +1,6 @@
 CREATE TABLE medicamentos_staging
 (
+ medicamentos_id                varchar(50),
  person_uuid                    char(38),      
  emr_id                         varchar(50),   
  encuentro_id                   varchar(50),  
