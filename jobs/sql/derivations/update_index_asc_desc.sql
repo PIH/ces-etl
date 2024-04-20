@@ -96,20 +96,18 @@ AND tmp.encuentro_id=x.encuentro_id;
 UPDATE tmp 
 SET index_asc = x.index_asc
 FROM medicamentos tmp INNER JOIN (
-SELECT encuentro_id,medicamento_nombre,
+SELECT encuentro_id,medicamentos_id,
 rank() over(PARTITION BY encuentro_id ORDER BY encuentro_id asc, medicamento_nombre asc, encuentro_fecha asc) index_asc
 FROM medicamentos) x 
-ON tmp.encuentro_id=x.encuentro_id
-AND tmp.medicamento_nombre = x.medicamento_nombre;
+ON tmp.medicamentos_id = x.medicamentos_id;
 
 UPDATE tmp 
 SET index_desc = x.index_desc
 FROM medicamentos tmp INNER JOIN (
-SELECT encuentro_id,medicamento_nombre,
+SELECT encuentro_id,medicamentos_id,
 rank() over(PARTITION BY encuentro_id ORDER BY encuentro_id desc, medicamento_nombre desc, encuentro_fecha desc) index_desc
 FROM medicamentos) x 
-ON tmp.encuentro_id=x.encuentro_id
-AND tmp.medicamento_nombre = x.medicamento_nombre;
+ON tmp.medicamentos_id = x.medicamentos_id;
 
 -- *********************************************************************************
 -- *********** Update encountero_signos_vitales ************************************

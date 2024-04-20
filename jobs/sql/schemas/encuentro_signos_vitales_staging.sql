@@ -1,6 +1,6 @@
 CREATE TABLE encuentro_signos_vitales_staging
 (
-    all_vitals_id int,
+    all_vitals_id            varchar(50),
     emr_id                   varchar(25),
     person_uuid              char(38),
     visita_id                varchar(50),
