@@ -1,6 +1,5 @@
 SET @partition = '${partitionNum}';
 
-SELECT encounter_type_id  INTO @mh_consult_etype_id FROM encounter_type et WHERE et.uuid ='a8584ab8-cc2a-11e5-9956-625662870761';
 SELECT encounter_type_id  INTO @consult_etype_id FROM encounter_type et WHERE et.uuid ='aa61d509-6e76-4036-a65d-7813c0c3b752';
 SELECT program_id INTO @mh_program_id FROM program p WHERE uuid='0e69c3ab-1ccb-430b-b0db-b9760319230f';
 
@@ -113,10 +112,6 @@ select concept_from_mapping('PIH','11733') into @gadscore;
 DROP TABLE IF EXISTS temp_encounter;
 CREATE TEMPORARY TABLE temp_encounter
 SELECT encounter_id, patient_id, date(encounter_datetime) encounter_datetime, encounter_type 
-FROM encounter e WHERE e.encounter_type = @mh_consult_etype_id
-AND e.voided = 0
-UNION 
-SELECT encounter_id, patient_id, date(encounter_datetime) encounter_datetime, encounter_type 
 FROM encounter e WHERE e.encounter_type = @consult_etype_id
 AND e.voided = 0;
 
@@ -195,7 +190,7 @@ UPDATE salud_mental_paciente t SET t.reg_location =loc_registered(patient_id);
 
 UPDATE salud_mental_paciente t 
 SET t.recent_mental_status = (
-	select concept_name(pp.outcome_concept_id,'en')
+	select concept_name(pp.outcome_concept_id,'es')
 	from patient_program pp
 	where pp.patient_id=t.patient_id
 	AND pp.patient_program_id = t.mh_program_id
