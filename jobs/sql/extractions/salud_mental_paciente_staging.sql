@@ -3,112 +3,126 @@ SET @partition = '${partitionNum}';
 SELECT encounter_type_id  INTO @consult_etype_id FROM encounter_type et WHERE et.uuid ='aa61d509-6e76-4036-a65d-7813c0c3b752';
 SELECT program_id INTO @mh_program_id FROM program p WHERE uuid='0e69c3ab-1ccb-430b-b0db-b9760319230f';
 
+set @dx_concept_id = concept_from_mapping('pih','3064'); 
+-- MH Diagnoses:
+set @duelo                                              = concept_from_mapping('pih','7948');    
+set @ideación_suicida                                   = concept_from_mapping('pih','10633');   
+set @intento_de_suicidio                                = concept_from_mapping('pih','7514');    
+set @ezquizofrenia                                      = concept_from_mapping('pih','467');     
+set @psicosis_aguda                                     = concept_from_mapping('pih','9519');    
+set @psicosis                                           = concept_from_mapping('pih','219');     
+set @mania_sin_síntomas_psicóticos                      = concept_from_mapping('pih','9518');    
+set @mania_con_síntomas_psicóticos                      = concept_from_mapping('pih','Mania with psychotic symptoms'); 
+set @trastorno_esquizofreniforme                        = concept_from_mapping('pih','14522');   
+set @episodio_psicóticos_breve                          = concept_from_mapping('pih','9519');    
+set @trastorno_esquizoafectivo                          = concept_from_mapping('ciel','127132'); 
+set @trastorno_bipolar                                  = concept_from_mapping('pih','Bipolar disorder'); 
+set @depresion                                          = concept_from_mapping('pih','207');     
+set @cambios_de_humor                                   = concept_from_mapping('pih','9527');    
+set @trastornos_de_adaptacion                           = concept_from_mapping('pih','14367');   
+set @ataque_de_pánico                                   = concept_from_mapping('pih','9330');    
+set @trastorno_de_ansiedad_generalizada                 = concept_from_mapping('pih','9517');    
+set @ansiedad                                           = concept_from_mapping('pih','2719');    
+set @trastorno_obsesivo_compulsivo                      = concept_from_mapping('pih','7513');    
+set @trastorno_por_estrés_agudo                         = concept_from_mapping('pih','7950');    
+set @trastorno_de_estrés_postraumático                  = concept_from_mapping('pih','7197');    
+set @trastorno_de_la_conducta_alimentaria               = concept_from_mapping('pih','7944');    
+set @trastorno_autista                                  = concept_from_mapping('pih','10607');   
+set @trastorno_por_deficit_de_atención_e_hiperactividad = concept_from_mapping('ciel','121317'); 
+set @trastorno_oposicional_desafiante                   = concept_from_mapping('pih','20338');   
+set @conducta_destructiva                               = concept_from_mapping('pih','7949');    
+set @trastorno_de_la_personalidad                       = concept_from_mapping('pih','7943');    
+set @trastorno_disociativo                              = concept_from_mapping('pih','7945');    
+set @trastorno_psicosomático                            = concept_from_mapping('pih','7198');    
+set @trastorno_de_adaptación                            = concept_from_mapping('pih','14367');   
+set @hiperactividad_motora                              = concept_from_mapping('pih','7515');    
+
 
 DROP TABLE IF EXISTS salud_mental_paciente;
 CREATE TEMPORARY TABLE salud_mental_paciente (
-Patient_id	int,
-emr_id	varchar(50),
-person_uuid   char(38),
-date_changed date,
-age	int,
-gender	varchar(30),
-dead	bit,
-death_Date	date,
-mh_enrolled bit,
-most_recent_mhealth_enc_id	int,
-most_recent_mhealth_enc_date	datetime,
-most_recent_consult_enc_id	int,
-most_recent_consult_enc_date	datetime,
-number_mental_health_enc	int,
-mh_program_id int,
-mental_health_enc_enroll_date	date,
-reg_location	varchar(30),
-recent_mental_status	varchar(50),
-recent_mental_status_date	Date,
-active	bit,
-asthma	bit,
-malnutrition	bit,
-diabetes	bit,
-epilepsy	bit,
-hypertension	bit,
-Comorbidity	bit,
-next_visit_obs_id int,
-date_next_appointment	date,
-psychosis	bit,
-mood_disorder	bit,
-anxiety	bit,
-adaptive_disorders	bit,
-dissociative_disorders	bit,
-psychosomatic_disorders	bit,
-eating_disorders	bit,
-personality_disorders	bit,
-conduct_disorders	bit,
-suicidal_ideation	bit,
-grief	bit,
-First_PHQ9_score	int,
-Date_first_PHQ9	date,
-Most_recent_PHQ9	int,
-Date_most_recent_PHQ9	date,
-PHQ9_q1_value_coded int, 
-PHQ9_q1	int,
-PHQ9_q2_value_coded int, 
-PHQ9_q2	int,
-PHQ9_q3_value_coded int, 
-PHQ9_q3	int,
-PHQ9_q4_value_coded int, 
-PHQ9_q4	int,
-PHQ9_q5_value_coded int, 
-PHQ9_q5	int,
-PHQ9_q6_value_coded int, 
-PHQ9_q6	int,
-PHQ9_q7_value_coded int, 
-PHQ9_q7	int,
-PHQ9_q8_value_coded int, 
-PHQ9_q8	int,
-PHQ9_q9_value_coded int, 
-PHQ9_q9	int,
-First_GAD7_score	int,
-Date_first_GAD7	date,
-Most_recent_GAD7	int,
-Date_most_recent_GAD7	date,
-GAD7_q1_value_coded int, 
-GAD7_q1	int,
-GAD7_q2_value_coded int, 
-GAD7_q2	int,
-GAD7_q3_value_coded int, 
-GAD7_q3	int,
-GAD7_q4_value_coded int, 
-GAD7_q4	int,
-GAD7_q5_value_coded int, 
-GAD7_q5	int,
-GAD7_q6_value_coded int, 
-GAD7_q6	int,
-GAD7_q7_value_coded int, 
-GAD7_q7	int
+Patient_id                    int,         
+emr_id                        varchar(50), 
+person_uuid                   char(38),    
+date_changed                  date,        
+age                           int,         
+gender                        varchar(30), 
+dead                          bit,         
+death_Date                    date,        
+mh_enrolled                   bit,         
+most_recent_mhealth_enc_id    int,         
+most_recent_mhealth_enc_date  datetime,    
+most_recent_consult_enc_id    int,         
+most_recent_consult_enc_date  datetime,    
+number_mental_health_enc      int,         
+mh_program_id                 int,         
+mental_health_enc_enroll_date date,        
+reg_location                  varchar(30), 
+recent_mental_status          varchar(50), 
+recent_mental_status_date     Date,        
+active                        bit,         
+asthma                        bit,         
+malnutrition                  bit,         
+diabetes                      bit,         
+epilepsy                      bit,         
+hypertension                  bit,         
+Comorbidity                   bit,         
+next_visit_obs_id             int,         
+date_next_appointment         date,        
+psychosis                     bit,         
+mood_disorder                 bit,         
+anxiety                       bit,         
+adaptive_disorders            bit,         
+dissociative_disorders        bit,         
+psychosomatic_disorders       bit,         
+eating_disorders              bit,         
+personality_disorders         bit,         
+conduct_disorders             bit,         
+suicidal_ideation             bit,         
+grief                         bit,         
+First_PHQ9_score              int,         
+Date_first_PHQ9               date,        
+Most_recent_PHQ9              int,         
+Date_most_recent_PHQ9         date,        
+PHQ9_q1_value_coded           int,          
+PHQ9_q1                       int,         
+PHQ9_q2_value_coded           int,          
+PHQ9_q2                       int,         
+PHQ9_q3_value_coded           int,          
+PHQ9_q3                       int,         
+PHQ9_q4_value_coded           int,          
+PHQ9_q4                       int,         
+PHQ9_q5_value_coded           int,          
+PHQ9_q5                       int,         
+PHQ9_q6_value_coded           int,          
+PHQ9_q6                       int,         
+PHQ9_q7_value_coded           int,          
+PHQ9_q7                       int,         
+PHQ9_q8_value_coded           int,          
+PHQ9_q8                       int,         
+PHQ9_q9_value_coded           int,          
+PHQ9_q9                       int,         
+First_GAD7_score              int,         
+Date_first_GAD7               date,        
+Most_recent_GAD7              int,         
+Date_most_recent_GAD7         date,        
+GAD7_q1_value_coded           int,          
+GAD7_q1                       int,         
+GAD7_q2_value_coded           int,          
+GAD7_q2                       int,         
+GAD7_q3_value_coded           int,          
+GAD7_q3                       int,         
+GAD7_q4_value_coded           int,          
+GAD7_q4                       int,         
+GAD7_q5_value_coded           int,          
+GAD7_q5                       int,         
+GAD7_q6_value_coded           int,          
+GAD7_q6                       int,         
+GAD7_q7_value_coded           int,          
+GAD7_q7                       int          
 );
 
 
 -- ----------------- Views Defintions --------------------------------------------------------------
-
-select concept_from_mapping('PIH','13661') into @phq1;
-select concept_from_mapping('PIH','13662') into @phq2;
-select concept_from_mapping('PIH','13663') into @phq3;
-select concept_from_mapping('PIH','13664') into @phq4;
-select concept_from_mapping('PIH','13665') into @phq5;
-select concept_from_mapping('PIH','13666') into @phq6;
-select concept_from_mapping('PIH','13667') into @phq7;
-select concept_from_mapping('PIH','13668') into @phq8;
-select concept_from_mapping('PIH','13669') into @phq9;
-select concept_from_mapping('PIH','13671') into @gdq1;
-select concept_from_mapping('PIH','13672') into @gdq2;
-select concept_from_mapping('PIH','13673') into @gdq3;
-select concept_from_mapping('PIH','13674') into @gdq4;
-select concept_from_mapping('PIH','13675') into @gdq5;
-select concept_from_mapping('PIH','13676') into @gdq6;
-select concept_from_mapping('PIH','13677') into @gdq7;
-select concept_from_mapping('PIH','11586') into @phqscore;
-select concept_from_mapping('PIH','11733') into @gadscore;
-
 DROP TABLE IF EXISTS temp_encounter;
 CREATE TEMPORARY TABLE temp_encounter
 SELECT encounter_id, patient_id, date(encounter_datetime) encounter_datetime, encounter_type 
@@ -126,7 +140,7 @@ where o.voided = 0;
 create index temp_obs_i1 on temp_obs(person_id, concept_id);
 create index temp_obs_i2 on temp_obs(obs_id);
 
--- ----------------- Insert Patinets List --------------------------------------------------------------
+-- ----------------- Insert Patients List --------------------------------------------------------------
 
 INSERT INTO salud_mental_paciente(patient_id,person_uuid,date_changed)
 select distinct p.patient_id, n.uuid person_uuid ,n.date_changed --  e.encounter_id, date(e.encounter_datetime) encounter_date
@@ -135,17 +149,45 @@ from obs o
          inner join patient p on e.patient_id = p.patient_id
          inner join person n on p.patient_id = n.person_id
 where o.voided = 0 and e.voided = 0 and p.voided = 0 and n.voided = 0
-  and o.concept_id in (
-                       @phq1, @phq2, @phq3, @phq4, @phq5, @phq6, @phq7, @phq8, @phq9, @phqscore,
-                       @gdq1, @gdq2, @gdq3, @gdq4, @gdq5, @gdq6, @gdq7, @gadscore
-    )
+  and o.concept_id = @dx_concept_id
+  and o.value_coded in ( 
+@duelo,
+@ideación_suicida,
+@intento_de_suicidio,
+@ezquizofrenia,
+@psicosis_aguda,
+@psicosis,
+@mania_sin_síntomas_psicóticos,
+@mania_con_síntomas_psicóticos,
+@trastorno_esquizofreniforme,
+@episodio_psicóticos_breve,
+@trastorno_esquizoafectivo,
+@trastorno_bipolar,
+@depresion,
+@cambios_de_humor,
+@trastornos_de_adaptacion,
+@ataque_de_pánico,
+@trastorno_de_ansiedad_generalizada,
+@ansiedad,
+@trastorno_obsesivo_compulsivo,
+@trastorno_por_estrés_agudo,
+@trastorno_de_estrés_postraumático,
+@trastorno_de_la_conducta_alimentaria,
+@trastorno_autista,
+@trastorno_por_deficit_de_atención_e_hiperactividad,
+@trastorno_oposicional_desafiante,
+@conducta_destructiva,
+@trastorno_de_la_personalidad,
+@trastorno_disociativo,
+@trastorno_psicosomático,
+@trastorno_de_adaptación,
+@hiperactividad_motora)
 UNION 
 SELECT DISTINCT patient_id,n.uuid person_uuid ,n.date_changed 
 FROM patient_program pp 
 inner join person n on pp.patient_id = n.person_id
 WHERE program_id =@mh_program_id     
 ;
-
 
 create index salud_mental_paciente_i1 on salud_mental_paciente(patient_id);
 
