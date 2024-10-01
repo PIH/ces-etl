@@ -2,7 +2,6 @@ CREATE TABLE salud_mental_paciente_staging
 (
 emr_id                              varchar(50),
 person_uuid                 char(38),
-date_changed date,
 edad_hoy                            int,
 genero                              varchar(30),
 fallecido                           bit,
