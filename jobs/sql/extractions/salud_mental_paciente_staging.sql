@@ -43,7 +43,6 @@ CREATE TEMPORARY TABLE salud_mental_paciente (
 Patient_id                    int,         
 emr_id                        varchar(50), 
 person_uuid                   char(38),    
-date_changed                  date,        
 age                           int,         
 gender                        varchar(30), 
 dead                          bit,         
@@ -142,8 +141,8 @@ create index temp_obs_i2 on temp_obs(obs_id);
 
 -- ----------------- Insert Patients List --------------------------------------------------------------
 
-INSERT INTO salud_mental_paciente(patient_id,person_uuid,date_changed)
-select distinct p.patient_id, n.uuid person_uuid ,n.date_changed --  e.encounter_id, date(e.encounter_datetime) encounter_date
+INSERT INTO salud_mental_paciente(patient_id,person_uuid)
+select distinct p.patient_id, n.uuid person_uuid --  e.encounter_id, date(e.encounter_datetime) encounter_date
 from obs o
          inner join encounter e on o.encounter_id = e.encounter_id
          inner join patient p on e.patient_id = p.patient_id
@@ -183,7 +182,7 @@ where o.voided = 0 and e.voided = 0 and p.voided = 0 and n.voided = 0
 @trastorno_de_adaptación,
 @hiperactividad_motora)
 UNION 
-SELECT DISTINCT patient_id,n.uuid person_uuid ,n.date_changed 
+SELECT DISTINCT patient_id,n.uuid person_uuid 
 FROM patient_program pp 
 inner join person n on pp.patient_id = n.person_id
 WHERE program_id =@mh_program_id     
@@ -583,7 +582,6 @@ SET t.GAD7_q7 =         CASE WHEN GAD7_q7_value_coded=@never THEN 0
 SELECT 
 CONCAT(@partition,'-',emr_id) "emr_id",
 person_uuid,
-date_changed,
 age,
 gender,
 dead,
