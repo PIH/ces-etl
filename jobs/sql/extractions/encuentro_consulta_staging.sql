@@ -13,121 +13,160 @@ set @symptom_absent = concept_from_mapping('PIH','1734');
 DROP TEMPORARY TABLE IF EXISTS temp_consult;
 CREATE TEMPORARY TABLE temp_consult
 (
-patient_id                            int(11),
-person_uuid                           char(38),
-emr_id                                varchar(50),
-encounter_id                          int(11),
-encounter_uuid                        char(38),
-encounter_type                        varchar(255),
-encounter_date                        datetime,
-encounter_location                    varchar(255),
-date_entered                          datetime,
-user_entered                          varchar(255),
-provider                              varchar(255),
-visit_id                              int(11),
-consult_reason                        varchar(255),
-diabetes                              bit,
-asthma                                bit,
-malnutrition                          bit,
-epilepsy                              bit,
-hypertension                          bit,
-prenatal_care                         bit,
-mental_health                         bit,
-asthma_cough                          bit,
-asthma_waking                         bit,
-asthma_medicate                       bit,
-asthma_activity                       bit,
-glucose                               double,
-fasting                               bit,
-hba1c                                 double,
-proteinuria_diabetes                  int,
-abdominal_circumference               double,
-foot_exam                             varchar(255),
-hypoglycemia_symptoms                 bit, 
-alcohol                               varchar(255),
-tobacco                               varchar(255),
-total_cholesterol                     double,
-hdl                                   double,
-ldl                                   double,
-hearts                                bit,
-hearts_change_treatment               bit,
-hearts_cardiovascular_risk            double,
-epilepsy_attacks_before               double,
-epilepsy_attacks_last_4weeks          double,
-planned_pregnancy                     bit,
-unplanned_cause_contraceptive_failure bit,
-unplanned_cause_violence              bit,
-pregnancy_wanted                      bit,
-lmp                                   date,
-gestational_age                       double,
-delivery_date_estimated               date,
-pregnancies                           int,
-births                                int,
-cesarians                             int,
-miscarriages                          int,
-stillbirths                           int,
-ultrasound_report                     text,
-hiv_test_prenatal                     varchar(255),
-vdrl_test                             varchar(255),
-hemoglobin                            double,
-proteinuria_prenatal                  double,
-blood_type                            varchar(255),
-vaccine_dtp                           bit,
-glucose_tolerance_curve               varchar(255),
-delivery_plan                         text,
-phq9                                  int,
-gad7                                  int,
-physical_exam                         text,
-tb_suspected                          bit,
-tb_test                               varchar(255),
-hiv_suspected                         bit,
-hiv_test                              varchar(255),
-covid_suspected                       bit,
-covid_test                            varchar(255),
-analysis                              text,
-primary_dx_obs_group_id               int(11),
-primary_diagnosis                     varchar(255),
-secondary_diagnosis                   varchar(1200),
-clinical_indication                   text, 
-ultrasound_type                       varchar(255),
-ultrasound_measurement_used           varchar(255),
-ultrasound_gestational_age            double,
-delivery_date_ultrasound              date,
-fetal_weight                          double,
-diagnosis_change_ultrasound           bit,
-birth_control_pills                   bit,
-1month_injection                      bit,
-2month_injection                      bit,
-3month_injection                      bit,
-implant                               bit,
-birth_control_patch                   bit,
-emergency_birth_control               bit,
-iud_copper                            bit,
-iud_mirena                            bit,
-condoms                               bit,
-mifepristone                          bit,
-misoprostol                           bit,
-iron_dextran                          bit,
-next_visit_date                       date,
-prueba_sifilis						varchar(20),
-prueba_hepb							varchar(20),
-prueba_clamidia						varchar(20),
-prueba_gonorrea						varchar(20),
-prueba_hepc							varchar(20),
-comentario_ultrasonido				text,
-index_asc                             int(11),
-index_desc                            int(11)
+patient_id                            int(11),       
+person_uuid                           char(38),      
+emr_id                                varchar(50),   
+encounter_id                          int(11),       
+encounter_uuid                        char(38),      
+encounter_type                        varchar(255),  
+encounter_date                        datetime,      
+encounter_location                    varchar(255),  
+date_entered                          datetime,      
+user_entered                          varchar(255),  
+date_changed                          datetime,      
+provider                              varchar(255),  
+visit_id                              int(11),       
+age_at_encounter                      double,
+consult_reason                        varchar(255),  
+diabetes                              bit,           
+asthma                                bit,           
+malnutrition                          bit,           
+epilepsy                              bit,           
+hypertension                          bit,           
+prenatal_care                         bit,           
+mental_health                         bit,           
+asthma_cough                          bit,           
+asthma_waking                         bit,           
+asthma_medicate                       bit,           
+asthma_activity                       bit,           
+glucose                               double,        
+fasting                               bit,           
+hba1c                                 double,        
+proteinuria_diabetes                  int,           
+abdominal_circumference               double,        
+foot_exam                             varchar(255),  
+hypoglycemia_symptoms                 bit,            
+alcohol                               varchar(255),  
+tobacco                               varchar(255),  
+total_cholesterol                     double,        
+hdl                                   double,        
+ldl                                   double,        
+hearts                                bit,           
+hearts_change_treatment               bit,           
+hearts_cardiovascular_risk            double,        
+epilepsy_attacks_before               double,        
+epilepsy_attacks_last_4weeks          double,        
+planned_pregnancy                     bit,           
+unplanned_cause_contraceptive_failure bit,           
+unplanned_cause_violence              bit,           
+pregnancy_wanted                      bit,           
+lmp                                   date,          
+gestational_age                       double,        
+delivery_date_estimated               date,          
+pregnancies                           int,           
+births                                int,           
+cesarians                             int,           
+miscarriages                          int,           
+stillbirths                           int,           
+ultrasound_report                     text,          
+hiv_test_prenatal                     varchar(255),  
+vdrl_test                             varchar(255),  
+hemoglobin                            double,        
+proteinuria_prenatal                  double,        
+blood_type                            varchar(255),  
+vaccine_dtp                           bit,           
+glucose_tolerance_curve               varchar(255),  
+delivery_plan                         text,          
+phq9                                  int,           
+gad7                                  int,           
+physical_exam                         text,          
+tb_suspected                          bit,           
+tb_test                               varchar(255),  
+hiv_suspected                         bit,           
+hiv_test                              varchar(255),  
+covid_suspected                       bit,           
+covid_test                            varchar(255),  
+analysis                              text,          
+primary_dx_obs_group_id               int(11),       
+primary_diagnosis                     varchar(255),  
+secondary_diagnosis                   varchar(1200), 
+clinical_indication                   text,           
+ultrasound_type                       varchar(255),  
+ultrasound_measurement_used           varchar(255),  
+ultrasound_gestational_age            double,        
+delivery_date_ultrasound              date,          
+fetal_weight                          double,        
+diagnosis_change_ultrasound           bit,           
+birth_control_pills                   bit,           
+1month_injection                      bit,           
+2month_injection                      bit,           
+3month_injection                      bit,           
+implant                               bit,           
+birth_control_patch                   bit,           
+emergency_birth_control               bit,           
+iud_copper                            bit,           
+iud_mirena                            bit,           
+condoms                               bit,           
+mifepristone                          bit,           
+misoprostol                           bit,           
+iron_dextran                          bit,           
+next_visit_date                       date,          
+prueba_sifilis                        varchar(20),   
+prueba_hepb                           varchar(20),   
+prueba_clamidia                       varchar(20),   
+prueba_gonorrea                       varchar(20),   
+prueba_hepc                           varchar(20),   
+comentario_ultrasonido                text,          
+PHQ9_q1                               int,           
+PHQ9_q2                               int,           
+PHQ9_q3                               int,           
+PHQ9_q4                               int,           
+PHQ9_q5                               int,           
+PHQ9_q6                               int,           
+PHQ9_q7                               int,           
+PHQ9_q8                               int,           
+PHQ9_q9                               int,           
+PHQ9_score                            int,           
+GAD7_q1                               int,           
+GAD7_q2                               int,           
+GAD7_q3                               int,           
+GAD7_q4                               int,           
+GAD7_q5                               int,           
+GAD7_q6                               int,           
+GAD7_q7                               int,           
+GAD7_score                            int,           
+analysis_notes                        varchar(2000), 
+visit_end_status                      varchar(30),   
+psychosis                             boolean,       
+mood_disorder                         boolean,       
+anxiety                               boolean,       
+adaptive_disorders                    boolean,       
+dissociative_disorders                boolean,       
+psychosomatic_disorders               boolean,       
+eating_disorders                      boolean,       
+personality_disorders                 boolean,       
+conduct_disorders                     boolean,       
+suicidal_ideation                     boolean,       
+grief                                 boolean,       
+Treatment_plan                        varchar(5000), 
+lab_tests_ordered                     text,          
+visit_reason                          varchar(255),  
+visit_date                            datetime,      
+index_asc                             int(11),       
+index_desc                            int(11)        
 );
 
-INSERT INTO temp_consult(patient_id, emr_id,encounter_id, encounter_uuid, encounter_date, date_entered, user_entered, encounter_location, encounter_type, visit_id)
-SELECT patient_id, patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f916c5ec'), encounter_id,  uuid, encounter_datetime, date_created, person_name_of_user(creator), location_name(location_id), encounter_type_name_from_id(encounter_type), visit_id
+INSERT INTO temp_consult(patient_id, emr_id,encounter_id, encounter_uuid, encounter_date, date_entered,date_changed, user_entered, encounter_location, encounter_type, visit_id)
+SELECT patient_id, patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f916c5ec'), encounter_id,  uuid, encounter_datetime, date_created, date_changed ,person_name_of_user(creator), location_name(location_id), encounter_type_name_from_id(encounter_type), visit_id
 FROM encounter  WHERE voided = 0 AND encounter_type IN (@consultEncTypeId)
 ;
-
 
 update temp_consult t
 inner join person p on p.person_id = t.patient_id
 set t.person_uuid = p.uuid ;
+
+update temp_consult set age_at_encounter = age_at_enc(patient_id, encounter_id);
+
 
 update temp_consult t
 set provider = provider(t.encounter_id);
@@ -146,6 +185,7 @@ create index to_ci2 on temp_obs(encounter_id, value_coded);
 create index to_ci3 on temp_obs(encounter_id, concept_id,value_coded);
 create index to_ci4 on temp_obs(obs_group_id, concept_id,value_coded);
 
+update temp_consult set visit_date = visit_date(encounter_id);
 
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','6189') 
@@ -648,111 +688,318 @@ inner join temp_obs o on o.encounter_id = t.encounter_id AND
 	value_drug = @ssa_hierro_dextran
 set iron_dextran = if(o.obs_id is null,0,1);
 
+-- ############# PHQ-9 & GAD-7  Questions #####################################
+
+select concept_from_mapping('PIH','1090') into @never;
+select concept_from_mapping('PIH','1603') into @somedays;
+select concept_from_mapping('PIH','13660') into @morethanhalf;
+select concept_from_mapping('PIH','1100') into @daily;
+
+update temp_obs set value_numeric = 0 where value_coded = @never;
+update temp_obs set value_numeric = 1 where value_coded = @somedays;
+update temp_obs set value_numeric = 2 where value_coded = @morethanhalf;
+update temp_obs set value_numeric = 3 where value_coded = @daily;
+
+update temp_consult set PHQ9_q1 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13661');
+update temp_consult set PHQ9_q2 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13662');
+update temp_consult set PHQ9_q3 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13663');
+update temp_consult set PHQ9_q4 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13664');
+update temp_consult set PHQ9_q5 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13665');
+update temp_consult set PHQ9_q6 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13666');
+update temp_consult set PHQ9_q7 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13667');
+update temp_consult set PHQ9_q8 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13668');
+update temp_consult set PHQ9_q9 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13669');
+
+update temp_consult set GAD7_q1 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13671');
+update temp_consult set GAD7_q2 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13672');
+update temp_consult set GAD7_q3 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13673');
+update temp_consult set GAD7_q4 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13674');
+update temp_consult set GAD7_q5 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13675');
+update temp_consult set GAD7_q6 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13676');
+update temp_consult set GAD7_q7 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13677');
+
+update temp_consult set PHQ9_score = obs_value_numeric_from_temp(encounter_id, 'PIH', '11586');
+update temp_consult set GAD7_score = obs_value_numeric_from_temp(encounter_id, 'PIH', '11733');
+
+-- ------------- Indicators - psychosis -------------------------------------
+set @dx = concept_from_mapping('PIH','3064');
+set @schizophrenia = concept_from_mapping('PIH','467');
+set @acutePsychosis = concept_from_mapping('PIH','9519');
+set @psychosis = concept_from_mapping('PIH','219');
+set @maniaNoPsychosis = concept_from_mapping('PIH','9520');
+set @maniaWithPsychosis = concept_from_mapping('PIH','9518');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded IN 
+	(@schizophrenia,
+	@acutePsychosis,
+	@psychosis,
+	@maniaNoPsychosis,
+	@maniaWithPsychosis)
+set t.psychosis =1;	
+
+-- ------------- Indicators - mood disorder -------------------------------------
+set @bipolar = concept_from_mapping('PIH','7947');
+set @depression = concept_from_mapping('PIH','207');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded IN 
+	(@bipolar,
+	@depression)
+set t.mood_disorder =1;	
+/*
+UPDATE temp_consult t SET t.mood_disorder  = FALSE;
+UPDATE temp_consult t SET t.mood_disorder  = 
+				answerEverExists_from_temp(patient_id,'PIH','3064','PIH','7947',null) -- bipolar disorder
+                OR answerEverExists_from_temp(patient_id,'PIH','3064','PIH','207',null) -- depression
+               ;
+*/
+-- ------------- Indicators - anxiety -------------------------------------
+set @panic = concept_from_mapping('PIH','9330');
+set @anxietyDisorder = concept_from_mapping('PIH','9517');
+set @anxiety = concept_from_mapping('PIH','2719');
+set @ocd = concept_from_mapping('PIH','7513');
+set @stress = concept_from_mapping('PIH','7950');
+set @ptsd = concept_from_mapping('PIH','7197');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded IN 
+	(@panic,
+	@anxietyDisorder,
+	@anxiety,
+	@ocd,
+	@stress,
+	@ptsd)
+set t.anxiety =1;	
+
+-- ------------- Indicators - adaptive disorders -------------------------------------
+set @adaptive_disorders = concept_from_mapping('PIH','14367');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded = @adaptive_disorders
+set t.adaptive_disorders =1;	
+
+-- ------------- Indicators - dissociative disorders -------------------------------------
+set @dissociative_disorders = concept_from_mapping('PIH','7945');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded = @dissociative_disorders
+set t.dissociative_disorders =1;	
+
+-- ------------- Indicators - psychosomatic disorders -------------------------------------
+set @psychosomatic_disorders = concept_from_mapping('PIH','7198');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded = @psychosomatic_disorders
+set t.psychosomatic_disorders =1;
+
+-- ------------- Indicators - eating disorders -------------------------------------
+set @eating_disorders = concept_from_mapping('PIH','7944');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded = @eating_disorders
+set t.eating_disorders =1;
+
+-- ------------- Indicators - personality disorders -------------------------------------
+set @personality_disorders = concept_from_mapping('PIH','7943');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded = @personality_disorders
+set t.personality_disorders =1;
+
+-- ------------- Indicators - conduct disorders -------------------------------------
+set @conductDisorder = concept_from_mapping('PIH','7949');
+set @attentionDeficit = concept_from_mapping('PIH','11862');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded IN 
+	(@conductDisorder,
+	@attentionDeficit)
+set t.conduct_disorders =1;	
+
+-- ------------- Indicators - suicidal -------------------------------------
+set @suicidalThoughts = concept_from_mapping('PIH','10633');
+set @attemptedSuicide = concept_from_mapping('PIH','7514');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded IN 
+	(@suicidalThoughts,
+	@attemptedSuicide)
+set t.suicidal_ideation =1;
+
+-- ------------- Indicators - grief -------------------------------------
+set @grief = concept_from_mapping('PIH','6896');
+
+update temp_consult t
+inner join temp_obs o on o.person_id = t.patient_id
+	and o.concept_id = @dx
+	and o.value_coded = @grief
+set t.grief =1;
+
+-- lab tests ordered 
+update temp_consult set lab_tests_ordered = obs_value_text_from_temp(encounter_id, 'PIH', '11762');
+
+update temp_consult set visit_Reason = obs_value_coded_list_from_temp(encounter_id, 'PIH', '6189', 'en');
+
 -- The ascending/descending indexes are calculated ordering on the dispense date
 -- new temp tables are used to build them and then joined into the main temp table.
 
 select 
-CONCAT(@partition,'-',emr_id) "emr_id",
-person_uuid,
-CONCAT(@partition,'-',visit_id) "visit_id",
-CONCAT(@partition,'-',encounter_id) "encounter_id",
-encounter_uuid,
-encounter_type,
-encounter_date,
-encounter_location,
-date_entered,
-user_entered,
-provider,
-consult_reason,
-diabetes,
-asthma,
-malnutrition,
-epilepsy,
-hypertension,
-prenatal_care,
-mental_health,
-asthma_cough,
-asthma_waking,
-asthma_medicate,
-asthma_activity,
-glucose,
-fasting,
-hba1c,
-proteinuria_diabetes,
-abdominal_circumference,
-foot_exam,
-hypoglycemia_symptoms,
-alcohol,
-tobacco,
-total_cholesterol,
-hdl,
-ldl,
-hearts,
-hearts_change_treatment,
-hearts_cardiovascular_risk,
-epilepsy_attacks_before,
-epilepsy_attacks_last_4weeks,
-planned_pregnancy,
-unplanned_cause_contraceptive_failure,
-unplanned_cause_violence,
-pregnancy_wanted,
-lmp,
-gestational_age,
-delivery_date_estimated,
-pregnancies,
-births,
-cesarians,
-miscarriages,
-stillbirths,
-ultrasound_report,
-hiv_test_prenatal,
-vdrl_test,
-hemoglobin,
-proteinuria_prenatal,
-blood_type,
-vaccine_dtp,
-glucose_tolerance_curve,
-delivery_plan,
-phq9,
-gad7,
-physical_exam,
-tb_suspected,
-tb_test,
-hiv_suspected,
-hiv_test,
-covid_suspected,
-covid_test,
-analysis,
-primary_diagnosis,
-secondary_diagnosis,
-clinical_indication,					
-ultrasound_type,
-ultrasound_measurement_used,
-ultrasound_gestational_age,
-delivery_date_ultrasound,
-fetal_weight,
-diagnosis_change_ultrasound,
-birth_control_pills,
-1month_injection,
-2month_injection,
-3month_injection,
-implant,
-birth_control_patch,
-emergency_birth_control,
-iud_copper,
-iud_mirena,
-condoms,
-mifepristone,
-misoprostol,
-iron_dextran,
-next_visit_date,
-prueba_sifilis,
-prueba_hepb,
-prueba_clamidia,
-prueba_gonorrea,
-prueba_hepc,
-comentario_ultrasonido,
-index_asc,
-index_desc
+	CONCAT(@partition,'-',emr_id) "emr_id",
+	person_uuid,
+	CONCAT(@partition,'-',visit_id) "visit_id",
+	CONCAT(@partition,'-',encounter_id) "encounter_id",
+	encounter_uuid,
+	encounter_type,
+	encounter_date,
+	encounter_location,
+	date_entered,
+	user_entered,
+	date_changed,
+	visit_date,
+	provider,
+	visit_reason
+	age_at_encounter,
+	consult_reason,
+	diabetes,
+	asthma,
+	malnutrition,
+	epilepsy,
+	hypertension,
+	prenatal_care,
+	mental_health,
+	asthma_cough,
+	asthma_waking,
+	asthma_medicate,
+	asthma_activity,
+	glucose,
+	fasting,
+	hba1c,
+	proteinuria_diabetes,
+	abdominal_circumference,
+	foot_exam,
+	hypoglycemia_symptoms,
+	alcohol,
+	tobacco,
+	total_cholesterol,
+	hdl,
+	ldl,
+	hearts,
+	hearts_change_treatment,
+	hearts_cardiovascular_risk,
+	epilepsy_attacks_before,
+	epilepsy_attacks_last_4weeks,
+	planned_pregnancy,
+	unplanned_cause_contraceptive_failure,
+	unplanned_cause_violence,
+	pregnancy_wanted,
+	lmp,
+	gestational_age,
+	delivery_date_estimated,
+	pregnancies,
+	births,
+	cesarians,
+	miscarriages,
+	stillbirths,
+	ultrasound_report,
+	hiv_test_prenatal,
+	vdrl_test,
+	hemoglobin,
+	proteinuria_prenatal,
+	blood_type,
+	vaccine_dtp,
+	glucose_tolerance_curve,
+	delivery_plan,
+	phq9,
+	gad7,
+	physical_exam,
+	tb_suspected,
+	tb_test,
+	hiv_suspected,
+	hiv_test,
+	covid_suspected,
+	covid_test,
+	analysis,
+	primary_diagnosis,
+	secondary_diagnosis,
+	clinical_indication,					
+	ultrasound_type,
+	ultrasound_measurement_used,
+	ultrasound_gestational_age,
+	delivery_date_ultrasound,
+	fetal_weight,
+	diagnosis_change_ultrasound,
+	birth_control_pills,
+	1month_injection,
+	2month_injection,
+	3month_injection,
+	implant,
+	birth_control_patch,
+	emergency_birth_control,
+	iud_copper,
+	iud_mirena,
+	condoms,
+	mifepristone,
+	misoprostol,
+	iron_dextran,
+	next_visit_date,
+	prueba_sifilis,
+	prueba_hepb,
+	prueba_clamidia,
+	prueba_gonorrea,
+	prueba_hepc,
+	comentario_ultrasonido,
+	PHQ9_q1	,
+	PHQ9_q2	,
+	PHQ9_q3	,
+	PHQ9_q4	,
+	PHQ9_q5	,
+	PHQ9_q6	,
+	PHQ9_q7	,
+	PHQ9_q8	,
+	PHQ9_q9	,
+	PHQ9_score ,
+	GAD7_q1	,
+	GAD7_q2	,
+	GAD7_q3	,
+	GAD7_q4	,
+	GAD7_q5	,
+	GAD7_q6	,
+	GAD7_q7	,
+	GAD7_score ,
+	psychosis,
+	mood_disorder,         
+	anxiety,         
+	adaptive_disorders,         
+	dissociative_disorders,         
+	psychosomatic_disorders,         
+	eating_disorders,         
+	personality_disorders,         
+	conduct_disorders,         
+	suicidal_ideation,         
+	grief, 
+	lab_tests_ordered ,
+	index_asc,
+	index_desc
 from temp_consult
 ;
