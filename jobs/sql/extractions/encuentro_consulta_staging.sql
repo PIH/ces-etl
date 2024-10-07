@@ -27,7 +27,6 @@ date_changed                          datetime,
 provider                              varchar(255),  
 visit_id                              int(11),       
 age_at_encounter                      double,
-consult_reason                        varchar(255),  
 diabetes                              bit,           
 asthma                                bit,           
 malnutrition                          bit,           
@@ -186,10 +185,6 @@ create index to_ci3 on temp_obs(encounter_id, concept_id,value_coded);
 create index to_ci4 on temp_obs(obs_group_id, concept_id,value_coded);
 
 update temp_consult set visit_date = visit_date(encounter_id);
-
-update temp_consult t 
-inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','6189') 
-set t.consult_reason = concept_name(o.value_coded, @locale);
 
 -- program indicators
 select p.program_id into @diabetesProgId from program p where uuid = '3f038507-f4bc-4877-ade0-96ce170fc8eb';
@@ -880,7 +875,6 @@ select
 	provider,
 	visit_reason
 	age_at_encounter,
-	consult_reason,
 	diabetes,
 	asthma,
 	malnutrition,
