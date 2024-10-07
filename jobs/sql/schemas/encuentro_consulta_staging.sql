@@ -1,4 +1,4 @@
-CREATE TABLE encuentro_consulta_staging
+CREATE TABLE #encuentro_consulta_staging
 (
 emrid                                  varchar(50),   
 person_uuid                            char(38),       
@@ -13,9 +13,8 @@ entrada_persona                        varchar(255),
 fecha_cambiada                         datetime,      
 visita_fecha                           datetime,      
 proveedor                              varchar(255),  
-referido_por                           text,          
+referido_por                           varchar(255),          
 edad_encuentro                         float,         
-referido_por                           varchar(255),  
 diabetes                               bit,           
 asma                                   bit,           
 desnutrición                           bit,           
