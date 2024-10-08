@@ -873,7 +873,7 @@ select
 	date_changed,
 	visit_date,
 	provider,
-	visit_reason
+	visit_reason,
 	age_at_encounter,
 	diabetes,
 	asthma,
