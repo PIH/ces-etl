@@ -1,4 +1,4 @@
-CREATE TABLE #encuentro_consulta_staging
+CREATE TABLE encuentro_consulta_staging
 (
 emrid                                  varchar(50),   
 person_uuid                            char(38),       
