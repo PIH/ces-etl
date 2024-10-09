@@ -4,7 +4,7 @@ create table mh_encuentro
 emr_id                      varchar(30),
 person_uuid                 varchar(38),
 emr_instancia               varchar(30),
-edad_encuentro              float, -- change on schema!
+edad_encuentro              float,
 encuentro_id                varchar(30),
 encuentro_uuid              char(38),
 index_asc                   int,
@@ -40,8 +40,8 @@ gad7_p7                     int,
 gad7_total                  int,
 analisis                    varchar(2000),
 estatus_paciente            varchar(30),
-diagnostico                 varchar(1000),
-diagnostico_primario        varchar(1000),
+diagnosticos                text,
+diagnostico_primario        varchar(255),
 psicosis                    bit,
 trastorno_estado_de_animo   bit,
 trastornos_ansiedad         bit,
@@ -53,9 +53,7 @@ trastornos_personalidad     bit,
 trastornos_conducta         bit,
 ideacion_suicida            bit,
 duelo_y_perdida             bit,
--- indicaciones_medicas        varchar(5000), remove
 orden_laboratorio           varchar(5000),
--- remove medication columns from schema!
 proxima_cita                date
 );
 
@@ -78,7 +76,7 @@ mh.proveedor,
 mh.referido_por,
 mh.subjetivo,
 mh.control_prenatal,
--- parto_estimado_fecha
+mh.parto_estimado_fecha,
 mh.phq9_p1,
 mh.phq9_p2,
 mh.phq9_p3,
@@ -98,8 +96,7 @@ mh.gad7_p6,
 mh.gad7_p7,
 mh.gad7_total,
 mh.analisis,
--- estatus_paciente
--- diagnostico
+mh.diagnosticos,
 mh.diagnostico_primario,
 mh.psicosis,
 mh.trastorno_estado_de_animo,
@@ -133,7 +130,7 @@ ec.proveedor,
 ec.referido_por,
 ec.exploracion_fisica,
 ec.cuidado_prenatal,
--- parto_estimado_fecha
+ec.fecha_parto_estimada,
 ec.phq9_p1,
 ec.phq9_p2,
 ec.phq9_p3,
@@ -153,8 +150,7 @@ ec.gad7_p6,
 ec.gad7_p7,
 ec.gad7_total,
 ec.analisis,
--- estatus_paciente
--- diagnostico
+ec.diagnosticos
 ec.diagnostico_primario,
 ec.psicosis,
 ec.trastorno_estado_de_animo,
