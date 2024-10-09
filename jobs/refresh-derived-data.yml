@@ -10,6 +10,14 @@ configuration:
           path: "create-derived-table-in-warehouse.yml"
         iterations:
           - tableName: "deduplicate_tables"
+          - tableName: "dim_date"          
+    - type: "iterating-job"
+      description: "Create derived summary tables"
+      configuration:
+        jobTemplate:
+          path: "create-derived-table-in-warehouse.yml"
+        iterations:
+          - tableName: "salud_mental_encuentro"          
     - type: "iterating-job"
       description: "Create final derived tables"
       configuration:
@@ -17,4 +25,3 @@ configuration:
           path: "create-derived-table-in-warehouse.yml"
         iterations:
           - tableName: "update_index_asc_desc"
-          - tableName: "dim_date"
