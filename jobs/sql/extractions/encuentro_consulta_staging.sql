@@ -85,7 +85,8 @@ hiv_suspected                         bit,
 hiv_test                              varchar(255),  
 covid_suspected                       bit,           
 covid_test                            varchar(255),  
-analysis                              text,          
+analysis                              text,    
+diagnoses                             text,
 primary_dx_obs_group_id               int(11),       
 primary_diagnosis                     varchar(255),  
 secondary_diagnosis                   varchar(1200), 
@@ -476,6 +477,8 @@ update temp_consult t
 inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','10534')
 set clinical_indication =o.value_text;
 
+update temp_consult t set diagnoses = obs_value_coded_list_from_temp(encounter_id, 'PIH','3064',@locale);
+
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id AND 
 	o.concept_id = concept_from_mapping('PIH','7537') AND 
@@ -746,13 +749,7 @@ inner join temp_obs o on o.person_id = t.patient_id
 	(@bipolar,
 	@depression)
 set t.mood_disorder =1;	
-/*
-UPDATE temp_consult t SET t.mood_disorder  = FALSE;
-UPDATE temp_consult t SET t.mood_disorder  = 
-				answerEverExists_from_temp(patient_id,'PIH','3064','PIH','7947',null) -- bipolar disorder
-                OR answerEverExists_from_temp(patient_id,'PIH','3064','PIH','207',null) -- depression
-               ;
-*/
+
 -- ------------- Indicators - anxiety -------------------------------------
 set @panic = concept_from_mapping('PIH','9330');
 set @anxietyDisorder = concept_from_mapping('PIH','9517');
@@ -934,6 +931,7 @@ select
 	covid_suspected,
 	covid_test,
 	analysis,
+	diagnoses,
 	primary_diagnosis,
 	secondary_diagnosis,
 	clinical_indication,					
