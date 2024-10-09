@@ -18,7 +18,6 @@ configuration:
         iterations:
           - tableName: "merge_history"
           - tableName: "salud_mental_paciente_staging"
-          - tableName: "salud_mental_encuentro_staging"
           - tableName: "salud_mental_estatus_staging"
           - tableName: "ces_pacientes_staging"
           - tableName: "visitas_staging"
