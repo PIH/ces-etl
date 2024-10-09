@@ -150,7 +150,7 @@ ec.gad7_p6,
 ec.gad7_p7,
 ec.gad7_total,
 ec.analisis,
-ec.diagnosticos
+ec.diagnósticos,
 ec.diagnostico_primario,
 ec.psicosis,
 ec.trastorno_estado_de_animo,
