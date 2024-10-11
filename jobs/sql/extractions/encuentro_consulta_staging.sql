@@ -136,7 +136,8 @@ GAD7_q6                               int,
 GAD7_q7                               int,           
 GAD7_score                            int,           
 analysis_notes                        varchar(2000), 
-visit_end_status                      varchar(30),   
+mh_program_outcome_group_obs_id       int(11),
+mh_program_outcome                    varchar(30),   
 psychosis                             boolean,       
 mood_disorder                         boolean,       
 anxiety                               boolean,       
@@ -848,9 +849,26 @@ inner join temp_obs o on o.person_id = t.patient_id
 	and o.value_coded = @grief
 set t.grief =1;
 
+-- mh program outcome
+set @program = concept_from_mapping('PIH','13177');
+set @mh = concept_from_mapping('PIH','11574');
+update temp_consult t
+inner join temp_obs o on o.encounter_id = t.encounter_id
+	and o.concept_id = @program 
+	and o.value_coded = @mh
+set mh_program_outcome_group_obs_id = obs_group_id;
+
+set @program_outcome = concept_from_mapping('PIH','14310');
+
+update temp_consult t
+inner join temp_obs o on o.obs_group_id = mh_program_outcome_group_obs_id
+	and o.concept_id = @program_outcome 
+set	mh_program_outcome = concept_name(o.value_coded, @locale);
+
 -- lab tests ordered 
 update temp_consult set lab_tests_ordered = obs_value_text_from_temp(encounter_id, 'PIH', '11762');
 
+-- visit reason
 update temp_consult set visit_Reason = obs_value_coded_list_from_temp(encounter_id, 'PIH', '6189', 'en');
 
 -- The ascending/descending indexes are calculated ordering on the dispense date
@@ -990,6 +1008,7 @@ select
 	conduct_disorders,         
 	suicidal_ideation,         
 	grief, 
+	mh_program_outcome,
 	lab_tests_ordered ,
 	index_asc,
 	index_desc
