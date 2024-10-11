@@ -53,6 +53,7 @@ trastornos_personalidad     bit,
 trastornos_conducta         bit,
 ideacion_suicida            bit,
 duelo_y_perdida             bit,
+resultado_salud_mental      varchar(255),
 orden_laboratorio           varchar(5000),
 proxima_cita                date
 );
@@ -109,6 +110,7 @@ mh.trastornos_personalidad,
 mh.trastornos_conducta,
 mh.ideacion_suicida,
 mh.duelo_y_perdida,
+mh.resultado_salud_mental,
 mh.orden_laboratorio,
 mh.proxima_cita)
 select 
@@ -163,6 +165,7 @@ ec.trastornos_personalidad,
 ec.trastornos_conducta,
 ec.ideacion_suicida,
 ec.duelo_y_perdida,
+ec.resultado_salud_mental,
 ec.orden_laboratorio,
 ec.proxima_cita
 from encuentro_consulta ec
