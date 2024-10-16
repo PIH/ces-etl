@@ -172,5 +172,25 @@ from encuentro_consulta ec
 inner join salud_mental_paciente smp on ec.emrid = smp.emr_id
 ; 
 
+UPDATE tmp 
+SET index_asc = x.index_asc
+FROM mh_encuentro tmp INNER JOIN (
+SELECT emr_id,encuentro_fecha,encuentro_id,
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, encuentro_fecha asc, encuentro_id asc) index_asc
+FROM mh_encuentro) x 
+ON tmp.emr_id=x.emr_id 
+AND tmp.encuentro_fecha = x.encuentro_fecha 
+AND tmp.encuentro_id=x.encuentro_id;
+
+UPDATE tmp 
+SET index_desc = x.index_desc
+FROM mh_encuentro tmp INNER JOIN (
+SELECT emr_id,encuentro_fecha,encuentro_id,
+rank() over(PARTITION BY emr_id ORDER BY emr_id asc, encuentro_fecha desc, encuentro_id desc) index_desc
+FROM mh_encuentro) x 
+ON tmp.emr_id=x.emr_id 
+AND tmp.encuentro_fecha = x.encuentro_fecha 
+AND tmp.encuentro_id=x.encuentro_id;
+
 DROP TABLE IF EXISTS salud_mental_encuentro;
 EXEC sp_rename 'mh_encuentro', 'salud_mental_encuentro';
