@@ -28,9 +28,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/PIH/openmrs-ces-etl.git</connection>
-        <developerConnection>scm:git:ssh://github.com:PIH/ces-etl.git</developerConnection>
-        <url>https://github.com/PIH/ces-etl</url>
+        <connection>scm:git:git@github.com:PIH/ces-etl.git</connection>
+        <developerConnection>scm:git:git@github.com:PIH/ces-etl.git</developerConnection>
+        <url>scm:git:git@github.com:PIH/ces-etl.git</url>
     </scm>
 
     <distributionManagement>
@@ -58,8 +58,29 @@
         <petlJobExtractionSqlDir>${project.build.directory}/ces-etl/jobs/sql/extractions/</petlJobExtractionSqlDir>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.pih.openmrs</groupId>
+            <artifactId>openmrs-config-ces</artifactId>
+            <version>1.37.0-SNAPSHOT</version>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.16.0</version>
+                <configuration>
+                    <allowSnapshots>true</allowSnapshots>
+                    <allowMajorUpdates>true</allowMajorUpdates>
+                    <allowMinorUpdates>true</allowMinorUpdates>
+                    <allowIncrementalUpdates>true</allowIncrementalUpdates>
+                    <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -69,24 +90,17 @@
                         <id>unpack</id>
                         <phase>compile</phase>
                         <goals>
-                            <goal>unpack</goal>
+                            <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.pih.openmrs</groupId>
-                                    <artifactId>openmrs-config-ces</artifactId>
-                                    <version>1.37.0-SNAPSHOT</version>
-                                    <type>zip</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/openmrs-config-ces</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
+                            <includes>**/*</includes>
+                            <outputDirectory>${project.build.directory}/openmrs-config-ces</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.2.0</version>
