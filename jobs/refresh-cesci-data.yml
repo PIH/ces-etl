@@ -6,10 +6,6 @@ configuration:
   jobs:
     - type: "iterating-job"
       description: "Refreshing OpenMRS Data for CES-CI"
-      errorHandling:
-        maxAttempts: 10
-        retryInterval: 15
-        retryIntervalUnit: "MINUTES"
       configuration:
         maxConcurrentJobs: 1
         iterations:
