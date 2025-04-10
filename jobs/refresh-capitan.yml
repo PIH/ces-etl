@@ -1,0 +1,8 @@
+type: "iterating-job"
+description: "Refresh capitan Data"
+configuration:
+  iterations:
+    - siteName: "capitan"
+      partitionNum: "2"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

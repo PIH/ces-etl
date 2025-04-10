@@ -1,0 +1,8 @@
+type: "iterating-job"
+description: "Refresh matazano Data"
+configuration:
+  iterations:
+    - siteName: "matazano"
+      partitionNum: "6"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

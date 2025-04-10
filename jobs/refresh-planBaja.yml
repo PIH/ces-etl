@@ -1,0 +1,8 @@
+type: "iterating-job"
+description: "Refresh planBaja Data"
+configuration:
+  iterations:
+    - siteName: "planBaja"
+      partitionNum: "8"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

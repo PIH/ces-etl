@@ -13,29 +13,15 @@ configuration:
           retryInterval: 60
           retryIntervalUnit: "MINUTES"
         iterations:
-          - siteName: "jaltenango"   #siteName is populated in each table and also used to identify the appropriate data source
-            partitionNum: "1"     #partitionNum is used to identify the sqlserver partition that this site's data is loaded into
+          - siteName: "jaltenango"
           - siteName: "capitan"
-            partitionNum: "2"
           - siteName: "honduras"
-            partitionNum: "3"
           - siteName: "laguna"
-            partitionNum: "4"
           - siteName: "letrero"
-            partitionNum: "5"
           - siteName: "matazano"
-            partitionNum: "6"
           - siteName: "planBaja"
-            partitionNum: "8"
           - siteName: "planAlta"
-            partitionNum: "9"
           - siteName: "reforma"
-            partitionNum: "10"
           - siteName: "salvador"
-            partitionNum: "11"
           - siteName: "soledad"
-            partitionNum: "12"
-        jobTemplate:
-          path: "refresh-base-tables.yml"
-
     - path: "refresh-derived-data.yml"

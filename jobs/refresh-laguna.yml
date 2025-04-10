@@ -1,0 +1,8 @@
+type: "iterating-job"
+description: "Refresh laguna Data"
+configuration:
+  iterations:
+    - siteName: "laguna"
+      partitionNum: "4"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

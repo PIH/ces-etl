@@ -1,7 +1,7 @@
 type: "job-pipeline"
 description: "Test job"
 parameters:
-  siteName: "reforma"
+  siteName: "cesci"
   partitionNum: "10"
 configuration:
   jobs:

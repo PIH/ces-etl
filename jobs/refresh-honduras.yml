@@ -1,0 +1,8 @@
+type: "iterating-job"
+description: "Refresh honduras Data"
+configuration:
+  iterations:
+    - siteName: "honduras"
+      partitionNum: "3"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

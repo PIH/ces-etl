@@ -1,0 +1,8 @@
+type: "iterating-job"
+description: "Refresh soledad Data"
+configuration:
+  iterations:
+    - siteName: "soledad"
+      partitionNum: "12"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

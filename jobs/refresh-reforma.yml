@@ -1,0 +1,8 @@
+type: "iterating-job"
+description: "Refresh reforma Data"
+configuration:
+  iterations:
+    - siteName: "reforma"
+      partitionNum: "10"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

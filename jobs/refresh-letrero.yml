@@ -1,0 +1,8 @@
+type: "iterating-job"
+description: "Refresh letrero Data"
+configuration:
+  iterations:
+    - siteName: "letrero"
+      partitionNum: "5"
+  jobTemplate:
+    path: "refresh-base-tables.yml"

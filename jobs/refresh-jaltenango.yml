@@ -1,0 +1,8 @@
+type: "iterating-job"
+description: "Refresh jaltenango Data"
+configuration:
+  iterations:
+    - siteName: "jaltenango"
+      partitionNum: "1"
+  jobTemplate:
+    path: "refresh-base-tables.yml"
