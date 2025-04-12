@@ -20,4 +20,6 @@ configuration:
           - siteName: "reforma"
           - siteName: "salvador"
           - siteName: "soledad"
+        jobTemplate:
+          path: "refresh-${siteName}.yml"
     - path: "refresh-derived-data.yml"
