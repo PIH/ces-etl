@@ -482,7 +482,8 @@ update temp_consult t
 inner join temp_obs o on o.encounter_id = t.encounter_id and o.concept_id = concept_from_mapping('PIH','10534')
 set clinical_indication =o.value_text;
 
-update temp_consult t set diagnoses = obs_value_coded_list_from_temp(encounter_id, 'PIH','3064',@locale);
+set @dx = concept_from_mapping('PIH','3064');
+update temp_consult t set diagnoses = obs_value_coded_list_from_temp_using_concept_id(encounter_id, @dx, @locale);
 
 update temp_consult t 
 inner join temp_obs o on o.encounter_id = t.encounter_id AND 
@@ -703,26 +704,45 @@ update temp_obs set value_numeric = 1 where value_coded = @somedays;
 update temp_obs set value_numeric = 2 where value_coded = @morethanhalf;
 update temp_obs set value_numeric = 3 where value_coded = @daily;
 
-update temp_consult set PHQ9_q1 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13661');
-update temp_consult set PHQ9_q2 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13662');
-update temp_consult set PHQ9_q3 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13663');
-update temp_consult set PHQ9_q4 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13664');
-update temp_consult set PHQ9_q5 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13665');
-update temp_consult set PHQ9_q6 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13666');
-update temp_consult set PHQ9_q7 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13667');
-update temp_consult set PHQ9_q8 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13668');
-update temp_consult set PHQ9_q9 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13669');
+set @PHQ9_q1 = concept_from_mapping('PIH','13661');
+set @PHQ9_q2 = concept_from_mapping('PIH','13662');
+set @PHQ9_q3 = concept_from_mapping('PIH','13663');
+set @PHQ9_q4 = concept_from_mapping('PIH','13664');
+set @PHQ9_q5 = concept_from_mapping('PIH','13665');
+set @PHQ9_q6 = concept_from_mapping('PIH','13666');
+set @PHQ9_q7 = concept_from_mapping('PIH','13667');
+set @PHQ9_q8 = concept_from_mapping('PIH','13668');
+set @PHQ9_q9 = concept_from_mapping('PIH','13669');
+set @GAD7_q1 = concept_from_mapping('PIH','13671');
+set @GAD7_q2 = concept_from_mapping('PIH','13672');
+set @GAD7_q3 = concept_from_mapping('PIH','13673');
+set @GAD7_q4 = concept_from_mapping('PIH','13674');
+set @GAD7_q5 = concept_from_mapping('PIH','13675');
+set @GAD7_q6 = concept_from_mapping('PIH','13676');
+set @GAD7_q7 = concept_from_mapping('PIH','13677');
+set @PHQ9_score = concept_from_mapping('PIH','11586');
+set @GAD7_score = concept_from_mapping('PIH','11733');
 
-update temp_consult set GAD7_q1 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13671');
-update temp_consult set GAD7_q2 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13672');
-update temp_consult set GAD7_q3 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13673');
-update temp_consult set GAD7_q4 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13674');
-update temp_consult set GAD7_q5 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13675');
-update temp_consult set GAD7_q6 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13676');
-update temp_consult set GAD7_q7 = obs_value_numeric_from_temp(encounter_id, 'PIH', '13677');
+update temp_consult set PHQ9_q1 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_q1);
+update temp_consult set PHQ9_q2 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_q2);
+update temp_consult set PHQ9_q3 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_q3);
+update temp_consult set PHQ9_q4 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_q4);
+update temp_consult set PHQ9_q5 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_q5);
+update temp_consult set PHQ9_q6 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_q6);
+update temp_consult set PHQ9_q7 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_q7);
+update temp_consult set PHQ9_q8 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_q8);
+update temp_consult set PHQ9_q9 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_q9);
 
-update temp_consult set PHQ9_score = obs_value_numeric_from_temp(encounter_id, 'PIH', '11586');
-update temp_consult set GAD7_score = obs_value_numeric_from_temp(encounter_id, 'PIH', '11733');
+update temp_consult set GAD7_q1 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @GAD7_q1);
+update temp_consult set GAD7_q2 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @GAD7_q2);
+update temp_consult set GAD7_q3 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @GAD7_q3);
+update temp_consult set GAD7_q4 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @GAD7_q4);
+update temp_consult set GAD7_q5 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @GAD7_q5);
+update temp_consult set GAD7_q6 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @GAD7_q6);
+update temp_consult set GAD7_q7 = obs_value_numeric_from_temp_using_concept_id(encounter_id, @GAD7_q7);
+
+update temp_consult set PHQ9_score = obs_value_numeric_from_temp_using_concept_id(encounter_id, @PHQ9_score);
+update temp_consult set GAD7_score = obs_value_numeric_from_temp_using_concept_id(encounter_id, @GAD7_score);
 
 -- ------------- Indicators - psychosis -------------------------------------
 set @dx = concept_from_mapping('PIH','3064');
@@ -870,10 +890,12 @@ inner join temp_obs o on o.obs_group_id = mh_program_outcome_group_obs_id
 set	mh_program_outcome = concept_name(o.value_coded, @locale);
 
 -- lab tests ordered 
-update temp_consult set lab_tests_ordered = obs_value_text_from_temp(encounter_id, 'PIH', '11762');
+set @lab_test = concept_from_mapping('PIH','6189');
+update temp_consult set lab_tests_ordered = obs_value_text_from_temp_using_concept_id(encounter_id, @lab_test);
 
 -- visit reason
-update temp_consult set visit_Reason = obs_value_coded_list_from_temp(encounter_id, 'PIH', '6189', 'en');
+set @visit_reason = concept_from_mapping('PIH','6189');
+update temp_consult set visit_Reason = obs_value_coded_list_from_temp_using_concept_id(encounter_id, @visit_reason, 'en');
 
 -- The ascending/descending indexes are calculated ordering on the dispense date
 -- new temp tables are used to build them and then joined into the main temp table.
