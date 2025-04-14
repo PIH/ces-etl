@@ -162,6 +162,10 @@ SELECT patient_id, patient_identifier(patient_id,'506add39-794f-11e8-9bcd-74e5f9
 FROM encounter  WHERE voided = 0 AND encounter_type IN (@consultEncTypeId)
 ;
 
+create index tc_ci1 on temp_consult(patient_id);
+create index tc_ci2 on temp_consult(encounter_id);
+create index tc_ci3 on temp_consult(patient_id, encounter_id);
+
 update temp_consult t
 inner join person p on p.person_id = t.patient_id
 set t.person_uuid = p.uuid ;
