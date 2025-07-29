@@ -5,5 +5,9 @@ CREATE TABLE usuario_credenciales
     fecha_iniciar_sesion    datetime,
     fecha_cerrar_sesion     datetime,
     fecha_expirar           datetime,
-    duracion_minutos_activos    int
+    duracion_minutos_activos int,
+    ip_address              varchar(40),
+    index_asc               int,
+    index_desc              int
+    
 );
