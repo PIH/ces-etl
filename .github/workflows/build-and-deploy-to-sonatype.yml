@@ -29,18 +29,12 @@ jobs:
   deploy-to-ces-ci:
     if: github.repository_owner == 'PIH'
     needs: build-and-publish
-    runs-on: ubuntu-latest
     concurrency:
       group: deploy-to-ces-ci-${{ github.ref }}
       cancel-in-progress: true
-    steps:
-      - name: Deploy to ces-ci
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: 'https://bamboo-ci.pih-emr.org/rest/api/latest/queue/OMRS-ETLDEPLOYTOCESCI'
-          method: 'POST'
-          bearerToken: ${{ secrets.PIH_BAMBOO_API_KEY }}
-          customHeaders: '{"Accept": "application/json"}'
-          retry: 60
-          retryWait: 60000
-          ignoreStatusCodes: 400
+    uses: PIH/openmrs-contrib-distro-tools/.github/workflows/deploy-via-runner.yml@main
+    with:
+      runner-label: ces-ci
+      puppet-manifest: petl
+      run-etl: true
+    secrets: inherit
