@@ -37,4 +37,3 @@ jobs:
       runner-label: ces-ci
       puppet-manifest: petl
       run-etl: true
-    secrets: inherit
