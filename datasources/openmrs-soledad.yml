@@ -5,4 +5,4 @@ databaseName: ${datasources.openmrs.soledad.databaseName}
 user: ${datasources.openmrs.soledad.user}
 password: ${datasources.openmrs.soledad.password}
 options: ${datasources.openmrs.soledad.options}
-containerName: ${datasources.openmrs.soledad.containerName}
+containerName: ${datasources.openmrs.soledad.containerName:}
