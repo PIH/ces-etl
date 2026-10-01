@@ -27,6 +27,9 @@ jobs:
     with:
       image_name: partnersinhealth/ces-etl
       docker_context: target/docker
+      # After a new PETL image (petl's workflow sends petl-image-published), build on exactly that image,
+      # so this build and its CI run test it; an event without one fails the build (empty base image).
+      docker_build_args: ${{ github.event.action == 'petl-image-published' && format('PETL_BASE_IMAGE={0}', github.event.client_payload.petl_image) || '' }}
       notify_ci_dashboard: true
     secrets: inherit
 
