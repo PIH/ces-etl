@@ -1,6 +1,7 @@
 # The image's application.yml. Per-server values come from the environment (distro-tools' petl
 # service sets PETL_MYSQL_* and PETL_SQLSERVER_*); any other property can be set by its Spring env
-# name, e.g. DATASOURCES_OPENMRS_CAPITAN_HOST. PETL's own job history is set by PETL_JOBSTORE.
+# name, e.g. DATASOURCES_OPENMRS_CAPITAN_HOST. PETL's own job history is spring.datasource: H2 by
+# default, or SQL Server from SPRING_DATASOURCE_* (puppet's job_store => 'sqlserver').
 petl:
   homeDir: "/home/petl"
   datasourceDir: "${petl.homeDir}/configurations/datasources"
