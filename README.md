@@ -30,8 +30,10 @@ can be "deployed" independently of `config-ces` and the EMR.
 `partnersinhealth/petl`. CI builds and pushes it (`Dockerfile`, build context `target/docker/`,
 populated by `mvn package`) on every push to `master` and on every release, tagged `latest` and the
 version. To build it locally: `./build-runtime-docker-image.sh`, which layers on a locally built
-`partnersinhealth/petl:local`. When a new PETL image is published, petl's
-workflow triggers this build with that image's digest, and the image is built on exactly it.
+`partnersinhealth/petl:local`. The `Dockerfile` pins
+the PETL base image by digest; Renovate (`renovate.json`) opens a PR when a newer image is published
+for the tag it follows, merged automatically once its checks pass. To stay on a PETL version, pin
+that version's tag instead of `latest`.
 
 It runs as [openmrs-contrib-distro-tools](https://github.com/PIH/openmrs-contrib-distro-tools)'
 `petl` service (see its `docs/services.md`), e.g. for ces-ci:
