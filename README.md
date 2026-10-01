@@ -22,3 +22,24 @@ because at the time of this writing (Oct 2021), CES ETL is colocated
 with the CES Laguna EMR  (a production system), which means that deploying
 `config-ces` causes EMR downtime. The config files in this directory
 can be "deployed" independently of `config-ces` and the EMR.
+
+# Docker image
+
+`partnersinhealth/ces-etl` layers this project's `datasources/`, `jobs/` and `application-docker.yml`
+(as its `application.yml`) on the [PETL](https://github.com/PIH/petl) base image,
+`partnersinhealth/petl`. CI builds and pushes it (`Dockerfile`, build context `target/docker/`,
+populated by `mvn package`) on every push to `master` and on every release, tagged `latest` and the
+version. To build it locally: `./build-runtime-docker-image.sh`, which layers on a locally built
+`partnersinhealth/petl:local`.
+
+It runs as [openmrs-contrib-distro-tools](https://github.com/PIH/openmrs-contrib-distro-tools)'
+`petl` service (see its `docs/services.md`), e.g. for ces-ci:
+
+    PETL_IMAGE_NAME=partnersinhealth/ces-etl
+    PETL_FULL_REFRESH_JOBS="create-partitions.yml refresh-cesci-data.yml"
+    PETL_SQLSERVER_DATABASE=openmrs_ces_ci
+
+`application-docker.yml` maps the `cesci` OpenMRS datasource and the `warehouse` SQL Server
+datasource onto distro-tools' `PETL_MYSQL_*` and `PETL_SQLSERVER_*` variables. The other sites'
+datasources aren't set; set one by its Spring environment-variable name where it's needed (e.g.
+`DATASOURCES_OPENMRS_CAPITAN_HOST`).

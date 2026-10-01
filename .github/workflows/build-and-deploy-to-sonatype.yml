@@ -25,6 +25,8 @@ jobs:
       cancel-in-progress: true
     uses: PIH/openmrs-contrib-distro-tools/.github/workflows/build-and-deploy-to-sonatype.yml@main
     with:
+      image_name: partnersinhealth/ces-etl
+      docker_context: target/docker
       notify_ci_dashboard: true
     secrets: inherit
 
